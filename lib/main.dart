@@ -1,3 +1,4 @@
+import 'package:band_front/pages/router.dart';
 import 'package:flutter/material.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'login.dart';
@@ -6,25 +7,22 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   KakaoSdk.init(
-    nativeAppKey: '3cc9dbe84f884464bd5b85837b7ffb24',
-    //javaScriptAppKey: 'f28be44086377e58689b77fd56e53787',
+    nativeAppKey: '73a1fd675447ff78421025b9d793648d',
+    javaScriptAppKey: 'cb88712593a98c7099de35c7dc12bfca',
   );
 
-  runApp(const Band());
+  runApp(const BandApp());
 }
 
-class Band extends StatelessWidget {
-  const Band({super.key});
+class BandApp extends StatelessWidget {
+  const BandApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const LogInPage(title: 'Flutter Demo Home Page'),
+    return MaterialApp.router(
+      routerConfig: route,
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(),
     );
   }
 }

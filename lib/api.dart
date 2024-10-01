@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class AuthInfoApi {
+  final String _url =
+      "https://v7csinomac.execute-api.ap-northeast-2.amazonaws.com";
   String? _accessToken;
   String? _refreshToken;
 
@@ -13,6 +15,7 @@ class AuthInfoApi {
   factory AuthInfoApi() => _instance;
 
   //getter
+  String get url => _url;
   String? get accessToken => _accessToken;
   String? get refreshToken => _refreshToken;
 
@@ -218,11 +221,14 @@ class HttpMethod {
 class LogInApi {
   static final AuthInfoApi _authInfoApi = AuthInfoApi();
 
-  static Future<void> login() async {
-    var url = Uri.parse("ServerUrl"); //주소가 머야
+  static Future<void> login(String accessToken) async {
+    //1. token 저장
+    _authInfoApi.setAccessToken(accessToken: accessToken);
+
+    var url = Uri.parse("${_authInfoApi.url}/user/login");
     var header = {
       'token': 'Bearer ${_authInfoApi.accessToken}',
-      'provider': "kakao", //이거 그냥 이렇게쓰면되는거여?
+      'provider': "kakao",
     };
 
     http.Response? response = await HttpMethod.tryGet("log in", url, header);
@@ -240,8 +246,8 @@ class LogInApi {
   }
 
   static Future<void> reissue() async {
-    var url = Uri.parse("ServerUrl");
-    var header = {'token': 'Bearer ${_authInfoApi.refreshToken}'};
+    var url = Uri.parse("${_authInfoApi.url}/user/refresh");
+    var header = {'token': '${_authInfoApi.refreshToken}'};
 
     http.Response? response = await HttpMethod.tryGet("reissue", url, header);
 
@@ -258,8 +264,8 @@ class LogInApi {
   }
 
   static Future<void> logout() async {
-    var url = Uri.parse("ServerUrl");
-    var header = {'token': 'Bearer ${_authInfoApi.accessToken}'};
+    var url = Uri.parse("${_authInfoApi.url}/user/logout");
+    var header = {'accessToken': '${_authInfoApi.accessToken}'};
 
     http.Response? response = await HttpMethod.tryGet("logout", url, header);
 
