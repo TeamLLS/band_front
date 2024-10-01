@@ -1,14 +1,18 @@
 # band_front
 
+# setting
+1. regist android platform
+1) 해시 키 등록 - KakaoSdk.origin으로 생성 가능
+2) app/build.gradle의 applicationId에서 패키지명 찾아 입력
+3) web에서 redirect url 등록
+4) dash board에서 카카오 로그인, redirect url(필요 시) 설정
+5) 앱 키를 플러터 어플에 기재
 
-# 오류
-1. 카카오 로그인 "동의하고 계속하기"이후 진행 안됨 이슈
-https://devtalk.kakao.com/t/android-sdk-v2/137261
-
-1) settings.gradle에 다음 줄 추가
+2. android setting
+1) settings.gradle
 maven { url = "https://devrepo.kakao.com/nexus/content/groups/public/" }
 
-2) build.gradle.kts(Module) 파일에 dependencies 추가
+2) app/build.gradle.kts(Module)
 -> android/app에
 repositories {
     google()
@@ -44,3 +48,18 @@ minSdk = 23
                     android:scheme="kakao73a1fd675447ff78421025b9d793648d" />
             </intent-filter>
         </activity>
+
+
+
+
+# 오류
+1. 카카오 로그인 "동의하고 계속하기"이후 진행 안됨 이슈
+-> 카톡 없을 경우 웹 로그인
+https://devtalk.kakao.com/t/android-sdk-v2/137261
+
+themeactivity 설정
+-> AndroidManifest.xml
+
+-> app/build.gradle
+implementation 'androidx.appcompat:appcompat:1.6.1' // Ensure you have AppCompat dependency
+implementation 'com.google.android.material:material:1.9.0' // Material Components dependency
