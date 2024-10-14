@@ -1,6 +1,4 @@
 import 'dart:developer';
-
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:flutter/material.dart';
@@ -55,6 +53,16 @@ class _LogInPageState extends State<LogInPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            ElevatedButton(
+              onPressed: () async => context.go('/myClubList'),
+              child: const Text("pass without login"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                context.go('/myClubList');
+              },
+              child: const Text("pass with test user"),
+            ),
             ElevatedButton(
               onPressed: () async {
                 await kakaoLogin().then(

@@ -1,5 +1,17 @@
 # band_front
 
+# 회의 때 말할 것
+
+
+# issueing
+https://www.eleken.co/blog-posts/tips-for-better-ux-readability-dos-and-donts
+
+- 디자인
+흰 바탕, 검은 글씨 통일
+-> 구분감을 주기 위해 그림자를 많이 짙게 사용
+포인트 색을 지정하여 포인트에만 사용
+
+
 # setting
 1. regist android platform
 1) 해시 키 등록 - KakaoSdk.origin으로 생성 가능
