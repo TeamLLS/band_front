@@ -1,4 +1,4 @@
-////////////////모임, 속해있는 인원들//////////////////////////////////
+////////////////////////모임, 속해있는 인원들//////////////////////////////////
 
 class Member {
   final int id;
@@ -114,4 +114,58 @@ class Activity {
       createdAt: DateTime.parse(json['createdAt']),
     );
   }
+}
+
+////////////////////profile data////////////////////////////////////////////////
+
+class Profile {
+  final int userId;
+  final String username;
+  final String name;
+  final int age;
+  final String gender;
+  final String phNum;
+  final String email;
+  final String description;
+  final String image;
+
+  Profile({
+    required this.userId,
+    required this.username,
+    required this.name,
+    required this.age,
+    required this.gender,
+    required this.phNum,
+    required this.email,
+    required this.description,
+    required this.image,
+  });
+
+  factory Profile.fromJson(Map<String, dynamic> json) {
+    return Profile(
+      userId: json['userId'],
+      username: json['username'],
+      name: json['name'],
+      age: json['age'],
+      gender: json['gender'],
+      phNum: json['phNum'],
+      email: json['email'],
+      description: json['description'],
+      image: json['image'],
+    );
+  }
+
+  // Map<String, dynamic> toJson() {
+  //   return {
+  //     'userId': userId,
+  //     'username': username,
+  //     'name': name,
+  //     'age': age,
+  //     'gender': gender,
+  //     'phNum': phNum,
+  //     'email': email,
+  //     'description': description,
+  //     'image': image,
+  //   };
+  // }
 }

@@ -7,10 +7,13 @@ import 'login.dart';
 import 'pages/myclubs.dart';
 import 'pages/clubdetail.dart';
 import 'pages/profile.dart';
+import 'pages/members.dart';
 
 class RouterPath {
   static const String myProfilePage = '/myClubList/myProfile';
+
   static const String clubDetailPage = '/myClubList/clubDetail';
+  static const String members = '/myClubList/clubDetail/members';
 }
 
 // context.go(
@@ -33,9 +36,15 @@ final GoRouter route = GoRouter(
               builder: (context, state) {
                 final Map<String, dynamic>? argument =
                     state.extra as Map<String, dynamic>?;
-                final String data = argument?['clubId'];
+                var data = argument?['clubId'];
                 return ClubDetail(clubId: data);
               },
+              routes: [
+                GoRoute(
+                  path: 'members',
+                  builder: (context, state) => const Members(),
+                ),
+              ],
             ),
             GoRoute(
               path: 'myProfile',

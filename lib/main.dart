@@ -44,6 +44,14 @@ class BandApp extends StatelessWidget {
             borderRadius: BorderRadius.circular(50.0),
           ),
         ),
+        listTileTheme: ListTileThemeData(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(40.0),
+            side: BorderSide(width: 0.2),
+          ),
+          tileColor: Colors.white,
+          selectedTileColor: Colors.grey.shade200, // 선택된 타일의 배경색
+        ),
         textTheme: const TextTheme(
           displayLarge: TextStyle(fontWeight: FontWeight.w600),
           displayMedium: TextStyle(fontWeight: FontWeight.w600),
@@ -55,7 +63,10 @@ class BandApp extends StatelessWidget {
           titleMedium: TextStyle(fontWeight: FontWeight.w600),
           titleSmall: TextStyle(fontWeight: FontWeight.w600),
           bodyLarge: TextStyle(fontWeight: FontWeight.w600),
-          bodyMedium: TextStyle(fontWeight: FontWeight.w600), //text widget
+          bodyMedium: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+          ), //text widget
           bodySmall: TextStyle(fontWeight: FontWeight.w600),
           labelLarge: TextStyle(fontWeight: FontWeight.w600),
           labelMedium: TextStyle(fontWeight: FontWeight.w600),

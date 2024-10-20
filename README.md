@@ -1,7 +1,7 @@
 # band_front
 
 # 회의 때 말할 것
-
+프로필에 내가 속해 있는 클럽들 표시?
 
 # issueing
 https://www.eleken.co/blog-posts/tips-for-better-ux-readability-dos-and-donts

@@ -31,7 +31,7 @@ class _MyClubsPageState extends State<MyClubsPage> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text("어그래 안녕"),
+        title: const Text("나의 모임들"),
         actions: [
           IconButton(
             icon: const Icon(Icons.add_circle_outline),
@@ -57,17 +57,25 @@ class _MyClubsPageState extends State<MyClubsPage> {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 double parentWidth = constraints.maxWidth;
-                return Container(
-                  height: parentWidth,
-                  child: Column(
-                    children: [
-                      Image.asset(
-                        'assets/images/test1.png',
-                        fit: BoxFit.cover,
-                        height: parentWidth * 0.6,
-                      ),
-                      Text("data"),
-                    ],
+                return InkWell(
+                  onTap: () {
+                    context.go(
+                      RouterPath.clubDetailPage,
+                      extra: {'clubId': testClubList[index].id},
+                    );
+                  },
+                  child: Container(
+                    height: parentWidth,
+                    child: Column(
+                      children: [
+                        Image.asset(
+                          'assets/images/test1.png',
+                          fit: BoxFit.cover,
+                          height: parentWidth * 0.6,
+                        ),
+                        Text("data"),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -76,25 +84,31 @@ class _MyClubsPageState extends State<MyClubsPage> {
         },
       ),
       endDrawer: Drawer(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(8, 40, 8, 16),
+        child: LayoutBuilder(builder: (context, constraints) {
+          double parentWidth = constraints.maxWidth;
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(32, 64, 32, 32),
             child: Column(
               children: [
                 InkWell(
                   onTap: () => context.go(RouterPath.myProfilePage),
-                  child: CircleAvatar(
-                    radius: MediaQuery.of(context).size.width * 0.2,
-                    backgroundImage:
-                        const AssetImage('assets/images/empty.png'),
+                  child: Material(
+                    elevation: 10,
+                    shape: const CircleBorder(),
+                    shadowColor: Colors.black.withOpacity(1),
+                    child: CircleAvatar(
+                      radius: parentWidth * 0.3,
+                      backgroundImage:
+                          const AssetImage('assets/images/empty.png'),
+                    ),
                   ),
                 ),
                 ElevatedButton(onPressed: () {}, child: Text('app setting')),
                 ElevatedButton(onPressed: () {}, child: Text('log out')),
               ],
             ),
-          ),
-        ),
+          );
+        }),
       ),
     );
   }
