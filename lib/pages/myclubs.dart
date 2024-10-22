@@ -86,6 +86,7 @@ class _MyClubsPageState extends State<MyClubsPage> {
       endDrawer: Drawer(
         child: LayoutBuilder(builder: (context, constraints) {
           double parentWidth = constraints.maxWidth;
+
           return Padding(
             padding: const EdgeInsets.fromLTRB(32, 64, 32, 32),
             child: Column(

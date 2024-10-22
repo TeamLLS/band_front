@@ -1,15 +1,14 @@
 # band_front
 
 # 회의 때 말할 것
-프로필에 내가 속해 있는 클럽들 표시?
 
 # issueing
-https://www.eleken.co/blog-posts/tips-for-better-ux-readability-dos-and-donts
 
-- 디자인
-흰 바탕, 검은 글씨 통일
--> 구분감을 주기 위해 그림자를 많이 짙게 사용
-포인트 색을 지정하여 포인트에만 사용
+# 메모
+form 필요한건 한꺼번에 해야겠다
+- 프로필변경
+- 클럽생성
+- 클럽정보변경
 
 
 # setting
@@ -31,7 +30,6 @@ repositories {
     mavenCentral()
     maven { url "https://devrepo.kakao.com/nexus/content/groups/public/" }
 }
-
 dependencies {
   //implementation "com.kakao.sdk:v2-all:2.20.6" // 전체 모듈 설치, 2.11.0 버전부터 지원
   implementation "com.kakao.sdk:v2-user:2.20.6" // 카카오 로그인 API 모듈
@@ -61,8 +59,21 @@ minSdk = 23
             </intent-filter>
         </activity>
 
+3. listview포함한 singlescrollview
+-> physics: const NeverScrollableScrollPhysics(),
+-> shrinkWrap: true,
 
-
+4. ios configuration
+1) app 등록
+2) allowlist 설정
+    ios/Runner/info.plist의 dic의 맨 아래
+    <key>LSApplicationQueriesSchemes</key>
+  	<array>
+      	<string>kakaokompassauth</string>
+      	<string>kakaolink</string>
+      	<string>kakaoplus</string>
+  	</array>
+3) 
 
 # 오류
 1. 카카오 로그인 "동의하고 계속하기"이후 진행 안됨 이슈
@@ -75,3 +86,14 @@ themeactivity 설정
 -> app/build.gradle
 implementation 'androidx.appcompat:appcompat:1.6.1' // Ensure you have AppCompat dependency
 implementation 'com.google.android.material:material:1.9.0' // Material Components dependency
+
+2. The iOS deployment target 'IPHONEOS_DEPLOYMENT_TARGET' is set to 11.0, but the range of supported deployment target versions is 12.0 to 18.0.99.
+podfile 변경
+
+
+3. No profiles for 'com.example.bandFront' were found: Xcode couldn't find any iOS App Development provisioning profiles matching 'com.example.bandFront'. Automatic signing is disabled and unable to generate a profile.
+
+https://code-boki.tistory.com/110
+
+이거따라하셈. 첨에 신뢰하지않는 어쩌구 뜨면 설정-> 일반 -> vpn&device management에서 allow해주면됨
+한번해주면 이후로 잘된당!
