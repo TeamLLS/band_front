@@ -2,7 +2,7 @@ import 'dart:developer';
 import 'package:go_router/go_router.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:flutter/material.dart';
-import 'api.dart';
+import '../api.dart';
 
 class KakaoLoginHelper {
   Future<void> getKakaoKeyHash() async {

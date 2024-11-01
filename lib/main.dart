@@ -2,7 +2,7 @@ import 'package:band_front/router.dart';
 import 'package:flutter/material.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'login.dart';
+import 'pages/login.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,14 +36,14 @@ class BandApp extends StatelessWidget {
           onSurface: Colors.black,
         ),
         appBarTheme: const AppBarTheme(scrolledUnderElevation: 0),
-        cardTheme: CardTheme(
-          clipBehavior: Clip.antiAlias,
-          shadowColor: Colors.black.withOpacity(1),
-          elevation: 10.0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(50.0),
-          ),
-        ),
+        // cardTheme: CardTheme(
+        //   clipBehavior: Clip.antiAlias,
+        //   shadowColor: Colors.black.withOpacity(1),
+        //   elevation: 10.0,
+        //   shape: RoundedRectangleBorder(
+        //     borderRadius: BorderRadius.circular(50.0),
+        //   ),
+        // ),
         listTileTheme: ListTileThemeData(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(40.0),
@@ -63,10 +63,7 @@ class BandApp extends StatelessWidget {
           titleMedium: TextStyle(fontWeight: FontWeight.w600),
           titleSmall: TextStyle(fontWeight: FontWeight.w600),
           bodyLarge: TextStyle(fontWeight: FontWeight.w600),
-          bodyMedium: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-          ), //text widget
+          bodyMedium: TextStyle(fontWeight: FontWeight.w600), //text widget
           bodySmall: TextStyle(fontWeight: FontWeight.w600),
           labelLarge: TextStyle(fontWeight: FontWeight.w600),
           labelMedium: TextStyle(fontWeight: FontWeight.w600),

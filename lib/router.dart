@@ -1,9 +1,11 @@
 //dependencies
+import 'package:band_front/pages/clubmanage.dart';
+import 'package:band_front/pages/clubregist.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 // pages
-import 'login.dart';
+import 'pages/login.dart';
 import 'pages/myclubs.dart';
 import 'pages/clubdetail.dart';
 import 'pages/profile.dart';
@@ -14,6 +16,11 @@ class RouterPath {
 
   static const String clubDetailPage = '/myClubList/clubDetail';
   static const String members = '/myClubList/clubDetail/members';
+  static const String manage = '/myClubList/clubDetail/manage';
+
+  static const String clubModify = '/myClubList/clubDetail/manage/modify';
+
+  static const String clubRegist = '/myClubList/clubRegist';
 }
 
 // context.go(
@@ -41,6 +48,16 @@ final GoRouter route = GoRouter(
               },
               routes: [
                 GoRoute(
+                  path: "manage",
+                  builder: (context, state) => const ClubManage(),
+                  routes: [
+                    GoRoute(
+                      path: 'modify',
+                      builder: (context, state) => const ClubModify(),
+                    ),
+                  ],
+                ),
+                GoRoute(
                   path: 'members',
                   builder: (context, state) => const Members(),
                 ),
@@ -50,6 +67,12 @@ final GoRouter route = GoRouter(
               path: 'myProfile',
               builder: (context, state) {
                 return MyProfilePage();
+              },
+            ),
+            GoRoute(
+              path: 'clubRegist',
+              builder: (context, state) {
+                return ClubRegist();
               },
             ),
           ],

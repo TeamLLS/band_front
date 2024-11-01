@@ -1,20 +1,12 @@
+// dependencies
+import 'package:band_front/customwidgets.dart';
 import 'package:flutter/material.dart';
+
+// pages
 import '../dataclass.dart';
 
 class MyProfilePage extends StatelessWidget {
-  MyProfilePage({super.key});
-
-  Profile testProfile = Profile(
-    userId: 1, //hide
-    username: "username",
-    name: "name",
-    age: 1,
-    gender: "gender",
-    phNum: "phNum",
-    email: "email",
-    description: "description",
-    image: "image",
-  );
+  const MyProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,48 +23,57 @@ class MyProfilePage extends StatelessWidget {
               height: width * 0.7,
               width: width,
             ),
-            Container(
-              width: width,
-              padding: const EdgeInsets.fromLTRB(32, 12, 32, 12),
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(40.0),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
+              child: Column(children: [
+                desUnit(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(children: [
+                      Text(testUser.username),
+                      const Divider(thickness: 0.5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text(testUser.name!),
+                          Text("-1(age)"),
+                          Text(testUser.gender!),
+                        ],
+                      ),
+                    ]),
+                  ),
                 ),
-                child: Column(children: [
-                  Text(testProfile.username),
-                  Text(testProfile.name),
-                  Text(testProfile.age.toString()),
-                  Text(testProfile.gender),
-                ]),
-              ),
-            ),
-            Container(
-              width: width,
-              padding: const EdgeInsets.fromLTRB(32, 12, 32, 12),
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(40.0),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                  child: desUnit(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(children: [
+                        const Text("contact"),
+                        const Divider(thickness: 0.5),
+                        Row(children: [
+                          const VerticalDivider(),
+                          const Icon(Icons.phone),
+                          const VerticalDivider(),
+                          Text(testUser.phNum!),
+                        ]),
+                        Row(children: [
+                          const VerticalDivider(),
+                          const Icon(Icons.email),
+                          const VerticalDivider(),
+                          Text(testUser.email!),
+                        ]),
+                      ]),
+                    ),
+                  ),
                 ),
-                child: Column(children: [
-                  Text("contact"),
-                  Text(testProfile.phNum),
-                  Text(testProfile.email),
-                ]),
-              ),
-            ),
-            Container(
-              width: width,
-              constraints: BoxConstraints(minHeight: width * 0.5),
-              padding: const EdgeInsets.fromLTRB(32, 12, 32, 12),
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(40.0),
+                desUnit(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Text(testUser.description!),
+                  ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(32, 8, 32, 8),
-                  child: Text(testProfile.description),
-                ),
-              ),
+              ]),
             ),
           ],
         ),

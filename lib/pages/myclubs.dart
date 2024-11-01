@@ -1,6 +1,9 @@
+//dependencies
+import 'package:band_front/customwidgets.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+
+//pages
 import '../dataclass.dart';
 import '../router.dart';
 
@@ -13,18 +16,6 @@ class MyClubsPage extends StatefulWidget {
 
 class _MyClubsPageState extends State<MyClubsPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>(); //사설 버튼을 통한 endDrawer를 위해 필요
-  List<Club> testClubList = List.generate(
-    20,
-    (index) => Club(
-      id: index,
-      name: '$index',
-      image: '$index',
-      description: '$index',
-      contactInfo: '$index',
-      status: ClubStatus.open,
-      createdAt: DateTime.now(),
-    ),
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +26,7 @@ class _MyClubsPageState extends State<MyClubsPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add_circle_outline),
-            onPressed: () {},
+            onPressed: () => context.go(RouterPath.clubRegist),
           ),
           IconButton(
             icon: const Icon(Icons.notifications_none),
@@ -47,39 +38,64 @@ class _MyClubsPageState extends State<MyClubsPage> {
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: testClubList.length,
-        itemBuilder: (context, index) {
-          return Card(
-            margin: const EdgeInsets.fromLTRB(40, 0, 40, 40),
-            //height: MediaQuery.of(context).size.height * 0.2,
-            color: Colors.white,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                double parentWidth = constraints.maxWidth;
-                return InkWell(
-                  onTap: () {
-                    context.go(
-                      RouterPath.clubDetailPage,
-                      extra: {'clubId': testClubList[index].id},
-                    );
-                  },
-                  child: Container(
-                    height: parentWidth,
-                    child: Column(
-                      children: [
-                        Image.asset(
-                          'assets/images/test1.png',
-                          fit: BoxFit.cover,
-                          height: parentWidth * 0.6,
-                        ),
-                        Text("data"),
-                      ],
-                    ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          double parentWidth = constraints.maxWidth;
+
+          return ListView.builder(
+            itemCount: testClubs.length,
+            itemBuilder: (context, index) {
+              return InkWell(
+                onTap: () {
+                  context.go(
+                    RouterPath.clubDetailPage,
+                    extra: {'clubId': testClubs[index].id},
+                  );
+                },
+                child: mainUnit(
+                  child: Column(
+                    children: [
+                      testClubs[index].image != null
+                          ? Image.network(
+                              testClubs[index].image!,
+                              fit: BoxFit.cover,
+                              height: parentWidth * 0.5,
+                            )
+                          : Image.asset(
+                              'assets/images/test1.png',
+                              fit: BoxFit.cover,
+                              height: parentWidth * 0.5,
+                            ),
+                      Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(children: [
+                          Row(children: [
+                            const VerticalDivider(),
+                            Text(testClubs[index].name),
+                            Spacer(),
+                            const Icon(Icons.people),
+                            Text(testClubs[index].memberCount.toString()),
+                            const VerticalDivider(),
+                          ]),
+                          const Divider(thickness: 0.5),
+                          Row(children: [
+                            const VerticalDivider(),
+                            const Icon(Icons.contact_support),
+                            const VerticalDivider(),
+                            Text(testClubs[index].contactInfo),
+                          ]),
+                          // const Divider(thickness: 0.5),
+                          // desTextUnit(
+                          //   maxLine: 2,
+                          //   description: testClubs[index].description,
+                          // ),
+                        ]),
+                      ),
+                    ],
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           );
         },
       ),
@@ -104,8 +120,25 @@ class _MyClubsPageState extends State<MyClubsPage> {
                     ),
                   ),
                 ),
-                ElevatedButton(onPressed: () {}, child: Text('app setting')),
-                ElevatedButton(onPressed: () {}, child: Text('log out')),
+                Container(
+                  padding: EdgeInsets.only(top: 16),
+                  width: parentWidth,
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    child: Text('app setting'),
+                  ),
+                ),
+                SizedBox(
+                  width: parentWidth,
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    child: Text('log out'),
+                    style: ButtonStyle(
+                      backgroundColor:
+                          WidgetStateProperty.all(Color(0xFFFF4040)),
+                    ),
+                  ),
+                ),
               ],
             ),
           );
