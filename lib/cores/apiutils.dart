@@ -1,41 +1,153 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:developer';
 
-class AuthInfoApi {
-  final String _url =
-      "https://v7csinomac.execute-api.ap-northeast-2.amazonaws.com";
-  String? _accessToken;
-  String? _refreshToken;
+class HttpInterface {
+  //this is return data after json decode
+  //
+  static Future<dynamic> requestGet(Uri url, Map<String, String> header) async {
+    //1. try http request
+    http.Response? response = await HttpMethod.tryGet(url, header);
+    if (response == null) {
+      log("err from try get");
+      return null;
+    }
 
-  //make class to singleton
-  AuthInfoApi._privateConstructor();
-  static final AuthInfoApi _instance = AuthInfoApi._privateConstructor();
-  factory AuthInfoApi() => _instance;
+    //2. handling response
+    String? json = HttpMethod.handle(response);
+    if (json == null) {
+      log("err from handling response");
+      return null;
+    }
 
-  //getter
-  String get url => _url;
-  String? get accessToken => _accessToken;
-  String? get refreshToken => _refreshToken;
-
-  void cleanUpToken() {
-    _accessToken = null;
-    _refreshToken = null;
-    debugPrint('!!! clean Tokens');
+    //3. json decoding
+    dynamic data = jsonDecode(json);
+    return data;
   }
 
-  //setter
-  void setAccessToken({required String accessToken}) {
-    _accessToken = accessToken;
+  static Future<bool> requestGetWithoutHeader(Uri url) async {
+    http.Response? response = await HttpMethod.tryGetWithoutHeader(url);
+    if (response == null) {
+      log("err from try get");
+      return false;
+    }
+    return HttpMethod.handleBool(response);
   }
 
-  void setRefreshToken({required String refreshToken}) {
-    _refreshToken = refreshToken;
+  static Future<bool> requestPatch(
+    Uri url,
+    Map<String, String> header,
+    Map<String, dynamic> body,
+  ) async {
+    http.Response? response = await HttpMethod.tryPatch(url, header, body);
+    if (response == null) {
+      log("err from try patch");
+      return false;
+    }
+
+    return HttpMethod.handleBool(response);
+  }
+
+  static Future<dynamic> requestPostWithoutBody(
+    Uri url,
+    Map<String, String> header,
+  ) async {
+    http.Response? response = await HttpMethod.tryPostWithoutBody(url, header);
+    if (response == null) {
+      log("err from try post");
+      return null;
+    }
+
+    String? json = HttpMethod.handle(response);
+    if (json == null) {
+      log("err from handling response");
+      return null;
+    }
+
+    dynamic data = jsonDecode(json);
+    return data;
   }
 }
 
 class HttpMethod {
+  //http request
+  static Future<http.Response?> tryGet(
+    Uri url,
+    Map<String, String> header,
+  ) async {
+    try {
+      http.Response? response = await http.get(url, headers: header);
+      return response;
+    } catch (e) {
+      log('try get err : $e');
+      return null;
+    }
+  }
+
+  static Future<http.Response?> tryGetWithoutHeader(Uri url) async {
+    try {
+      http.Response? response = await http.get(url);
+      return response;
+    } catch (e) {
+      log('try get err : $e');
+      return null;
+    }
+  }
+
+  static Future<http.Response?> tryPatch(
+    Uri url,
+    Map<String, String> header,
+    Map<String, dynamic> body,
+  ) async {
+    try {
+      http.Response response = await http.patch(
+        url,
+        headers: header,
+        body: json.encode(body),
+      );
+      return response;
+    } catch (e) {
+      log('try patch err : $e');
+      return null;
+    }
+  }
+
+  static Future<http.Response?> tryPostWithoutBody(
+    Uri url,
+    Map<String, String> header,
+  ) async {
+    try {
+      http.Response response = await http.post(url, headers: header);
+      return response;
+    } catch (e) {
+      log('try post err : $e');
+      return null;
+    }
+  }
+
+  //response handler
+  static String? handle(http.Response response) {
+    if (response.statusCode != 200) {
+      log("${response.statusCode} failed");
+      log("body : ${response.body}");
+      return null;
+    }
+    return response.body;
+  }
+
+  static bool handleBool(http.Response response) {
+    if (response.statusCode != 200) {
+      log("${response.statusCode} failed");
+      log("body : ${response.body}");
+      return false;
+    }
+    return true;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+class HttpLegacy {
   static Future<http.Response?> tryGet(
     String title,
     Uri url,
@@ -83,27 +195,27 @@ class HttpMethod {
   //   }
   // }
 
-  // static Future<http.Response?> tryPostWithoutBody({
-  //   required String title,
-  //   required Uri url,
-  //   required Map<String, String> header,
-  // }) async {
-  //   debugPrint("[!!!] start $title");
+  static Future<http.Response?> tryPostWithoutBody(
+    String title,
+    Uri url,
+    Map<String, String> header,
+  ) async {
+    debugPrint("[!!!] start $title");
 
-  //   try {
-  //     var response = await http.post(url, headers: header);
-  //     if (response.statusCode != 200) {
-  //       debugPrint("[!!!] fail code ${response.statusCode}");
-  //       debugPrint("[!!!] fail body ${response.body}");
-  //       return null;
-  //     }
-  //     debugPrint("[!!!] success $title");
-  //     return response;
-  //   } catch (e) {
-  //     debugPrint('[!!!] error $title: $e');
-  //     return null;
-  //   }
-  // }
+    try {
+      var response = await http.post(url, headers: header);
+      if (response.statusCode != 200) {
+        debugPrint("[!!!] fail code ${response.statusCode}");
+        debugPrint("[!!!] fail body ${response.body}");
+        return null;
+      }
+      debugPrint("[!!!] success $title");
+      return response;
+    } catch (e) {
+      debugPrint('[!!!] error $title: $e');
+      return null;
+    }
+  }
 
   // static Future<http.Response?> tryPatch({
   //   required String title,
@@ -216,65 +328,4 @@ class HttpMethod {
   //     return false;
   //   }
   // }
-}
-
-class LogInApi {
-  static final AuthInfoApi _authInfoApi = AuthInfoApi();
-
-  static Future<void> login(String accessToken) async {
-    //1. token 저장
-    _authInfoApi.setAccessToken(accessToken: accessToken);
-
-    var url = Uri.parse("${_authInfoApi.url}/user/login");
-    var header = {
-      'token': 'Bearer ${_authInfoApi.accessToken}',
-      'provider': "kakao",
-    };
-
-    http.Response? response = await HttpMethod.tryGet("log in", url, header);
-
-    if (response == null) {
-      debugPrint('!!! login to server error!');
-      return;
-    }
-
-    var data = jsonDecode(response.body);
-    _authInfoApi.setAccessToken(accessToken: data['accessToken']);
-    _authInfoApi.setRefreshToken(refreshToken: data['refreshToken']);
-    debugPrint("!!! log in success");
-    return;
-  }
-
-  static Future<void> reissue() async {
-    var url = Uri.parse("${_authInfoApi.url}/user/refresh");
-    var header = {'token': '${_authInfoApi.refreshToken}'};
-
-    http.Response? response = await HttpMethod.tryGet("reissue", url, header);
-
-    if (response == null) {
-      debugPrint('!!! reissue from server error!');
-      return;
-    }
-
-    var data = jsonDecode(response.body);
-    _authInfoApi.setAccessToken(accessToken: data['accessToken']);
-    _authInfoApi.setRefreshToken(refreshToken: data['refreshToken']);
-    debugPrint("!!! reissue success");
-    return;
-  }
-
-  static Future<void> logout() async {
-    var url = Uri.parse("${_authInfoApi.url}/user/logout");
-    var header = {'accessToken': '${_authInfoApi.accessToken}'};
-
-    http.Response? response = await HttpMethod.tryGet("logout", url, header);
-
-    if (response == null) {
-      debugPrint('!!! logout to server error!');
-      return;
-    }
-
-    _authInfoApi.cleanUpToken();
-    return;
-  }
 }

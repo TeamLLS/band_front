@@ -1,9 +1,9 @@
 // dependencies
-import 'package:band_front/customwidgets.dart';
+import 'package:band_front/cores/customwidgets.dart';
 import 'package:flutter/material.dart';
 
 // pages
-import '../dataclass.dart';
+import '../cores/dataclass.dart';
 
 class MyProfilePage extends StatelessWidget {
   const MyProfilePage({super.key});

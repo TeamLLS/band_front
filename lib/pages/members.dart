@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../dataclass.dart';
+import '../cores/dataclass.dart';
 import '../main.dart';
 
 class Members extends StatelessWidget {

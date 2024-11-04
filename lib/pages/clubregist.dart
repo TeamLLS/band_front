@@ -1,7 +1,7 @@
-import 'package:band_front/router.dart';
+import 'package:band_front/cores/router.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../dataclass.dart';
+import '../cores/dataclass.dart';
 
 class ClubRegist extends StatefulWidget {
   const ClubRegist({super.key});

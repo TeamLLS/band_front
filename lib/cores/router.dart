@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 // pages
-import 'pages/login.dart';
-import 'pages/myclubs.dart';
-import 'pages/clubdetail.dart';
-import 'pages/profile.dart';
-import 'pages/members.dart';
+import '../pages/login.dart';
+import '../pages/myclubs.dart';
+import '../pages/clubdetail.dart';
+import '../pages/profile.dart';
+import '../pages/members.dart';
 
 class RouterPath {
   static const String myProfilePage = '/myClubList/myProfile';
@@ -32,7 +32,7 @@ final GoRouter route = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) => const LogInPage(),
+      builder: (context, state) => const SignView(),
       routes: [
         GoRoute(
           path: 'myClubList',

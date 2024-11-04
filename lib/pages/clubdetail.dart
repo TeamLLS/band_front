@@ -4,10 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'dart:developer';
 
 //pages
-import '../customwidgets.dart';
-import '../router.dart';
-import '../dataclass.dart';
-import '../enumeration.dart';
+import '../cores/customwidgets.dart';
+import '../cores/router.dart';
+import '../cores/dataclass.dart';
+import '../cores/enumeration.dart';
 
 class ClubDetail extends StatefulWidget {
   const ClubDetail({super.key, required this.clubId});

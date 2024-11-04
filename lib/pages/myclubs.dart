@@ -1,11 +1,11 @@
 //dependencies
-import 'package:band_front/customwidgets.dart';
+import 'package:band_front/cores/customwidgets.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 //pages
-import '../dataclass.dart';
-import '../router.dart';
+import '../cores/dataclass.dart';
+import '../cores/router.dart';
 
 class MyClubsPage extends StatefulWidget {
   const MyClubsPage({super.key});

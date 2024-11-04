@@ -1,15 +1,13 @@
-import 'package:band_front/router.dart';
+import 'package:band_front/cores/router.dart';
 import 'package:flutter/material.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'pages/login.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   KakaoSdk.init(
-    nativeAppKey: '73a1fd675447ff78421025b9d793648d',
-    javaScriptAppKey: 'cb88712593a98c7099de35c7dc12bfca',
+    nativeAppKey: 'da277fdee5d64ec9860898fbcfea84f1',
+    javaScriptAppKey: '878ec2f98c8645c0734c4c4499d7cb65',
   );
 
   runApp(const BandApp());
