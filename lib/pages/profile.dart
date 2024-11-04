@@ -1,5 +1,5 @@
 // dependencies
-import 'package:band_front/cores/customwidgets.dart';
+import 'package:band_front/cores/widgetutils.dart';
 import 'package:flutter/material.dart';
 
 // pages

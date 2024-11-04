@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:flutter/material.dart';
 import '../cores/api.dart';
+import '../cores/widgetutils.dart';
 
 class KakaoSignMethod {
   Future<void> getKakaoKeyHash() async {
@@ -34,17 +35,26 @@ class SignView extends StatefulWidget {
 }
 
 class _SignViewState extends State<SignView> {
-  Future<bool> kakaoLogin() async {
-    var kakaoLoginHelper = KakaoSignMethod();
-    String? kakaoToken = await kakaoLoginHelper.signInKakao();
+  Future<bool> login() async {
+    var kakao = KakaoSignMethod();
+    String? kakaoToken = await kakao.signInKakao();
     if (kakaoToken == null) {
       log("accToken err");
       return false;
     }
+
     log("kakao accessToken: $kakaoToken");
-    //await LogInLegacyApi.login(kakaoToken);
     await LogInApi.logInToServer("kakao", kakaoToken);
     return true;
+  }
+
+  void loginHandler(bool result) {
+    if (result == false) {
+      showSnackBar(context, "로그인 실패..");
+      return;
+    }
+    showSnackBar(context, "로그인 성공");
+    context.go('/myClubList');
   }
 
   @override
@@ -52,6 +62,20 @@ class _SignViewState extends State<SignView> {
     return Scaffold(
       body: Stack(
         children: [
+          Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 64),
+            child: Column(children: [
+              const Spacer(),
+              InkWell(
+                onTap: () async {
+                  bool result = await login();
+                  loginHandler(result);
+                },
+                child: Image.asset("assets/images/kakao_login_btn.png"),
+              ),
+            ]),
+          ),
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -66,20 +90,6 @@ class _SignViewState extends State<SignView> {
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    await kakaoLogin().then(
-                      (bool result) {
-                        if (result == false) {
-                          debugPrint("!!! login fail");
-                          return;
-                        }
-                        context.go('/myClubList');
-                      },
-                    );
-                  },
-                  child: const Text("kakao login"),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
                     var helper = KakaoSignMethod();
                     await helper.getKakaoKeyHash();
                   },
@@ -87,7 +97,7 @@ class _SignViewState extends State<SignView> {
                 ),
                 ElevatedButton(
                   onPressed: () async => await LogInApi.checkServer(),
-                  child: const Text("check server to debug console"),
+                  child: const Text("check server"),
                 ),
               ],
             ),

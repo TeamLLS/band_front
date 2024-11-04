@@ -1,5 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+
+void showSnackBar(BuildContext context, String text) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(text),
+      duration: const Duration(seconds: 2),
+    ),
+  );
+  return;
+}
 
 Widget mainUnit({required Widget child}) {
   return Card(

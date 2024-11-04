@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'dart:developer';
 
 //pages
-import '../cores/customwidgets.dart';
+import '../cores/widgetutils.dart';
 import '../cores/router.dart';
 import '../cores/dataclass.dart';
 import '../cores/enumeration.dart';
