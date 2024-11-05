@@ -1,231 +1,276 @@
 import 'enumeration.dart';
 
 class Club {
-  final int id;
+  final int clubId;
   final String name; // 리스트에 표기
   final String? image; // nullable field, 리스트에 표기
-  final String description;
-  final String contactInfo;
-  final ClubStatus status; // 리스트에 표기
-  final DateTime createdAt;
-  final DateTime? deletedAt; // nullable field
-  final int memberCount; // 인원 수, 리스트에 표기
+  final String? description;
+  final String? contactInfo;
+  final String status; // 리스트에 표기
+  final int memberNum; // 인원 수, 리스트에 표기
+
+  ///{clubId: 1, v
+  ///name: DummyClub, v
+  ///description: for test, v
+  ///image: https://d310q11a7rdsb8.cloudfront.net/common/club/default.png, v
+  ///contactInfo: null, v
+  ///status: 운영중, v
+  ///memberNum: 0} v
 
   Club({
-    required this.id,
+    required this.clubId,
     required this.name,
     this.image,
-    required this.description,
-    required this.contactInfo,
+    this.description,
+    this.contactInfo,
     required this.status,
-    required this.createdAt,
-    this.deletedAt,
-    required this.memberCount,
+    required this.memberNum,
   });
 
-  String getStatusString() => status.toString().split('.').last;
-
-  factory Club.fromJson(Map<String, dynamic> json) {
+  factory Club.fromMap(Map<String, dynamic> map) {
     return Club(
-      id: json['id'],
-      name: json['name'],
-      image: json['image'],
-      description: json['description'],
-      contactInfo: json['contactInfo'],
-      status: ClubStatus.values
-          .firstWhere((e) => e.toString() == 'ClubStatus.${json['status']}'),
-      createdAt: DateTime.parse(json['createdAt']),
-      deletedAt:
-          json['deletedAt'] != null ? DateTime.parse(json['deletedAt']) : null,
-      memberCount: json['memberCount'],
+      clubId: map['clubId'] as int,
+      name: map['name'],
+      image: map['image'],
+      description: map['description'],
+      contactInfo: map['contactInfo'],
+      status: map['status'],
+      memberNum: map['memberNum'] as int,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'id': clubId,
       'name': name,
       'image': image,
       'description': description,
       'contactInfo': contactInfo,
-      'status': status.toString().split('.').last,
-      'createdAt': createdAt.toIso8601String(),
-      'deletedAt': deletedAt?.toIso8601String(),
-      'memberCount': memberCount,
+      'status': status,
+      'memberCount': memberNum,
     };
   }
 }
 
-List<Club> testClubs = List.generate(10, (index) {
-  return Club(
-    id: index,
-    name: 'club $index',
-    image: null,
-    description:
-        'Description for club $index. sdlakfadjsfkldsafjhdsalfhdsajklfhdsakffsdjkhfdsakjlhfdsalkjfhdsajklfhsadkljfhsadjklfhdsakljfhdsakjlfhdasjklfhdsakljfhasdfkljhadsfkjsafhsdkajlfhasdkjlfhdsakljfhasdklfhasdlkjfhasdfklashfjklasdfhalsdkjfhakjlfhasdkjfhasdlkjfhsadkljfhasdklfhasdkljfhaskjlfhasdfkjlashfkljasfhaslfkhsfjklhasfkjlasdhfklasdjh',
-    contactInfo: 'club$index@example.com',
-    status: ClubStatus.values[index % ClubStatus.values.length],
-    createdAt: DateTime.now().subtract(Duration(days: index * 40)),
-    deletedAt: index % 2 == 0
-        ? DateTime.now().subtract(Duration(days: index * 10))
-        : null,
-    memberCount: 10 + index * 5,
-  );
-});
+class ClubEntity {
+  int clubId;
+  int memberId;
+  String? image;
+  String clubName;
+  String clubStatus;
+  String role;
+  String memberStatus;
+
+  ClubEntity({
+    required this.clubId,
+    required this.memberId,
+    this.image,
+    required this.clubName,
+    required this.clubStatus,
+    required this.role,
+    required this.memberStatus,
+  });
+
+  factory ClubEntity.fromMap(Map<String, dynamic> data) {
+    return ClubEntity(
+      clubId: data['clubId'] as int,
+      memberId: data['memberId'] as int,
+      image: data['image'],
+      clubName: data['clubName'],
+      clubStatus: data['clubStatus'],
+      role: data['role'],
+      memberStatus: data['memberStatus'],
+    );
+  }
+}
 
 class Activity {
   final int id;
   final int clubId;
   final String name;
-  final String image;
   final String description;
-  final DateTime time;
-  final ActivityStatus status;
-  final DateTime createdAt;
-  DateTime? completedAt;
+  final DateTime startTime;
+  final DateTime endTime;
+  final String status;
+  final String? image;
+  final int participantNum;
 
   Activity({
     required this.id,
     required this.clubId,
     required this.name,
-    required this.image,
     required this.description,
-    required this.time,
+    required this.startTime,
+    required this.endTime,
     required this.status,
-    required this.createdAt,
+    required this.participantNum,
+    this.image,
   });
 
-  // JSON에서 Activity 객체 생성
-  factory Activity.fromJson(Map<String, dynamic> json) {
+  // 팩토리 메서드
+  factory Activity.fromMap(Map<String, dynamic> map) {
     return Activity(
-      id: json['id'],
-      clubId: json['clubId'],
-      name: json['name'],
-      image: json['image'],
-      description: json['description'],
-      time: DateTime.parse(json['time']),
-      status: ActivityStatus.values[json['status']], // 문자열을 Enum으로 변환
-      createdAt: DateTime.parse(json['createdAt']),
+      id: map['id'] as int,
+      clubId: map['clubId'] as int,
+      name: map['name'],
+      description: map['description'],
+      startTime: DateTime.parse(map['startTime']),
+      endTime: DateTime.parse(map['endTime']),
+      status: map['status'],
+      participantNum: map['participantNum'] as int,
+      image: map['image'],
     );
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
+class ActivityEntity {
+  final int id;
+  final String name;
+  final String image;
+  final String status;
+  final int participantNum;
+
+  ActivityEntity({
+    required this.id,
+    required this.name,
+    required this.image,
+    required this.status,
+    required this.participantNum,
+  });
+
+  factory ActivityEntity.fromMap(Map<String, dynamic> map) {
+    return ActivityEntity(
+      id: map['id'] as int,
+      name: map['name'],
+      image: map['image'],
+      status: map['status'],
+      participantNum: map['participantNum'] as int,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'image': image,
+      'status': status,
+      'participantNum': participantNum,
+    };
+  }
+}
+
+class ParticipantEntity {
+  final int id; //participantsID
+  final int activityId;
+  final String username;
+  final int memberId;
+  final String memberName;
+  final String status;
+
+  ParticipantEntity({
+    required this.id,
+    required this.activityId,
+    required this.username,
+    required this.memberId,
+    required this.memberName,
+    required this.status,
+  });
+
+  factory ParticipantEntity.fromMap(Map<String, dynamic> map) {
+    return ParticipantEntity(
+      id: map['id'] as int,
+      activityId: map['activityId'] as int,
+      username: map['username'],
+      memberId: map['memberId'] as int,
+      memberName: map['memberName'],
+      status: map['status'],
+    );
+  }
+}
+
 class User {
   //for profile
-  final int id;
-  final String username;
-  final String? email;
-  final String? phNum;
-  final String? image;
-  final String? name;
-  final String? gender;
-  final int? birthYear;
-  final String? description;
-  final DateTime? createdAt;
+  int userId;
+  String username;
+  String? name;
+  int? age;
+  String? gender;
+  String? phNum;
+  String? email;
+  String? description;
+  String? image;
 
   User({
-    required this.id,
+    required this.userId,
     required this.username,
     this.email,
-    this.phNum,
-    this.image,
     this.name,
     this.gender,
-    this.birthYear,
+    this.age,
+    this.phNum,
     this.description,
-    this.createdAt,
+    this.image,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'],
+      userId: json['userId'] as int,
       username: json['username'],
       email: json['email'],
-      phNum: json['phNum'],
-      image: json['image'],
       name: json['name'],
       gender: json['gender'],
-      birthYear: json['birthYear'],
+      age: json['age'] != null ? json['age'] as int : null,
+      phNum: json['phNum'],
       description: json['description'],
-      createdAt: DateTime.parse(json['createdAt']),
+      image: json['image'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'id': userId,
       'username': username,
       'email': email,
       'phNum': phNum,
       'image': image,
       'name': name,
       'gender': gender,
-      'birthYear': birthYear,
       'description': description,
-      'createdAt': createdAt?.toIso8601String(),
     };
   }
 }
 
-User testUser = User(
-  id: 1,
-  username: 'testUser1',
-  email: 'testuser1@example.com',
-  phNum: '010-1234-5678',
-  image: 'https://example.com/images/testuser1.jpg',
-  name: 'Test User',
-  gender: 'male',
-  birthYear: 1990,
-  description:
-      'This is a test user for testing purposes.nfhkjsadfhasdkjlfhdasjlkfdashjlkfasdhjlkfsdhajk',
-  createdAt: DateTime.now().subtract(Duration(days: 365 * 5)), // 5년 전 가입일
-);
-
 class Member {
   final int memberId;
   final int clubId;
-  final String username; //print
-  final Role roleName; //print
-  final MemberStatus status; //print
-  final String? name;
-  final String? gender;
-  final int? birthYear;
-  final DateTime createdAt;
-  final DateTime? terminatedAt;
+  final String username; //표시
+  final String roleName; //표시
+  final String name; //표시
+  final int age;
+  final String gender;
+  final String statusName; //표시
 
   Member({
     required this.memberId,
     required this.clubId,
     required this.username,
     required this.roleName,
-    required this.status,
-    this.name,
-    this.gender,
-    this.birthYear,
-    required this.createdAt,
-    this.terminatedAt,
+    required this.name,
+    required this.age,
+    required this.gender,
+    required this.statusName,
   });
 
-  String getStatusString() => status.toString().split('.').last;
-  String getRoleString() => roleName.toString().split('.').last;
-
-  factory Member.fromJson(Map<String, dynamic> json) {
+  factory Member.fromMap(Map<String, dynamic> map) {
     return Member(
-      memberId: json['id'],
-      clubId: json['clubId'],
-      username: json['username'],
-      roleName:
-          Role.values.firstWhere((e) => e.toString() == 'Role.${json['role']}'),
-      status: MemberStatus.values
-          .firstWhere((e) => e.toString() == 'MemberStatus.${json['status']}'),
-      name: json['name'],
-      gender: json['gender'],
-      birthYear: json['birthYear'],
-      createdAt: DateTime.parse(json['createdAt']),
-      terminatedAt: json['terminatedAt'] != null
-          ? DateTime.parse(json['terminatedAt'])
-          : null,
+      memberId: map['memberId'] as int,
+      clubId: map['clubId'] as int,
+      username: map['username'],
+      roleName: map['roleName'],
+      statusName: map['statusName'],
+      name: map['name'],
+      gender: map['gender'],
+      age: map['age'] as int,
     );
   }
 
@@ -235,29 +280,49 @@ class Member {
       'club': clubId,
       'username': username,
       'role': roleName.toString().split('.').last,
-      'status': status.toString().split('.').last,
+      'status': statusName.toString().split('.').last,
       'name': name,
       'gender': gender,
-      'birthYear': birthYear,
-      'createdAt': createdAt.toIso8601String(),
-      'terminatedAt': terminatedAt?.toIso8601String(),
     };
   }
 }
+
+//////////////////////////test//////////////////////////////////////////////////
 
 List<Member> testMembers = List.generate(5, (index) {
   return Member(
     memberId: index,
     clubId: index,
     username: 'member$index',
-    roleName: Role.values[index % Role.values.length],
-    status: MemberStatus.values[index % MemberStatus.values.length],
+    roleName: "role",
+    statusName: "status",
     name: 'Member $index',
     gender: index % 2 == 0 ? 'male' : 'female',
-    birthYear: 1990 + index,
-    createdAt: DateTime.now().subtract(Duration(days: index * 300)),
-    terminatedAt: index % 2 == 0
-        ? null
-        : DateTime.now().subtract(Duration(days: index * 100)),
+    age: 11,
   );
 });
+
+List<Club> testClubs = List.generate(10, (index) {
+  return Club(
+    clubId: index,
+    name: 'club $index',
+    image: null,
+    description:
+        'Description for club $index. sdlakfadjsfkldsafjhdsalfhdsajklfhdsakffsdjkhfdsakjlhfdsalkjfhdsajklfhsadkljfhsadjklfhdsakljfhdsakjlfhdasjklfhdsakljfhasdfkljhadsfkjsafhsdkajlfhasdkjlfhdsakljfhasdklfhasdlkjfhasdfklashfjklasdfhalsdkjfhakjlfhasdkjfhasdlkjfhsadkljfhasdklfhasdkljfhaskjlfhasdfkjlashfkljasfhaslfkhsfjklhasfkjlasdhfklasdjh',
+    contactInfo: 'club$index@example.com',
+    status: "sss",
+    memberNum: 10 + index * 5,
+  );
+});
+
+User testUser = User(
+  userId: 1,
+  username: 'testUser1',
+  email: 'testuser1@example.com',
+  phNum: '010-1234-5678',
+  image: null,
+  name: 'Test User',
+  gender: 'male',
+  description:
+      'This is a test user for testing purposes.nfhkjsadfhasdkjlfhdasjlkfdashjlkfasdhjlkfsdhajk',
+);

@@ -1,20 +1,21 @@
 import 'dart:developer';
+import 'package:band_front/cores/repositories.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../cores/api.dart';
 import '../cores/widgetutils.dart';
 
 class KakaoSignMethod {
   Future<void> getKakaoKeyHash() async {
     var key = await KakaoSdk.origin;
-    debugPrint("!!! hash key : $key");
+    log("!!! hash key : $key");
     return;
   }
 
   Future<String?> signInKakao() async {
     OAuthToken token = await UserApi.instance.loginWithKakaoTalk();
-    log('!!! login with kakao : ${token.toString()}');
     return token.accessToken;
   }
 
@@ -37,14 +38,53 @@ class SignView extends StatefulWidget {
 class _SignViewState extends State<SignView> {
   Future<bool> login() async {
     var kakao = KakaoSignMethod();
+
+    //1. get kakao authorization
     String? kakaoToken = await kakao.signInKakao();
     if (kakaoToken == null) {
       log("accToken err");
       return false;
     }
+    //log("kakao accessToken: $kakaoToken");
 
-    log("kakao accessToken: $kakaoToken");
-    await LogInApi.logInToServer("kakao", kakaoToken);
+    //2. get server authorization
+    bool result = await LogInApi.logInToServer("kakao", kakaoToken);
+    if (result == false) {
+      log("log in to server err");
+      return false;
+    }
+
+    //3. get profile
+    // ignore: use_build_context_synchronously
+    result = await context.read<ProfileInfoRepository>().getMyProfileInfo();
+    if (result == false) {
+      log("get profile err");
+      return false;
+    }
+    return true;
+  }
+
+  Future<bool> loginTestUser() async {
+    var kakao = KakaoSignMethod();
+
+    //1. get kakao authorization
+    String? kakaoToken = await kakao.signInKakao();
+    if (kakaoToken == null) {
+      log("accToken err");
+      return false;
+    }
+    //log("kakao accessToken: $kakaoToken");
+
+    //2. get server authorization
+    bool result = await LogInApi.logInToServer("kakao", kakaoToken);
+    if (result == false) {
+      log("log in to server err");
+      return false;
+    }
+
+    //3. test user
+    LogInApi.setUserName("Dummy_userB");
+    LogInApi.printAuth();
     return true;
   }
 
@@ -85,7 +125,10 @@ class _SignViewState extends State<SignView> {
                   child: const Text("pass without login"),
                 ),
                 ElevatedButton(
-                  onPressed: () async => context.go('/myClubList'),
+                  onPressed: () async {
+                    bool result = await loginTestUser();
+                    loginHandler(result);
+                  },
                   child: const Text("pass with test user"),
                 ),
                 ElevatedButton(

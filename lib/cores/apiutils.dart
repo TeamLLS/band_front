@@ -49,6 +49,19 @@ class HttpInterface {
     return HttpMethod.handleBool(response);
   }
 
+  static Future<bool> requestPatchWithoutBody(
+    Uri url,
+    Map<String, String> header,
+  ) async {
+    http.Response? response = await HttpMethod.tryPatchWithoutBody(url, header);
+    if (response == null) {
+      log("err from try patch");
+      return false;
+    }
+
+    return HttpMethod.handleBool(response);
+  }
+
   static Future<dynamic> requestPostWithoutBody(
     Uri url,
     Map<String, String> header,
@@ -63,10 +76,26 @@ class HttpInterface {
     if (json == null) {
       log("err from handling response");
       return null;
+    } else if (json == "") {
+      return true;
     }
 
     dynamic data = jsonDecode(json);
     return data;
+  }
+
+  static Future<dynamic> requestPost(
+    Uri url,
+    Map<String, String> header,
+    Map<String, dynamic> body,
+  ) async {
+    http.Response? response = await HttpMethod.tryPost(url, header, body);
+    if (response == null) {
+      log("err from try post");
+      return;
+    }
+
+    return HttpMethod.handle(response);
   }
 }
 
@@ -113,12 +142,43 @@ class HttpMethod {
     }
   }
 
+  static Future<http.Response?> tryPatchWithoutBody(
+    Uri url,
+    Map<String, String> header,
+  ) async {
+    try {
+      http.Response response = await http.patch(url, headers: header);
+      return response;
+    } catch (e) {
+      log('try patch err : $e');
+      return null;
+    }
+  }
+
   static Future<http.Response?> tryPostWithoutBody(
     Uri url,
     Map<String, String> header,
   ) async {
     try {
       http.Response response = await http.post(url, headers: header);
+      return response;
+    } catch (e) {
+      log('try post err : $e');
+      return null;
+    }
+  }
+
+  static Future<http.Response?> tryPost(
+    Uri url,
+    Map<String, String> header,
+    Map<String, dynamic> body,
+  ) async {
+    try {
+      http.Response response = await http.post(
+        url,
+        headers: header,
+        body: body,
+      );
       return response;
     } catch (e) {
       log('try post err : $e');
@@ -142,6 +202,8 @@ class HttpMethod {
       log("body : ${response.body}");
       return false;
     }
+    log("${response.statusCode} successed");
+    log("body : ${response.body}");
     return true;
   }
 }

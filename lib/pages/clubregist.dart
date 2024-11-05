@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:band_front/cores/api.dart';
 import 'package:band_front/cores/router.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -25,8 +28,8 @@ class _ClubRegistState extends State<ClubRegist> {
           Image.asset(
             'assets/images/empty.png',
             width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.width / 2,
-            fit: BoxFit.cover,
+            height: MediaQuery.of(context).size.width * 0.5,
+            fit: BoxFit.fitHeight,
           ),
           const Padding(
             padding: EdgeInsets.fromLTRB(0, 8, 0, 8),
@@ -93,7 +96,15 @@ class _ClubRegistState extends State<ClubRegist> {
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () async {
+                bool result = await ClubApi.createClub(
+                  nameCon.text,
+                  descriptCon.text,
+                  "image",
+                  contactCon.text,
+                );
+                log("$result");
+              },
               style: ButtonStyle(
                 backgroundColor: WidgetStateProperty.all(
                   const Color(0xFF87CEEB),

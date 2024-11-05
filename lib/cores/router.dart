@@ -1,4 +1,5 @@
 //dependencies
+import 'package:band_front/pages/activitydetail.dart';
 import 'package:band_front/pages/clubmanage.dart';
 import 'package:band_front/pages/clubregist.dart';
 import 'package:flutter/material.dart';
@@ -6,19 +7,23 @@ import 'package:go_router/go_router.dart';
 
 // pages
 import '../pages/login.dart';
-import '../pages/myclubs.dart';
+import '../pages/clubs.dart';
 import '../pages/clubdetail.dart';
 import '../pages/profile.dart';
-import '../pages/members.dart';
+import '../pages/clubmembers.dart';
 
 class RouterPath {
   static const String myProfilePage = '/myClubList/myProfile';
+  static const String myProfileEdit = '/myClubList/myProfile/myProfileEdit';
 
   static const String clubDetailPage = '/myClubList/clubDetail';
   static const String members = '/myClubList/clubDetail/members';
+
   static const String manage = '/myClubList/clubDetail/manage';
 
   static const String clubModify = '/myClubList/clubDetail/manage/modify';
+
+  static const String activityDetail = '/myClubList/clubDetail/activityDetail';
 
   static const String clubRegist = '/myClubList/clubRegist';
 }
@@ -36,7 +41,7 @@ final GoRouter route = GoRouter(
       routes: [
         GoRoute(
           path: 'myClubList',
-          builder: (context, state) => const MyClubsPage(),
+          builder: (context, state) => const ClubListView(),
           routes: [
             GoRoute(
               path: 'clubDetail',
@@ -44,7 +49,7 @@ final GoRouter route = GoRouter(
                 final Map<String, dynamic>? argument =
                     state.extra as Map<String, dynamic>?;
                 var data = argument?['clubId'];
-                return ClubDetail(clubId: data);
+                return ClubDetailView(clubId: data);
               },
               routes: [
                 GoRoute(
@@ -59,15 +64,34 @@ final GoRouter route = GoRouter(
                 ),
                 GoRoute(
                   path: 'members',
-                  builder: (context, state) => const Members(),
+                  builder: (context, state) {
+                    final Map<String, dynamic>? argument =
+                        state.extra as Map<String, dynamic>?;
+                    var data = argument?['clubId'];
+                    return ClubMemberListView(clubId: data);
+                  },
+                ),
+                GoRoute(
+                  path: 'activityDetail',
+                  builder: (context, state) {
+                    final Map<String, dynamic>? argument =
+                        state.extra as Map<String, dynamic>?;
+                    int actId = argument?['actId'];
+                    int clubId = argument?['actId'];
+                    return ActivityDetailView(actId: actId, clubId: clubId);
+                  },
                 ),
               ],
             ),
             GoRoute(
               path: 'myProfile',
-              builder: (context, state) {
-                return MyProfilePage();
-              },
+              builder: (context, state) => const MyProfileView(),
+              routes: [
+                GoRoute(
+                  path: 'myProfileEdit',
+                  builder: (context, state) => const MyProfileEditView(),
+                ),
+              ],
             ),
             GoRoute(
               path: 'clubRegist',

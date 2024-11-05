@@ -33,6 +33,10 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>이 앱이 사진을 사용할 수 있도록 허용합니다.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>이 앱이 카메라를 사용할 수 있도록 허용합니다.</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>

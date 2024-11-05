@@ -4,51 +4,92 @@ import 'package:go_router/go_router.dart';
 import 'dart:developer';
 
 //pages
+import '../cores/api.dart';
 import '../cores/widgetutils.dart';
 import '../cores/router.dart';
 import '../cores/dataclass.dart';
 import '../cores/enumeration.dart';
+import 'drawers.dart';
 
-class ClubDetail extends StatefulWidget {
-  const ClubDetail({super.key, required this.clubId});
+class ClubDetailViewModel {
+  late int clubId;
+  Club? club;
+  List<ActivityEntity>? actList;
+  int pn = 0;
+
+  Future<bool> getClubDetailInfo() async {
+    var data = await ClubApi.getClubDetail(clubId);
+    if (data == null) {
+      log("get club detail failed");
+      return false;
+    }
+    club = Club.fromMap(data);
+    return true;
+  }
+
+  Future<void> getActivityList() async {
+    var data = await ActivityApi.getActivityList(clubId, pn);
+    var list = data['list'];
+    List<ActivityEntity> receivedActivities = [];
+
+    for (Map<String, dynamic> element in list) {
+      receivedActivities.add(ActivityEntity.fromMap(element));
+    }
+    actList = receivedActivities;
+    pn++;
+    return;
+  }
+}
+
+class ClubDetailView extends StatefulWidget {
+  const ClubDetailView({super.key, required this.clubId});
   final int clubId;
 
   @override
-  State<ClubDetail> createState() => _ClubDetailState();
+  State<ClubDetailView> createState() => _ClubDetailViewState();
 }
 
-class _ClubDetailState extends State<ClubDetail> {
-  //사설 버튼을 통한 endDrawer를 위해 필요
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
+class _ClubDetailViewState extends State<ClubDetailView> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>(); //사설 버튼을 통한 endDrawer를 위해 필요
+  final ClubDetailViewModel _viewModel = ClubDetailViewModel();
 
-  List<Activity> testActList = List.generate(
-    20,
-    (index) => Activity(
-      id: index,
-      clubId: index,
-      name: '$index',
-      image: '$index',
-      description: '$index',
-      time: DateTime.now(),
-      status: ActivityStatus.recruiting,
-      createdAt: DateTime.now(),
-    ),
-  );
+  Future<void> initClubDetailView() async {
+    _viewModel.clubId = widget.clubId;
+    await _viewModel.getClubDetailInfo();
+    await _viewModel.getActivityList();
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initClubDetailView();
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_viewModel.club == null || _viewModel.actList == null) {
+      return Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    Club club = _viewModel.club!;
+    List<ActivityEntity> actList = _viewModel.actList!;
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(testClubs[0].name),
+        title: Text(club.name),
         actions: [
           IconButton(
             icon: const Icon(Icons.build_outlined),
-            onPressed: () => context.go(RouterPath.manage),
+            onPressed: () => context.push(RouterPath.manage),
           ),
           IconButton(
             icon: const Icon(Icons.notifications_none),
-            onPressed: () {},
+            onPressed: () async {
+              bool result = await ClubApi.deleteClub(widget.clubId);
+              log("$result");
+            },
           ),
           IconButton(
             icon: const Icon(Icons.menu),
@@ -63,7 +104,7 @@ class _ClubDetailState extends State<ClubDetail> {
           child: Column(
             children: [
               Image.asset(
-                'assets/images/test1.png',
+                'assets/images/empty.png',
                 fit: BoxFit.cover,
                 height: parentWidth * 0.7,
                 width: parentWidth,
@@ -80,13 +121,13 @@ class _ClubDetailState extends State<ClubDetail> {
                           children: [
                             const Icon(Icons.contact_support),
                             const VerticalDivider(),
-                            Text(testClubs[0].contactInfo),
+                            Text(club.contactInfo ?? "연락처가 없습니다"),
                           ],
                         ),
                         const Divider(thickness: 0.5),
                         desTextUnit(
                           maxLine: 5,
-                          description: testClubs[0].description,
+                          description: club.description ?? "모임 설명이 없습니다",
                         ),
                       ]),
                     ),
@@ -104,7 +145,10 @@ class _ClubDetailState extends State<ClubDetail> {
                           ),
                           IconButton(
                             icon: Icon(Icons.people),
-                            onPressed: () => context.go(RouterPath.members),
+                            onPressed: () => context.go(
+                              RouterPath.members,
+                              extra: {'clubId': widget.clubId},
+                            ),
                           ),
                           IconButton(
                             icon: Icon(Icons.photo_album),
@@ -128,49 +172,67 @@ class _ClubDetailState extends State<ClubDetail> {
                       ),
                     ),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(0, 8, 0, 8),
-                    child: Text('activity list'),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Text('${club.name}의 활동 목록'),
                   ),
                   const Divider(color: Colors.black, thickness: 1),
                   ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
-                    itemCount: testActList.length,
+                    itemCount: actList.length,
                     itemBuilder: (context, index) {
                       return Padding(
                         padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-                        child: desUnit(
-                          child: const Padding(
-                            padding: EdgeInsets.all(8),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('제목제목'),
-                                Divider(thickness: 0.5),
-                                Text('가나다라마바사아자차카타파하'),
-                                Row(
-                                  children: [
-                                    Icon(Icons.calendar_today),
-                                    VerticalDivider(),
-                                    Text('24.11.01 ~ 24.12.31'),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Icon(Icons.people),
-                                    VerticalDivider(),
-                                    Text('10명'),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Icon(Icons.phone),
-                                    VerticalDivider(),
-                                    Text('010-1234-5678'),
-                                  ],
-                                ),
-                              ],
+                        child: InkWell(
+                          onTap: () {
+                            context.push(
+                              RouterPath.activityDetail,
+                              extra: {
+                                'actId': actList[index].id,
+                                'clubId': club.clubId,
+                              },
+                            );
+                          },
+                          child: desUnit(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text("${actList[index].name}과 듀오"),
+                                      Text(actList[index].status),
+                                    ],
+                                  ),
+                                  const Divider(thickness: 0.5),
+                                  const Text('simple description'),
+                                  const Row(
+                                    children: [
+                                      Icon(Icons.calendar_today),
+                                      VerticalDivider(),
+                                      Text('24.11.01 ~ 24.12.31'),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.people),
+                                      const VerticalDivider(),
+                                      Text("${actList[index].participantNum}"),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.phone),
+                                      VerticalDivider(),
+                                      Text('010-1234-5678'),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -183,34 +245,7 @@ class _ClubDetailState extends State<ClubDetail> {
           ),
         );
       }),
-      endDrawer: Drawer(
-        child: LayoutBuilder(builder: (context, constraints) {
-          double parentWidth = constraints.maxWidth;
-
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(32, 64, 32, 32),
-            child: Column(
-              children: [
-                InkWell(
-                  onTap: () => context.go(RouterPath.myProfilePage),
-                  child: Material(
-                    elevation: 10,
-                    shape: const CircleBorder(),
-                    shadowColor: Colors.black.withOpacity(1),
-                    child: CircleAvatar(
-                      radius: parentWidth * 0.3,
-                      backgroundImage:
-                          const AssetImage('assets/images/empty.png'),
-                    ),
-                  ),
-                ),
-                ElevatedButton(onPressed: () {}, child: Text('app setting')),
-                ElevatedButton(onPressed: () {}, child: Text('log out')),
-              ],
-            ),
-          );
-        }),
-      ),
+      endDrawer: const DrawerView(),
     );
   }
 }
