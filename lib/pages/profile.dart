@@ -2,6 +2,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:band_front/cores/api.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -12,7 +13,6 @@ import '../cores/dataclass.dart';
 import '../cores/repositories.dart';
 import '../cores/router.dart';
 import '../cores/widgetutils.dart';
-import '../cores/api.dart';
 
 class MyProfileView extends StatefulWidget {
   const MyProfileView({super.key});
@@ -25,9 +25,9 @@ class _MyProfileViewState extends State<MyProfileView> {
   User? _me;
 
   Future<void> initProfileView() async {
-    await context.read<ProfileInfoRepository>().getMyProfileInfo();
+    await context.read<MyInfo>().getMyInfo();
     setState(() {
-      _me = context.read<ProfileInfoRepository>().me;
+      _me = context.read<MyInfo>().me;
     });
   }
 
@@ -166,7 +166,7 @@ class _MyProfileEditViewState extends State<MyProfileEditView> {
   late TextEditingController _phNumCon;
   late TextEditingController _desCon;
 
-  Future<void> pickImage() async {
+  Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
@@ -177,19 +177,48 @@ class _MyProfileEditViewState extends State<MyProfileEditView> {
     }
   }
 
-  void changeMyProfileHandler(bool result) {
+  void _navigateToMyProfilePage() => context.go(RouterPath.myProfilePage);
+  void _showSnackBar(String text) => showSnackBar(context, text);
+
+  Future<void> _changeMyProfileHandler(bool result) async {
     if (result == false) {
-      showSnackBar(context, "edit profile failed");
+      _showSnackBar("프로필 변경 실패");
       return;
     }
-    showSnackBar(context, "프로필이 성공적으로 변경되었습니다");
-    context.go(RouterPath.myProfilePage);
+
+    result = await context.read<MyInfo>().getMyInfo();
+    if (result == false) {
+      _showSnackBar("프로필 변경 실패");
+      return;
+    }
+    _showSnackBar("프로필이 성공적으로 변경되었습니다");
+    _navigateToMyProfilePage();
+  }
+
+  Future<void> changeMyProfile() async {
+    // await ProfileApi.test(_image!);
+    // return;
+    //preprocessing data
+    String? emailParam = _emailCon.text == "" ? null : _emailCon.text;
+    String? phNumParam = _phNumCon.text == "" ? null : _phNumCon.text;
+    String? desParam = _desCon.text == "" ? null : _desCon.text;
+
+    //request change
+    log("========== in profile page state ==========");
+    log("email : $emailParam");
+    log("phNum : $phNumParam");
+    log("description : $desParam");
+    log("===========================================");
+    bool result = await context
+        .read<MyInfo>()
+        .changeMyInfo(_image, emailParam, phNumParam, desParam);
+    _changeMyProfileHandler(result);
   }
 
   @override
   void initState() {
     super.initState();
-    _me = context.read<ProfileInfoRepository>().me!;
+    _me = context.read<MyInfo>().me!;
   }
 
   @override
@@ -215,7 +244,7 @@ class _MyProfileEditViewState extends State<MyProfileEditView> {
           child: Column(
             children: [
               InkWell(
-                onTap: () async => await pickImage(),
+                onTap: () async => await _pickImage(),
                 child: SizedBox(
                   height: parentWidth * 0.5,
                   child: _image == null
@@ -250,16 +279,8 @@ class _MyProfileEditViewState extends State<MyProfileEditView> {
                 width: parentWidth,
                 child: ElevatedButton(
                   onPressed: () async {
-                    bool result = await context
-                        .read<ProfileInfoRepository>()
-                        .changeMyProfile(_image, _emailCon.text, _phNumCon.text,
-                            _desCon.text);
-                    if (result == true) {
-                      await context
-                          .read<ProfileInfoRepository>()
-                          .getMyProfileInfo();
-                    }
-                    changeMyProfileHandler(result);
+                    await changeMyProfile();
+                    //await ProfileApi.test(_image!);
                   },
                   style: ButtonStyle(
                     backgroundColor: WidgetStateProperty.all(

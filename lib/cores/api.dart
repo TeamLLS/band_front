@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -137,7 +139,7 @@ class ProfileApi {
   static final AuthInfoApi _authInfoApi = AuthInfoApi();
 
   //내 프로필 조회
-  static Future<dynamic> getMyProfile() async {
+  static Future<dynamic> getMyInfo() async {
     Uri url = Uri.parse("${_authInfoApi.url}/user/profile/me");
     Map<String, String> header = {
       'Authorization': 'Bearer ${_authInfoApi.accessToken}'
@@ -156,7 +158,7 @@ class ProfileApi {
   //상대 프로필 조회
   static Future<dynamic> getUserProfile(String userName) async {
     Uri url = Uri.parse("${_authInfoApi.url}/user/profile/$userName");
-    Map<String, String> header = {'accessToken': '${_authInfoApi.accessToken}'};
+    Map<String, String> header = {'username': _authInfoApi.username!};
 
     dynamic data = await HttpInterface.requestGet(url, header);
     if (data == null) {
@@ -166,55 +168,122 @@ class ProfileApi {
     return data;
   }
 
-  //내 프로필 변경 -> 검사 필요
-  static Future<bool> changeMyProfile(
-    String email,
-    bool emailChanged,
-    String phNum,
-    bool phNumChanged,
-    String description,
-    bool descriptionChanged,
+  //내 프로필 변경
+  static Future<bool> changeMyInfo(
+    String? email,
+    String? phNum,
+    String? description,
     XFile? image,
-    bool imageChanged,
   ) async {
     Uri url = Uri.parse("${_authInfoApi.url}/user/profile");
-    Map<String, String> header = {'username': _authInfoApi.username!};
-    Map<String, dynamic> body;
-    if (image == null) {
-      body = {
-        "email": email,
-        "emailChanged": emailChanged,
-        "phNum": phNum,
-        "phNumChanged": phNumChanged,
-        "description": description,
-        "descriptionChanged": descriptionChanged,
-        "image": null,
-        "imageChanged": false,
-      };
-      log("${_authInfoApi.username}'s value, in not image change func, email : $email, phNum : $phNum, description : $description");
+    var request = http.MultipartRequest('PATCH', url);
+
+    //insert header
+    request.headers['username'] = _authInfoApi.username!;
+
+    //insert body
+    if (image != null) {
+      var file = await http.MultipartFile.fromPath('image', image.path);
+      request.files.add(file);
+      request.fields['imageChanged'] = "true";
     } else {
-      final bytes = await image.readAsBytes();
-      final base64Image = base64Encode(bytes);
-      body = {
-        "email": email,
-        "emailChanged": emailChanged,
-        "phNum": phNum,
-        "phNumChanged": phNumChanged,
-        "description": description,
-        "descriptionChanged": descriptionChanged,
-        "image": base64Image,
-        "imageChanged": imageChanged,
-      };
-      log("${_authInfoApi.username}'s value, in set image change func, email : $email, phNum : $phNum, description : $description");
+      request.fields['imageChanged'] = "false";
+    }
+    if (email != null) {
+      request.fields['email'] = email;
+      request.fields['emailChanged'] = "true";
+    } else {
+      request.fields['emailChanged'] = "false";
+    }
+    if (phNum != null) {
+      request.fields['phNum'] = phNum;
+      request.fields['phNumChanged'] = "true";
+    } else {
+      request.fields['phNumChanged'] = "false";
+    }
+    if (description != null) {
+      request.fields['description'] = description;
+      request.fields['descriptionChanged'] = "true";
+    } else {
+      request.fields['descriptionChanged'] = "false";
     }
 
-    dynamic data = await HttpInterface.requestPatch(url, header, body);
-    if (data == null) {
-      log("err from getMyClubList");
-      return false;
-    }
+    return await HttpInterface.requestMultipart(request);
+  }
 
-    return true;
+  static Future<void> test(XFile imageFile) async {
+    Uri uri = Uri.parse("${_authInfoApi.url}/user/profile");
+
+    // 요청 객체 생성
+    var request = http.MultipartRequest('PATCH', uri);
+
+    request.headers['username'] = _authInfoApi.username!;
+
+    var file = await http.MultipartFile.fromPath('image', imageFile.path);
+    request.files.add(file);
+    request.fields['email'] = "1234";
+    request.fields['phNum'] = "1234";
+    request.fields['description'] = "description";
+
+    // Boolean 필드들
+    request.fields['emailChanged'] = "true";
+    request.fields['phNumChanged'] = "true";
+    request.fields['descriptionChanged'] = "true";
+    request.fields['imageChanged'] = "true";
+
+    log("================request info==============");
+    log("username : ${_authInfoApi._username}");
+
+    // 요청 전송
+    var response = await request.send();
+
+    if (response.statusCode == 200) {
+      log('============ Upload successful ============');
+    } else {
+      log('============ Upload failed ============');
+      log("${response.statusCode}");
+      Uint8List bytes = await response.stream.toBytes();
+      String responseBody = utf8.decode(bytes);
+      log("${responseBody}");
+    }
+  }
+
+  static Future<void> test2(XFile imageFile) async {
+    Uri uri = Uri.parse("${_authInfoApi.url}/user/profile");
+    var file = File(imageFile.path);
+    // 요청 객체 생성
+    var request = http.MultipartRequest('PATCH', uri);
+
+    request.headers['username'] = _authInfoApi.username!;
+
+    // 3. MultipartFile로 파일을 추가합니다.
+    var fileStream = http.MultipartFile.fromBytes(
+      'image', // 서버에서 인식할 필드 이름
+      await file.readAsBytes(),
+      filename: file.uri.pathSegments.last,
+    );
+    request.files.add(fileStream);
+
+    // hardcoding field
+    request.fields['email'] = "1234";
+    request.fields['phNum'] = "1234";
+    request.fields['description'] = "description";
+    request.fields['emailChanged'] = "true";
+    request.fields['phNumChanged'] = "true";
+    request.fields['descriptionChanged'] = "true";
+    request.fields['imageChanged'] = "true";
+
+    log("================request info==============");
+    log("username : ${_authInfoApi._username}");
+
+    // 요청 전송
+    var response = await request.send();
+
+    if (response.statusCode == 200) {
+      log('============ Upload successful ============');
+    } else {
+      log('============ Upload failed ============');
+    }
   }
 }
 
@@ -225,24 +294,24 @@ class ClubApi {
   static Future<bool> createClub(
     String name,
     String description,
-    String image,
+    XFile? image,
     String contactInfo,
   ) async {
     Uri url = Uri.parse("${_authInfoApi.url}/club");
-    Map<String, String> header = {'username': _authInfoApi.username!};
-    Map<String, dynamic> body = {
-      "name": name,
-      "description": description,
-      "image": "null",
-      "contactInfo": contactInfo,
-    };
-    log("create start");
-    dynamic data = await HttpInterface.requestPost(url, header, body);
-    if (data == null) {
-      log("err from createClub");
-      return false;
-    }
-    return true;
+
+    // 요청 객체 생성
+    var request = http.MultipartRequest('POST', url);
+
+    request.headers['username'] = _authInfoApi.username!;
+
+    var file = await http.MultipartFile.fromPath('image', image!.path);
+    request.files.add(file);
+    request.fields['name'] = name;
+    request.fields['description'] = description;
+    request.fields['contactInfo'] = contactInfo;
+
+    // 요청 전송
+    return await HttpInterface.requestMultipart(request);
   }
 
   //내 클럽 리스트 조회

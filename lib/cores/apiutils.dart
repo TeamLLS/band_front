@@ -97,6 +97,19 @@ class HttpInterface {
 
     return HttpMethod.handle(response);
   }
+
+  static Future<bool> requestMultipart(http.MultipartRequest request) async {
+    var response = await request.send();
+    if (response.statusCode == 200) {
+      log('============ Upload successful ============');
+      return true;
+    } else {
+      log('============ Upload failed, response is ============');
+      var responses = await http.Response.fromStream(response);
+      log("${responses.body}");
+      return false;
+    }
+  }
 }
 
 class HttpMethod {

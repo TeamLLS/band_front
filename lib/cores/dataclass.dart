@@ -1,5 +1,3 @@
-import 'enumeration.dart';
-
 class Club {
   final int clubId;
   final String name; // 리스트에 표기

@@ -8,11 +8,11 @@ import '../cores/api.dart';
 import '../cores/widgetutils.dart';
 import '../cores/router.dart';
 import '../cores/dataclass.dart';
-import '../cores/enumeration.dart';
 import 'drawers.dart';
 
 class ClubDetailViewModel {
   late int clubId;
+  late String role; //    회장, 관리자, 일반
   Club? club;
   List<ActivityEntity>? actList;
   int pn = 0;
@@ -42,8 +42,13 @@ class ClubDetailViewModel {
 }
 
 class ClubDetailView extends StatefulWidget {
-  const ClubDetailView({super.key, required this.clubId});
+  const ClubDetailView({
+    super.key,
+    required this.clubId,
+    required this.role,
+  });
   final int clubId;
+  final String role;
 
   @override
   State<ClubDetailView> createState() => _ClubDetailViewState();
@@ -53,8 +58,9 @@ class _ClubDetailViewState extends State<ClubDetailView> {
   final _scaffoldKey = GlobalKey<ScaffoldState>(); //사설 버튼을 통한 endDrawer를 위해 필요
   final ClubDetailViewModel _viewModel = ClubDetailViewModel();
 
-  Future<void> initClubDetailView() async {
+  Future<void> _loadClubDetail() async {
     _viewModel.clubId = widget.clubId;
+    _viewModel.role = widget.role;
     await _viewModel.getClubDetailInfo();
     await _viewModel.getActivityList();
     setState(() {});
@@ -63,13 +69,13 @@ class _ClubDetailViewState extends State<ClubDetailView> {
   @override
   void initState() {
     super.initState();
-    initClubDetailView();
+    _loadClubDetail();
   }
 
   @override
   Widget build(BuildContext context) {
     if (_viewModel.club == null || _viewModel.actList == null) {
-      return Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     Club club = _viewModel.club!;
@@ -80,10 +86,12 @@ class _ClubDetailViewState extends State<ClubDetailView> {
       appBar: AppBar(
         title: Text(club.name),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.build_outlined),
-            onPressed: () => context.push(RouterPath.manage),
-          ),
+          _viewModel.role != "일반"
+              ? IconButton(
+                  icon: const Icon(Icons.build_outlined),
+                  onPressed: () => context.push(RouterPath.manage),
+                )
+              : const SizedBox.shrink(),
           IconButton(
             icon: const Icon(Icons.notifications_none),
             onPressed: () async {
@@ -99,16 +107,24 @@ class _ClubDetailViewState extends State<ClubDetailView> {
       ),
       body: LayoutBuilder(builder: (context, constraints) {
         double parentWidth = constraints.maxWidth;
-
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              Image.asset(
+        Image image = club.image == null
+            ? Image.asset(
                 'assets/images/empty.png',
                 fit: BoxFit.cover,
                 height: parentWidth * 0.7,
                 width: parentWidth,
-              ),
+              )
+            : Image.network(
+                club.image!,
+                fit: BoxFit.cover,
+                height: parentWidth * 0.7,
+                width: parentWidth,
+              );
+
+        return SingleChildScrollView(
+          child: Column(
+            children: [
+              image,
               Padding(
                 padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
                 child: Column(children: [

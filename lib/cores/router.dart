@@ -2,6 +2,7 @@
 import 'package:band_front/pages/activitydetail.dart';
 import 'package:band_front/pages/clubmanage.dart';
 import 'package:band_front/pages/clubregist.dart';
+import 'package:band_front/pages/userprofile.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -13,6 +14,7 @@ import '../pages/profile.dart';
 import '../pages/clubmembers.dart';
 
 class RouterPath {
+  static const String myClubList = "/myClubList";
   static const String myProfilePage = '/myClubList/myProfile';
   static const String myProfileEdit = '/myClubList/myProfile/myProfileEdit';
 
@@ -48,8 +50,9 @@ final GoRouter route = GoRouter(
               builder: (context, state) {
                 final Map<String, dynamic>? argument =
                     state.extra as Map<String, dynamic>?;
-                var data = argument?['clubId'];
-                return ClubDetailView(clubId: data);
+                var clubId = argument?['clubId'];
+                var role = argument?['role'];
+                return ClubDetailView(clubId: clubId, role: role);
               },
               routes: [
                 GoRoute(
@@ -100,6 +103,16 @@ final GoRouter route = GoRouter(
               },
             ),
           ],
+        ),
+        //need to push
+        GoRoute(
+          path: "userProfile",
+          builder: (context, state) {
+            final Map<String, dynamic>? argument =
+                state.extra as Map<String, dynamic>?;
+            var data = argument?['username'];
+            return UserProfileView(username: data);
+          },
         ),
       ],
     ),

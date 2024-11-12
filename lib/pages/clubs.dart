@@ -20,6 +20,7 @@ class ClubListViewModel {
   Future<void> getClubList() async {
     var data = await ClubApi.getMyClubList(pn);
     var list = data['list'];
+    log("$data");
     List<ClubEntity> receivedClubs = [];
     for (Map<String, dynamic> element in list) {
       receivedClubs.add(ClubEntity.fromMap(element));
@@ -41,7 +42,34 @@ class _ClubListViewState extends State<ClubListView> {
   final _scaffoldKey = GlobalKey<ScaffoldState>(); //사설 버튼을 통한 endDrawer를 위해 필요
   final ClubListViewModel _viewModel = ClubListViewModel();
 
-  Future<void> initClubListView() async {
+  void _navigateToClubDetail(ClubEntity club) {
+    context.go(
+      RouterPath.clubDetailPage,
+      extra: {
+        'clubId': club.clubId,
+        'role': club.role,
+      },
+    );
+  }
+
+  Future<void> _navigateToClubRegist() async {
+    dynamic result = await context.push(RouterPath.clubRegist); //or await?
+    if (result == false || result == null) {
+      return;
+    }
+    await _loadData();
+    return;
+  }
+
+  void _openDrawer() {
+    _scaffoldKey.currentState?.openEndDrawer();
+  }
+
+  Scaffold _returnLoading() {
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
+  }
+
+  Future<void> _loadData() async {
     await _viewModel.getClubList();
     setState(() {});
   }
@@ -49,13 +77,13 @@ class _ClubListViewState extends State<ClubListView> {
   @override
   void initState() {
     super.initState();
-    initClubListView();
+    _loadData();
   }
 
   @override
   Widget build(BuildContext context) {
     if (_viewModel.clubs == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return _returnLoading();
     }
 
     return Scaffold(
@@ -65,7 +93,7 @@ class _ClubListViewState extends State<ClubListView> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add_circle_outline),
-            onPressed: () => context.go(RouterPath.clubRegist),
+            onPressed: () => _navigateToClubRegist(),
           ),
           IconButton(
             icon: const Icon(Icons.notifications_none),
@@ -73,7 +101,7 @@ class _ClubListViewState extends State<ClubListView> {
           ),
           IconButton(
             icon: const Icon(Icons.menu),
-            onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
+            onPressed: () => _openDrawer(),
           ),
         ],
       ),
@@ -98,35 +126,32 @@ class _ClubListViewState extends State<ClubListView> {
                     );
 
               return InkWell(
-                onTap: () {
-                  context.go(
-                    RouterPath.clubDetailPage,
-                    extra: {'clubId': club.clubId},
-                  );
-                },
+                onTap: () => _navigateToClubDetail(club),
                 child: mainUnit(
                   child: Column(
                     children: [
                       image,
                       Padding(
                         padding: const EdgeInsets.all(12),
-                        child: Column(children: [
-                          Row(children: [
-                            const VerticalDivider(),
-                            Text(club.clubName),
-                            const Spacer(),
-                            const Icon(Icons.people),
-                            Text("10"),
-                            const VerticalDivider(),
-                          ]),
-                          const Divider(thickness: 0.5),
-                          Row(children: [
-                            const VerticalDivider(),
-                            const Icon(Icons.contact_support),
-                            const VerticalDivider(),
-                            Text(testClubs[index].contactInfo ?? "없음"),
-                          ]),
-                        ]),
+                        child: Column(
+                          children: [
+                            Row(children: [
+                              const VerticalDivider(),
+                              Text(club.clubName),
+                              const Spacer(),
+                              const Icon(Icons.people),
+                              Text("10"),
+                              const VerticalDivider(),
+                            ]),
+                            const Divider(thickness: 0.5),
+                            Row(children: [
+                              const VerticalDivider(),
+                              const Icon(Icons.contact_support),
+                              const VerticalDivider(),
+                              Text(testClubs[index].contactInfo ?? "없음"),
+                            ]),
+                          ],
+                        ),
                       ),
                     ],
                   ),

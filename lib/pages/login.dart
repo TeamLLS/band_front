@@ -56,7 +56,7 @@ class _SignViewState extends State<SignView> {
 
     //3. get profile
     // ignore: use_build_context_synchronously
-    result = await context.read<ProfileInfoRepository>().getMyProfileInfo();
+    result = await context.read<MyInfo>().getMyInfo();
     if (result == false) {
       log("get profile err");
       return false;
@@ -83,7 +83,7 @@ class _SignViewState extends State<SignView> {
     }
 
     //3. test user
-    LogInApi.setUserName("Dummy_userB");
+    LogInApi.setUserName("Dummy_userC");
     LogInApi.printAuth();
     return true;
   }

@@ -16,12 +16,38 @@ Widget mainUnit({required Widget child}) {
     color: Colors.white,
     clipBehavior: Clip.antiAlias,
     shadowColor: Colors.black.withOpacity(1),
-    elevation: 10.0,
+    elevation: 3.0,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(50.0),
+      side: const BorderSide(color: Colors.grey, width: 0.8),
     ),
     child: child,
   );
+
+  // return Container(
+  //   margin: const EdgeInsets.fromLTRB(40, 0, 40, 40),
+  //   decoration: BoxDecoration(
+  //     color: Colors.white,
+  //     borderRadius: BorderRadius.circular(50.0),
+  //     border: Border.all(
+  //       color: Colors.grey, // 회색 테두리
+  //       width: 1, // 테두리의 두께
+  //     ),
+  //   ),
+  //   child: child,
+  // );
+
+  // return Card(
+  //   margin: const EdgeInsets.fromLTRB(40, 0, 40, 40),
+  //   color: Colors.white,
+  //   clipBehavior: Clip.antiAlias,
+  //   shadowColor: Colors.black.withOpacity(1),
+  //   elevation: 5.0,
+  //   shape: RoundedRectangleBorder(
+  //     borderRadius: BorderRadius.circular(50.0),
+  //   ),
+  //   child: child,
+  // );
 }
 
 Widget desUnit({required Widget child}) {
