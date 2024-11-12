@@ -150,7 +150,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-                    child: menuUnit(
+                    child: menuBarUnit(
                       width: parentWidth,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,

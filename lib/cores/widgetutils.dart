@@ -55,47 +55,51 @@ Widget desUnit({required Widget child}) {
     color: Colors.white,
     clipBehavior: Clip.antiAlias,
     shadowColor: Colors.black.withOpacity(1),
-    elevation: 10.0,
+    elevation: 3.0,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(20.0),
+      side: const BorderSide(color: Colors.grey, width: 0.8),
     ),
     child: child,
   );
 }
 
-Widget menuUnit({required double width, required Widget child}) {
-  return Container(
-    width: width,
-    child: Card(
-      color: Colors.white,
-      clipBehavior: Clip.antiAlias,
-      shadowColor: Colors.black.withOpacity(1),
-      elevation: 10.0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(50.0),
-      ),
-      child: child,
-    ),
-  );
-}
-
-Widget titleUnit({required double width, required Widget child}) {
+Widget menuBarUnit({required double width, required Widget child}) {
+  //club detail의 아이콘 메뉴 바
   return SizedBox(
     width: width,
     child: Card(
       color: Colors.white,
       clipBehavior: Clip.antiAlias,
       shadowColor: Colors.black.withOpacity(1),
-      elevation: 10.0,
+      elevation: 3.0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(50.0),
+        side: const BorderSide(color: Colors.grey, width: 0.8),
       ),
       child: child,
     ),
   );
 }
 
+// Widget titleUnit({required double width, required Widget child}) {
+//   return SizedBox(
+//     width: width,
+//     child: Card(
+//       color: Colors.white,
+//       clipBehavior: Clip.antiAlias,
+//       shadowColor: Colors.black.withOpacity(1),
+//       elevation: 10.0,
+//       shape: RoundedRectangleBorder(
+//         borderRadius: BorderRadius.circular(50.0),
+//       ),
+//       child: child,
+//     ),
+//   );
+// }
+
 Widget desTextUnit({required int maxLine, required String description}) {
+  //desUnit 안에 들어갈 text field
   return TextFormField(
     readOnly: true,
     maxLines: maxLine,
