@@ -1,31 +1,9 @@
 # band_front
 
 # 회의 때 말할 것
-클럽 리스트 조회 시 컨텍정보, 인원수 보내기
+- 내 클럽 리스트 조회
+페이지당 보내는 클럽 갯수 더 늘려주세요
 
-api err
-1. 프로필
-  이미지 포함 요청이든 아니든 변경요청 후 다시 데이터 요청받아와도 처음 값 그대로임
-2. activity 참가 신청
-  오류 진행 과정
-  더미 A로 테스트 로그인
-  더미 A의 모임 페이지 진입 후 활동 아디 1 진입
-  참가 신청 직후 다시 참가자 요청
-  dummy D (이름 최은) 하나만 받아옴
-  전페이지에 나갔다 들어오거나, 다시 테스트 로그인하면 처음 받아온 값 그대로 나옴
-3. create club err
-  400 bad request, post맞나?
-
-- 활동 목록 조회 수정 요청사항
-name -> 활동 제목? 사람이름이 들어있음
-설명 추가
-날짜 추가
-contact info 추가
-
-- 내 클럽 목록 조회 수정 요청사항
-인원수 추가
-연락처 추가
-권한은 뭐임??
 
 # issueing
 
@@ -139,3 +117,39 @@ https://code-boki.tistory.com/110
 한번해주면 이후로 잘된당!
 
 4. initState에서 provider 사용 시 read만 가능. 예제는 Profileview qhrl
+
+5. api image err
+0) 조건 : 내 카카오톡 유저로 로그인 -> 프로필 페이지 작성, 클럽 생성
+
+1) 플러터에서 이미지를 다룰 수 있는 데이터타입 파악
+ByteData: 이미지 파일을 바이트 배열로 변환 -> Uint8List 타입으로 변환해서 전송해야 함
+Uint8List: 이미지 데이터 -> 바이트 배열, multipartFile로 전송, 서버에서 이미지 파일로 판정
+base64 : 이미지 데이터 -> 문자열, form-data(json)으로 매핑해서 전송, 서버에서 디코딩 필요
+
+2) http에서 이미지를 다루는 데이터타입 파악
+File: Dart의 dart:io 라이브러리에서 제공하는 파일 객체, 로컬 저장소
+MultipartFile: 이미지 파일을 서버로 업로드할 때 사용되는 타입
+
+3) http에서 이미지를 보내는 방법
+http.MultipartRequest : 이미지 파일or이미지 바이트를 http.MultipartFile로 변환
+Base64 문자열 인코딩으로 이미지 전송 : form-data로 전송 가능
+
+4) multipart와 form data 섞어서 요청하는 방법
+
+
+3) 테스트 api 생성 후 전송 전 로그 작성(Username 포함)
+test 함수 첫 실행 -> 잘됨
+같은 로직을 가진 changeMyProfile 함수 실행 -> 실패
+test 함수 다시 실행 -> 실패
+이미지를 제외한 데이터 변경 -> 성공
+
+상세 과정
+1) 모든 필드 true, 필드 하드코딩, UI에서 이미지파일만 선택 후 요청, 성공
+2) UI에서 입력을 받아 이미지 제외 텍스트만 변경 시도, 성공, 텍스트 바뀌고 이미지는 기본 이미지?(곰돌이프사, 로컬에없는이미지)로 변경됨
+3) UI에서 이미지 포함 모든 필드 변경 시도, 실패
+4) 다시 모든 필드 true, 필드 하드코딩, 이미지파일만 선택 후 요청, 실패
+5) UI에서 입력을 받아 이미지 제외 텍스트만 변경 시도, 성공
+
+
+MultipartFile.fromPath(XFile.path) -> 실패
+MultipartFile.fromBytes(File(imageFile.path)) -> ㄴㄴ
