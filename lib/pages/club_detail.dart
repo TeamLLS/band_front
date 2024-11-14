@@ -1,7 +1,9 @@
 // dependencies
+import 'package:band_front/cores/repository.dart';
 import 'package:band_front/pages/club_manage.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'dart:developer';
 
 //pages
@@ -11,43 +13,8 @@ import '../cores/router.dart';
 import '../cores/data_class.dart';
 import 'drawers.dart';
 
-class ClubDetailViewModel {
-  late int clubId;
-  late String role; //    회장, 관리자, 일반
-  Club? club;
-  List<ActivityEntity>? actList;
-  int pn = 0;
-
-  Future<bool> getClubDetailInfo() async {
-    var data = await ClubApi.getClubDetail(clubId);
-    if (data == null) {
-      log("get club detail failed");
-      return false;
-    }
-    club = Club.fromMap(data);
-    return true;
-  }
-
-  Future<void> getActivityList() async {
-    var data = await ActivityApi.getActivityList(clubId, pn);
-    var list = data['list'];
-    List<ActivityEntity> receivedActivities = [];
-
-    for (Map<String, dynamic> element in list) {
-      receivedActivities.add(ActivityEntity.fromMap(element));
-    }
-    actList = receivedActivities;
-    pn++;
-    return;
-  }
-}
-
 class ClubDetailView extends StatefulWidget {
-  const ClubDetailView({
-    super.key,
-    required this.clubId,
-    required this.role,
-  });
+  const ClubDetailView({super.key, required this.clubId, required this.role});
   final int clubId;
   final String role;
 
@@ -57,58 +24,48 @@ class ClubDetailView extends StatefulWidget {
 
 class _ClubDetailViewState extends State<ClubDetailView> {
   final _scaffoldKey = GlobalKey<ScaffoldState>(); //사설 버튼을 통한 endDrawer를 위해 필요
-  final ClubDetailViewModel _viewModel = ClubDetailViewModel();
+  bool isLoaded = false; //존재 이유? init에서 clear를 수행해서 이전 정보가 흘러들어올 수 있다
 
-  Future<void> _loadClubDetail() async {
-    _viewModel.clubId = widget.clubId;
-    _viewModel.role = widget.role;
-    await _viewModel.getClubDetailInfo();
-    await _viewModel.getActivityList();
-    setState(() {});
+  void _navigateToManage(Club club) {
+    context.push(RouterPath.manage);
   }
 
-  Future<void> _navigateToManage() async {
-    dynamic result = await context.push(
-      RouterPath.manage,
-      extra: {"club": _viewModel.club},
-    );
-    _manageReturnHandler(result);
-  }
-
-  void _manageReturnHandler(dynamic result) {
-    if (result == ManageAct.delete) {
-      context.pop(true);
-    } else if (result == ManageAct.modify) {
-      return;
-    } else {
+  Future<void> _initClubDetail() async {
+    bool result = await context
+        .read<ClubDetail>()
+        .initClubDetail(widget.clubId, widget.role);
+    if (result == false) {
+      log("init clubDetail failed");
       return;
     }
+    setState(() => isLoaded = true);
   }
 
   @override
   void initState() {
     super.initState();
-    _loadClubDetail();
+    _initClubDetail();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_viewModel.club == null || _viewModel.actList == null) {
+    if (isLoaded == false) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    Club club = _viewModel.club!;
-    List<ActivityEntity> actList = _viewModel.actList!;
+    Club club = context.watch<ClubDetail>().club!;
+    List<ActivityEntity> actList = context.watch<ClubDetail>().actList!;
+    String role = context.watch<ClubDetail>().role!;
 
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(club.name),
         actions: [
-          _viewModel.role != "일반"
+          role != "일반"
               ? IconButton(
                   icon: const Icon(Icons.build_outlined),
-                  onPressed: () => _navigateToManage(),
+                  onPressed: () => _navigateToManage(club),
                 )
               : const SizedBox.shrink(),
           IconButton(

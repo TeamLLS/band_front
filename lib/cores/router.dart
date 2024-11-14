@@ -60,21 +60,11 @@ final GoRouter route = GoRouter(
               routes: [
                 GoRoute(
                   path: "manage",
-                  builder: (context, state) {
-                    final Map<String, dynamic>? argument =
-                        state.extra as Map<String, dynamic>?;
-                    var club = argument?['club'];
-                    return ClubManage(club: club);
-                  },
+                  builder: (context, state) => ClubManage(),
                   routes: [
                     GoRoute(
                       path: 'edit',
-                      builder: (context, state) {
-                        final Map<String, dynamic>? argument =
-                            state.extra as Map<String, dynamic>?;
-                        var club = argument?['club'];
-                        return ClubEditView(club: club);
-                      },
+                      builder: (context, state) => ClubEditView(),
                     ),
                   ],
                 ),

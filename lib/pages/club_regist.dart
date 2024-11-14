@@ -2,9 +2,11 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:band_front/cores/repository.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 //local dependencies
 import '../cores/data_class.dart';
@@ -24,26 +26,16 @@ class _ClubRegistState extends State<ClubRegist> {
   final TextEditingController descriptCon = TextEditingController();
   final TextEditingController contactCon = TextEditingController();
 
+  void _showSnackBar(String text) => showSnackBar(context, text);
+
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
-      setState(() {
-        _image = image;
-      });
+      setState(() => _image = image);
     }
   }
-
-  void _navigateToMyClubList(bool result) {
-    if (result == false) {
-      _showSnackBar("모임 생성 실패");
-      return;
-    }
-    context.pop(true);
-  }
-
-  void _showSnackBar(String text) => showSnackBar(context, text);
 
   Future<void> _createClub() async {
     if (_image == null) {
@@ -54,11 +46,23 @@ class _ClubRegistState extends State<ClubRegist> {
     bool result = await ClubApi.createClub(
       nameCon.text,
       descriptCon.text,
-      _image,
+      _image!,
       contactCon.text,
     );
 
-    _navigateToMyClubList(result);
+    if (result == false) {
+      _showSnackBar("모임 생성 실패..");
+      return;
+    }
+
+    await _navigateToMyClubList();
+  }
+
+  Future<void> _navigateToMyClubList() async {
+    await context.read<ClubList>().initClubList().then((_) {
+      _showSnackBar("모임 등록 성공!");
+      context.pop();
+    });
   }
 
   @override

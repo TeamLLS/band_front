@@ -5,46 +5,39 @@ import 'package:band_front/cores/router.dart';
 import 'package:band_front/cores/widget_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../cores/data_class.dart';
-
-enum ManageAct {
-  delete,
-  modify,
-}
+import '../cores/repository.dart';
 
 class ClubManage extends StatefulWidget {
-  ClubManage({super.key, required this.club});
-
-  Club club;
+  const ClubManage({super.key});
 
   @override
   State<ClubManage> createState() => _ClubManageState();
 }
 
 class _ClubManageState extends State<ClubManage> {
-  void _showSnackBar(String text) {
-    showSnackBar(context, text);
-  }
+  void _showSnackBar(String text) => showSnackBar(context, text);
 
   Future<dynamic> _deleteBtnListener() async {
-    bool result = await ClubApi.deleteMyClub(widget.club.clubId);
-    log("$result");
+    int clubId = context.read<ClubDetail>().clubId!;
+    bool result = await ClubApi.deleteMyClub(clubId);
     if (result == false) {
       _showSnackBar("클럽 해체 실패..");
       return;
     }
-    _deleteBtnHandler();
+    await _deleteBtnHandler();
   }
 
-  void _deleteBtnHandler() {
-    context.pop(ManageAct.delete);
+  Future<void> _deleteBtnHandler() async {
+    await context.read<ClubList>().initClubList().then((_) {
+      _showSnackBar("클럽을 해체하였습니다");
+      context.go(RouterPath.myClubList);
+    });
   }
 
   Future<dynamic> _editBtnListener() async {
-    context.push(
-      RouterPath.clubEdit,
-      extra: {"club": widget.club},
-    );
+    context.push(RouterPath.clubEdit);
   }
 
   @override

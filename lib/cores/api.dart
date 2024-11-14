@@ -294,7 +294,7 @@ class ClubApi {
   static Future<bool> createClub(
     String name,
     String description,
-    XFile? image,
+    XFile image,
     String contactInfo,
   ) async {
     Uri url = Uri.parse("${_authInfoApi.url}/club");
@@ -304,7 +304,7 @@ class ClubApi {
 
     request.headers['username'] = _authInfoApi.username!;
 
-    var file = await http.MultipartFile.fromPath('image', image!.path);
+    var file = await http.MultipartFile.fromPath('image', image.path);
     request.files.add(file);
     request.fields['name'] = name;
     request.fields['description'] = description;

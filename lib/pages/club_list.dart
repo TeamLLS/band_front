@@ -13,27 +13,6 @@ import '../cores/repository.dart';
 import '../cores/router.dart';
 import 'drawers.dart';
 
-class ClubListViewModel {
-  List<ClubEntity>? clubs;
-  int pn = 0;
-
-  Future<void> getClubList() async {
-    var data = await ClubApi.getMyClubList(pn);
-    var list = data['list'];
-    log("$data");
-    List<ClubEntity> receivedClubs = [];
-    for (Map<String, dynamic> element in list) {
-      ClubEntity temp = ClubEntity.fromMap(element);
-      if (temp.clubStatus != "운영종료") {
-        receivedClubs.add(temp);
-      }
-    }
-    clubs = receivedClubs;
-    //pn++;
-    return;
-  }
-}
-
 class ClubListView extends StatefulWidget {
   const ClubListView({super.key});
 
@@ -43,61 +22,44 @@ class ClubListView extends StatefulWidget {
 
 class _ClubListViewState extends State<ClubListView> {
   final _scaffoldKey = GlobalKey<ScaffoldState>(); //사설 버튼을 통한 endDrawer를 위해 필요
-  final ClubListViewModel _viewModel = ClubListViewModel();
 
-  void _clubDetailBtnListener(ClubEntity club) async {
-    dynamic result = await context.push(
+  void _showSnackBar(String text) {
+    showSnackBar(context, text);
+  }
+
+  void _navigateToClubDetail(ClubEntity club) {
+    context.push(
       RouterPath.clubDetailPage,
       extra: {
         'clubId': club.clubId,
         'role': club.role,
       },
     );
-    await _returnHandler(result);
-    return;
   }
 
-  Future<void> _clubRegistBtnListener() async {
-    dynamic result = await context.push(RouterPath.clubRegist); //or await?
-    if (result == false || result == null) {
-      return;
+  void _navigateToClubRegist() {
+    context.push(RouterPath.clubRegist);
+  }
+
+  void _openDrawer() => _scaffoldKey.currentState?.openEndDrawer();
+
+  Future<void> _initClubList() async {
+    bool result = await context.read<ClubList>().initClubList();
+    if (result == false) {
+      _showSnackBar("목록을 불러오지 못했습니다..");
     }
-    await _loadData();
     return;
-  }
-
-  Future<void> _returnHandler(dynamic result) async {
-    if (result == false || result == null) {
-      return;
-    }
-    await _loadData();
-    return;
-  }
-
-  void _openDrawer() {
-    _scaffoldKey.currentState?.openEndDrawer();
-  }
-
-  Scaffold _returnLoading() {
-    return const Scaffold(body: Center(child: CircularProgressIndicator()));
-  }
-
-  Future<void> _loadData() async {
-    await _viewModel.getClubList();
-    setState(() {});
   }
 
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _initClubList();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_viewModel.clubs == null) {
-      return _returnLoading();
-    }
+    List<ClubEntity> clubs = context.watch<ClubList>().clubs;
 
     return Scaffold(
       key: _scaffoldKey,
@@ -106,7 +68,7 @@ class _ClubListViewState extends State<ClubListView> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add_circle_outline),
-            onPressed: () => _clubRegistBtnListener(),
+            onPressed: () => _navigateToClubRegist(),
           ),
           IconButton(
             icon: const Icon(Icons.notifications_none),
@@ -123,12 +85,12 @@ class _ClubListViewState extends State<ClubListView> {
           double parentWidth = constraints.maxWidth;
 
           return ListView.builder(
-            itemCount: _viewModel.clubs!.length,
+            itemCount: clubs.length,
             itemBuilder: (context, index) {
-              ClubEntity club = _viewModel.clubs![index];
-              Image image = _viewModel.clubs![index].image != null
+              ClubEntity club = clubs[index];
+              Image image = clubs[index].image != null
                   ? Image.network(
-                      _viewModel.clubs![index].image!,
+                      clubs[index].image!,
                       fit: BoxFit.cover,
                       height: parentWidth * 0.5,
                     )
@@ -139,7 +101,7 @@ class _ClubListViewState extends State<ClubListView> {
                     );
 
               return InkWell(
-                onTap: () => _clubDetailBtnListener(club),
+                onTap: () => _navigateToClubDetail(club),
                 child: mainUnit(
                   child: Column(
                     children: [

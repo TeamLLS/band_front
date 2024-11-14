@@ -1,31 +1,14 @@
 import 'dart:developer';
 
+import 'package:band_front/cores/repository.dart';
 import 'package:band_front/cores/widget_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../cores/api.dart';
 import '../cores/data_class.dart';
 import '../cores/router.dart';
 import '../main.dart';
-
-class ClubmemberListViewModel {
-  late int clubId;
-  List<Member>? members;
-  int pn = 0;
-
-  Future<void> getMemberList() async {
-    var data = await ClubApi.getClubMemberList(clubId, pn);
-    var list = data['list'];
-    List<Member> receivedMembers = [];
-
-    for (Map<String, dynamic> element in list) {
-      receivedMembers.add(Member.fromMap(element));
-    }
-    members = receivedMembers;
-    pn++;
-    return;
-  }
-}
 
 class ClubMemberListView extends StatefulWidget {
   ClubMemberListView({super.key, required this.clubId});
@@ -36,17 +19,7 @@ class ClubMemberListView extends StatefulWidget {
 }
 
 class _ClubMemberListViewState extends State<ClubMemberListView> {
-  ClubmemberListViewModel _viewModel = ClubmemberListViewModel();
-
-  void _showSnackBar(String text) {
-    showSnackBar(context, text);
-  }
-
-  Future<void> _initClubMemberListView() async {
-    _viewModel.clubId = widget.clubId;
-    await _viewModel.getMemberList();
-    setState(() {});
-  }
+  void _showSnackBar(String text) => showSnackBar(context, text);
 
   Icon _getRoleIcon(String role) {
     switch (role) {
@@ -62,15 +35,23 @@ class _ClubMemberListViewState extends State<ClubMemberListView> {
   }
 
   Future<void> _inviteBtnListener() async {
-    var data = await ClubApi.registMember(_viewModel.clubId, "Dummy_userA");
+    int clubId = context.read<ClubDetail>().clubId!;
+    var data = await ClubApi.registMember(clubId, "Dummy_userD");
+
+    await _inviteBtnHandler(data);
+  }
+
+  Future<void> _inviteBtnHandler(dynamic data) async {
     if (data == null) {
       _showSnackBar("등록 실패..");
       return;
     }
-    await _viewModel.getMemberList();
-    setState(() {
-      _showSnackBar("등록 성공!");
-    });
+    await context.read<ClubDetail>().getMemberList();
+    _showSnackBar("등록 성공!");
+  }
+
+  Future<void> _initClubMemberListView() async {
+    await context.read<ClubDetail>().getMemberList();
   }
 
   @override
@@ -81,11 +62,7 @@ class _ClubMemberListViewState extends State<ClubMemberListView> {
 
   @override
   Widget build(BuildContext context) {
-    if (_viewModel.members == null) {
-      return Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
-    List<Member> members = _viewModel.members!;
+    List<Member> members = context.watch<ClubDetail>().members;
 
     return Scaffold(
       appBar: AppBar(

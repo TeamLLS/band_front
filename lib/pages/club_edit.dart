@@ -2,8 +2,10 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:band_front/cores/api.dart';
+import 'package:band_front/cores/repository.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 import '../cores/data_class.dart';
 import '../cores/widget_utils.dart';
@@ -15,16 +17,16 @@ enum ClubStatus {
 }
 
 class ClubEditView extends StatefulWidget {
-  ClubEditView({super.key, required this.club});
-  Club club;
+  const ClubEditView({super.key});
 
   @override
   State<ClubEditView> createState() => _ClubEditViewState();
 }
 
 class _ClubEditViewState extends State<ClubEditView> {
+  late Club club;
   XFile? _image;
-  ClubStatus? _clubStatus;
+  ClubStatus? _clubStatus; //for radio button
   final TextEditingController _nameCon = TextEditingController();
   final TextEditingController _desCon = TextEditingController();
 
@@ -33,9 +35,7 @@ class _ClubEditViewState extends State<ClubEditView> {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
-      setState(() {
-        _image = image;
-      });
+      setState(() => _image = image);
     }
   }
 
@@ -52,13 +52,26 @@ class _ClubEditViewState extends State<ClubEditView> {
     }
 
     bool result = await ClubApi.changeClubDetail(
-      widget.club.clubId,
+      club.clubId,
       namParam,
       desParam,
       statusParam,
       _image,
     );
     log("$result");
+  }
+
+  void _initClubEdit() {
+    club = context.read<ClubDetail>().club!;
+    _nameCon.text = club.name;
+    _desCon.text = club.description ?? "";
+    if (club.status == "운영중") {
+      _clubStatus = ClubStatus.ACTIVE;
+    } else if (club.status == "운영종료") {
+      _clubStatus = ClubStatus.CLOSED;
+    } else if (club.status == "모집중") {
+      _clubStatus = ClubStatus.RECRUITING;
+    }
   }
 
   // clubId: 클럽 ID, (Long) -> get from before page
@@ -74,15 +87,7 @@ class _ClubEditViewState extends State<ClubEditView> {
   @override
   void initState() {
     super.initState();
-    _nameCon.text = widget.club.name;
-    _desCon.text = widget.club.description ?? "";
-    if (widget.club.status == "운영중") {
-      _clubStatus = ClubStatus.ACTIVE;
-    } else if (widget.club.status == "운영종료") {
-      _clubStatus = ClubStatus.CLOSED;
-    } else if (widget.club.status == "모집중") {
-      _clubStatus = ClubStatus.RECRUITING;
-    }
+    _initClubEdit();
   }
 
   @override
