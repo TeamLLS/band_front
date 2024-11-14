@@ -1,7 +1,7 @@
 //dependencies
 import 'dart:developer';
 
-import 'package:band_front/cores/widgetutils.dart';
+import 'package:band_front/cores/widget_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

@@ -4,8 +4,44 @@
 - 내 클럽 리스트 조회
 페이지당 보내는 클럽 갯수 더 늘려주세요
 
+모임 해체 시 운영 종료로 표시됨
+
+- 회원 등록 api
+오류 발생, Status code: 415
+
+- 클럽 정보 변경 api
+1. 연락처도 변경해야되지않을까?
+2. 변경 시도 시 오류
+1) status를 문자열 ACTIVE로 해서
+[log] ============ Upload failed, response is ============
+[log] {"timestamp":"2024-11-13T04:07:02.870+09:00","status":500,"error":"Internal Server Error","path":"/club"}
+[log] false
+
+2) status를 문자열 운영중 으로 해서
+[log] ============ Upload failed, response is ============
+[log] {"timestamp":"2024-11-13T04:08:24.738+09:00","status":400,"error":"Bad Request","path":"/club"}
+[log] false
 
 # issueing
+- 수정 항목
+이미지 관련 오류 수정 -> 프로필 변경, 클럽 생성 정상 작동.
+UI 유닛에 외곽선 추가.
+데이터 변경 시 변경 내역 바로 반영하도록 수정.
+ex - 내 프로필 정보 변경 후 수정 정보 바로 출력.
+
+- 추가 항목
+상대방 프로필 조회 페이지 추가.
+모임 정보 변경 페이지 추가.
+
+- 추가된 기능
+클럽 해체.
+회원 탈퇴.
+
+- 발생 오류
+회원 등록, 클럽 정보 변경 api.
+
+- 다음 주 예상 진행 상황
+발생한 오류 해결, activity 서버 관련 api 완성.
 
 # 메모
 form 필요한건 한꺼번에 해야겠다

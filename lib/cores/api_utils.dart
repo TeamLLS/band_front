@@ -190,7 +190,7 @@ class HttpMethod {
       http.Response response = await http.post(
         url,
         headers: header,
-        body: body,
+        body: jsonEncode(body),
       );
       return response;
     } catch (e) {

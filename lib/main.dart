@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 
 // local dependencies
 import 'package:band_front/cores/router.dart';
-import 'cores/repositories.dart';
+import 'cores/repository.dart';
 import 'pages/profile.dart';
 
 void main() {

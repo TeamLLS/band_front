@@ -10,6 +10,56 @@ void showSnackBar(BuildContext context, String text) {
   return;
 }
 
+Widget inputTextUnit(TextEditingController ctl) {
+  return Material(
+    elevation: 3.0,
+    borderRadius: BorderRadius.circular(40.0),
+    child: TextField(
+      controller: ctl,
+      decoration: InputDecoration(
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(40.0),
+          borderSide: const BorderSide(color: Colors.grey, width: 0.8),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(40.0),
+          borderSide: const BorderSide(color: Colors.grey, width: 0.8),
+        ),
+      ),
+    ),
+  );
+
+  // return TextField(
+  //   controller: ctl,
+  //   decoration: InputDecoration(
+  //     enabledBorder: OutlineInputBorder(
+  //       borderRadius: BorderRadius.circular(40.0),
+  //       borderSide: const BorderSide(color: Colors.grey, width: 0.8),
+  //     ),
+  //     focusedBorder: OutlineInputBorder(
+  //       borderRadius: BorderRadius.circular(40.0),
+  //       borderSide: const BorderSide(color: Colors.grey, width: 0.8),
+  //     ),
+  //   ),
+  // );
+}
+
+Widget InputMultiTextUnit(TextEditingController ctl) {
+  //wrap with desUnit
+  return TextField(
+    controller: ctl,
+    maxLines: 5,
+    decoration: const InputDecoration(
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.grey, width: 0.8),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.grey, width: 0.8),
+      ),
+    ),
+  );
+}
+
 Widget mainUnit({required Widget child}) {
   return Card(
     margin: const EdgeInsets.fromLTRB(40, 0, 40, 40),

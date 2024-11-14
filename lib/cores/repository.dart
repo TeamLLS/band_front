@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'api.dart';
-import 'dataclass.dart';
+import 'data_class.dart';
 
 class MyInfo with ChangeNotifier {
   User? me;
@@ -27,7 +27,7 @@ class MyInfo with ChangeNotifier {
       return false;
     }
 
-    me = User.fromJson(data);
+    me = User.fromMap(data);
     if (me == null) {
       return false;
     }
@@ -40,4 +40,12 @@ class MyInfo with ChangeNotifier {
       XFile? image, String? email, String? phNum, String? description) async {
     return await ProfileApi.changeMyInfo(email, phNum, description, image);
   }
+}
+
+class ClubInfo with ChangeNotifier {
+  int? clubId;
+  String? role; // 회장, 관리자, 일반
+  Club? club;
+  List<ActivityEntity>? actList;
+  int pn = 0;
 }

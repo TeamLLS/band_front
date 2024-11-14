@@ -1,11 +1,11 @@
 import 'dart:developer';
-import 'package:band_front/cores/repositories.dart';
+import 'package:band_front/cores/repository.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../cores/api.dart';
-import '../cores/widgetutils.dart';
+import '../cores/widget_utils.dart';
 
 class KakaoSignMethod {
   Future<void> getKakaoKeyHash() async {

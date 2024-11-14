@@ -1,17 +1,18 @@
 //dependencies
-import 'package:band_front/pages/activitydetail.dart';
-import 'package:band_front/pages/clubmanage.dart';
-import 'package:band_front/pages/clubregist.dart';
-import 'package:band_front/pages/userprofile.dart';
+import 'package:band_front/pages/activity_detail.dart';
+import 'package:band_front/pages/club_manage.dart';
+import 'package:band_front/pages/club_regist.dart';
+import 'package:band_front/pages/user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 // pages
+import '../pages/club_edit.dart';
 import '../pages/login.dart';
-import '../pages/clubs.dart';
-import '../pages/clubdetail.dart';
+import '../pages/club_list.dart';
+import '../pages/club_detail.dart';
 import '../pages/profile.dart';
-import '../pages/clubmembers.dart';
+import '../pages/club_members.dart';
 
 class RouterPath {
   static const String myClubList = "/myClubList";
@@ -23,11 +24,13 @@ class RouterPath {
 
   static const String manage = '/myClubList/clubDetail/manage';
 
-  static const String clubModify = '/myClubList/clubDetail/manage/modify';
+  static const String clubEdit = '/myClubList/clubDetail/manage/edit';
 
   static const String activityDetail = '/myClubList/clubDetail/activityDetail';
 
   static const String clubRegist = '/myClubList/clubRegist';
+
+  static const String userProfile = "/userProfile";
 }
 
 // context.go(
@@ -57,11 +60,21 @@ final GoRouter route = GoRouter(
               routes: [
                 GoRoute(
                   path: "manage",
-                  builder: (context, state) => const ClubManage(),
+                  builder: (context, state) {
+                    final Map<String, dynamic>? argument =
+                        state.extra as Map<String, dynamic>?;
+                    var club = argument?['club'];
+                    return ClubManage(club: club);
+                  },
                   routes: [
                     GoRoute(
-                      path: 'modify',
-                      builder: (context, state) => const ClubModify(),
+                      path: 'edit',
+                      builder: (context, state) {
+                        final Map<String, dynamic>? argument =
+                            state.extra as Map<String, dynamic>?;
+                        var club = argument?['club'];
+                        return ClubEditView(club: club);
+                      },
                     ),
                   ],
                 ),

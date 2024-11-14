@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
-import 'apiutils.dart';
+import 'api_utils.dart';
 
 class AuthInfoApi {
   final String _url =
@@ -343,6 +343,48 @@ class ClubApi {
   }
 
   // 클럽 정보 변경
+  static Future<bool> changeClubDetail(
+    int clubId,
+    String? name,
+    String? description,
+    String? status,
+    XFile? image,
+  ) async {
+    Uri url = Uri.parse("${_authInfoApi.url}/club");
+    var request = http.MultipartRequest('PATCH', url);
+
+    //insert header
+    request.headers['username'] = _authInfoApi.username!;
+
+    //insert body
+    if (image != null) {
+      var file = await http.MultipartFile.fromPath('image', image.path);
+      request.files.add(file);
+      request.fields['imageChanged'] = "true";
+    } else {
+      request.fields['imageChanged'] = "false";
+    }
+    if (name != null) {
+      request.fields['name'] = name;
+      request.fields['nameChanged'] = "true";
+    } else {
+      request.fields['nameChanged'] = "false";
+    }
+    if (description != null) {
+      request.fields['description'] = description;
+      request.fields['descriptionChanged'] = "true";
+    } else {
+      request.fields['descriptionChanged'] = "false";
+    }
+    if (status != null) {
+      request.fields['status'] = status;
+      request.fields['statusChanged'] = "true";
+    } else {
+      request.fields['statusChanged'] = "false";
+    }
+
+    return await HttpInterface.requestMultipart(request);
+  }
 
   // 클럽 회원 조회
   static Future<dynamic> getClubMemberList(int clubId, int pn) async {
@@ -359,12 +401,40 @@ class ClubApi {
   }
 
   // 클럽 해체
+  static Future<bool> deleteMyClub(int clubId) async {
+    Uri url = Uri.parse("${_authInfoApi.url}/club/$clubId/close");
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    return await HttpInterface.requestPatchWithoutBody(url, header);
+  }
+
   // 회원 등록
+  static Future<dynamic> registMember(int clubId, String username) async {
+    Uri url = Uri.parse("${_authInfoApi.url}/member");
+    Map<String, String> header = {
+      "Content-Type": "application/json",
+      'username': _authInfoApi.username!,
+    };
+    Map<String, dynamic> body = {
+      "clubId": clubId,
+      "username": username,
+    };
+
+    dynamic data = await HttpInterface.requestPost(url, header, body);
+    if (data == null) {
+      log("err from registMember");
+      return;
+    }
+
+    return data;
+  }
+
   // 회원 권한 변경
+
   // 회원 강퇴
 
   // 회원 탈퇴
-  static Future<bool> deleteClub(int clubId) async {
+  static Future<bool> deleteMyFromClub(int clubId) async {
     Uri url = Uri.parse("${_authInfoApi.url}/member/$clubId/withdraw");
     Map<String, String> header = {'username': _authInfoApi.username!};
 

@@ -9,10 +9,10 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 
 // local dependencies
-import '../cores/dataclass.dart';
-import '../cores/repositories.dart';
+import '../cores/data_class.dart';
+import '../cores/repository.dart';
 import '../cores/router.dart';
-import '../cores/widgetutils.dart';
+import '../cores/widget_utils.dart';
 
 class MyProfileView extends StatefulWidget {
   const MyProfileView({super.key});
@@ -252,27 +252,22 @@ class _MyProfileEditViewState extends State<MyProfileEditView> {
                       : Image.file(File(_image!.path)),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: TextField(
-                  controller: _emailCon,
-                  decoration: InputDecoration(labelText: '이메일 주소'),
-                ),
+              const Padding(
+                padding: EdgeInsets.fromLTRB(0, 16, 0, 16),
+                child: Text("이메일 주소"),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: TextField(
-                  controller: _phNumCon,
-                  decoration: InputDecoration(labelText: '핸드폰 번호'),
-                ),
+              inputTextUnit(_emailCon),
+              const Padding(
+                padding: EdgeInsets.fromLTRB(0, 16, 0, 16),
+                child: Text("핸드폰 번호"),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: TextField(
-                  controller: _desCon,
-                  decoration: InputDecoration(labelText: '자기소개'),
-                  maxLines: 3,
-                ),
+              inputTextUnit(_phNumCon),
+              const Padding(
+                padding: EdgeInsets.fromLTRB(0, 16, 0, 16),
+                child: Text("자기소개란"),
+              ),
+              desUnit(
+                child: InputMultiTextUnit(_desCon),
               ),
               Container(
                 padding: const EdgeInsets.only(top: 16),

@@ -1,13 +1,14 @@
 // dependencies
+import 'package:band_front/pages/club_manage.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:developer';
 
 //pages
 import '../cores/api.dart';
-import '../cores/widgetutils.dart';
+import '../cores/widget_utils.dart';
 import '../cores/router.dart';
-import '../cores/dataclass.dart';
+import '../cores/data_class.dart';
 import 'drawers.dart';
 
 class ClubDetailViewModel {
@@ -66,6 +67,24 @@ class _ClubDetailViewState extends State<ClubDetailView> {
     setState(() {});
   }
 
+  Future<void> _navigateToManage() async {
+    dynamic result = await context.push(
+      RouterPath.manage,
+      extra: {"club": _viewModel.club},
+    );
+    _manageReturnHandler(result);
+  }
+
+  void _manageReturnHandler(dynamic result) {
+    if (result == ManageAct.delete) {
+      context.pop(true);
+    } else if (result == ManageAct.modify) {
+      return;
+    } else {
+      return;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -89,13 +108,13 @@ class _ClubDetailViewState extends State<ClubDetailView> {
           _viewModel.role != "일반"
               ? IconButton(
                   icon: const Icon(Icons.build_outlined),
-                  onPressed: () => context.push(RouterPath.manage),
+                  onPressed: () => _navigateToManage(),
                 )
               : const SizedBox.shrink(),
           IconButton(
             icon: const Icon(Icons.notifications_none),
             onPressed: () async {
-              bool result = await ClubApi.deleteClub(widget.clubId);
+              bool result = await ClubApi.deleteMyFromClub(widget.clubId);
               log("$result");
             },
           ),
@@ -161,7 +180,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                           ),
                           IconButton(
                             icon: Icon(Icons.people),
-                            onPressed: () => context.go(
+                            onPressed: () => context.push(
                               RouterPath.members,
                               extra: {'clubId': widget.clubId},
                             ),

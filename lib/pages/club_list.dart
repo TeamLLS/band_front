@@ -1,15 +1,15 @@
 //dependencies
 import 'dart:developer';
 
-import 'package:band_front/cores/widgetutils.dart';
+import 'package:band_front/cores/widget_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 //pages
 import '../cores/api.dart';
-import '../cores/dataclass.dart';
-import '../cores/repositories.dart';
+import '../cores/data_class.dart';
+import '../cores/repository.dart';
 import '../cores/router.dart';
 import 'drawers.dart';
 
@@ -23,10 +23,13 @@ class ClubListViewModel {
     log("$data");
     List<ClubEntity> receivedClubs = [];
     for (Map<String, dynamic> element in list) {
-      receivedClubs.add(ClubEntity.fromMap(element));
+      ClubEntity temp = ClubEntity.fromMap(element);
+      if (temp.clubStatus != "운영종료") {
+        receivedClubs.add(temp);
+      }
     }
     clubs = receivedClubs;
-    pn++;
+    //pn++;
     return;
   }
 }
@@ -42,18 +45,28 @@ class _ClubListViewState extends State<ClubListView> {
   final _scaffoldKey = GlobalKey<ScaffoldState>(); //사설 버튼을 통한 endDrawer를 위해 필요
   final ClubListViewModel _viewModel = ClubListViewModel();
 
-  void _navigateToClubDetail(ClubEntity club) {
-    context.go(
+  void _clubDetailBtnListener(ClubEntity club) async {
+    dynamic result = await context.push(
       RouterPath.clubDetailPage,
       extra: {
         'clubId': club.clubId,
         'role': club.role,
       },
     );
+    await _returnHandler(result);
+    return;
   }
 
-  Future<void> _navigateToClubRegist() async {
+  Future<void> _clubRegistBtnListener() async {
     dynamic result = await context.push(RouterPath.clubRegist); //or await?
+    if (result == false || result == null) {
+      return;
+    }
+    await _loadData();
+    return;
+  }
+
+  Future<void> _returnHandler(dynamic result) async {
     if (result == false || result == null) {
       return;
     }
@@ -93,7 +106,7 @@ class _ClubListViewState extends State<ClubListView> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add_circle_outline),
-            onPressed: () => _navigateToClubRegist(),
+            onPressed: () => _clubRegistBtnListener(),
           ),
           IconButton(
             icon: const Icon(Icons.notifications_none),
@@ -126,7 +139,7 @@ class _ClubListViewState extends State<ClubListView> {
                     );
 
               return InkWell(
-                onTap: () => _navigateToClubDetail(club),
+                onTap: () => _clubDetailBtnListener(club),
                 child: mainUnit(
                   child: Column(
                     children: [
@@ -140,7 +153,7 @@ class _ClubListViewState extends State<ClubListView> {
                               Text(club.clubName),
                               const Spacer(),
                               const Icon(Icons.people),
-                              Text("10"),
+                              Text(club.clubStatus ?? "10"),
                               const VerticalDivider(),
                             ]),
                             const Divider(thickness: 0.5),

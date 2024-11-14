@@ -1,15 +1,26 @@
+import 'dart:developer';
+
+import 'package:band_front/cores/api.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../cores/dataclass.dart';
+import '../cores/data_class.dart';
 import '../cores/router.dart';
-import '../cores/widgetutils.dart';
+import '../cores/widget_utils.dart';
 
 class UserProfileViewModel {
   late String username;
   User? user;
 
-  Future<void> getUserProfile() async {}
+  Future<bool> getUserProfile() async {
+    var data = await ProfileApi.getUserProfile(username);
+    if (data == null) {
+      log("get club detail failed");
+      return false;
+    }
+    user = User.fromMap(data);
+    return true;
+  }
 }
 
 class UserProfileView extends StatefulWidget {
@@ -25,8 +36,11 @@ class _UserProfileViewState extends State<UserProfileView> {
 
   Future<void> _initUserProfileView() async {
     _viewModel.username = widget.username;
-    await _viewModel.getUserProfile();
-    setState(() {});
+    bool result = await _viewModel.getUserProfile();
+    if (result == true) {
+      setState(() {});
+    }
+    return;
   }
 
   @override
@@ -98,13 +112,13 @@ class _UserProfileViewState extends State<UserProfileView> {
                           const VerticalDivider(),
                           const Icon(Icons.phone),
                           const VerticalDivider(),
-                          Text(user.phNum!),
+                          Text(user.phNum ?? "연락처가 없습니다"),
                         ]),
                         Row(children: [
                           const VerticalDivider(),
                           const Icon(Icons.email),
                           const VerticalDivider(),
-                          Text(user.email!),
+                          Text(user.email ?? "연락처가 없습니다"),
                         ]),
                       ]),
                     ),

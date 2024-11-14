@@ -210,17 +210,17 @@ class User {
     this.image,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) {
+  factory User.fromMap(Map<String, dynamic> map) {
     return User(
-      userId: json['userId'] as int,
-      username: json['username'],
-      email: json['email'],
-      name: json['name'],
-      gender: json['gender'],
-      age: json['age'] != null ? json['age'] as int : null,
-      phNum: json['phNum'],
-      description: json['description'],
-      image: json['image'],
+      userId: map['userId'] as int,
+      username: map['username'],
+      email: map['email'],
+      name: map['name'],
+      gender: map['gender'],
+      age: map['age'] != null ? map['age'] as int : null,
+      phNum: map['phNum'],
+      description: map['description'],
+      image: map['image'],
     );
   }
 
@@ -246,7 +246,8 @@ class Member {
   final String name; //표시
   final int age;
   final String gender;
-  final String statusName; //표시
+  final int roleRank;
+  final String status; //표시
 
   Member({
     required this.memberId,
@@ -256,7 +257,8 @@ class Member {
     required this.name,
     required this.age,
     required this.gender,
-    required this.statusName,
+    required this.status,
+    required this.roleRank,
   });
 
   factory Member.fromMap(Map<String, dynamic> map) {
@@ -265,10 +267,11 @@ class Member {
       clubId: map['clubId'] as int,
       username: map['username'],
       roleName: map['roleName'],
-      statusName: map['statusName'],
+      status: map['status'],
       name: map['name'],
       gender: map['gender'],
       age: map['age'] as int,
+      roleRank: map['roleRank'] as int,
     );
   }
 
@@ -278,9 +281,10 @@ class Member {
       'club': clubId,
       'username': username,
       'role': roleName.toString().split('.').last,
-      'status': statusName.toString().split('.').last,
+      'status': status.toString().split('.').last,
       'name': name,
       'gender': gender,
+      'roleRank': roleRank,
     };
   }
 }
@@ -293,10 +297,11 @@ List<Member> testMembers = List.generate(5, (index) {
     clubId: index,
     username: 'member$index',
     roleName: "role",
-    statusName: "status",
+    status: "status",
     name: 'Member $index',
     gender: index % 2 == 0 ? 'male' : 'female',
     age: 11,
+    roleRank: 3,
   );
 });
 

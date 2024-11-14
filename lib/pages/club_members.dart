@@ -1,8 +1,11 @@
 import 'dart:developer';
 
+import 'package:band_front/cores/widget_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../cores/api.dart';
-import '../cores/dataclass.dart';
+import '../cores/data_class.dart';
+import '../cores/router.dart';
 import '../main.dart';
 
 class ClubmemberListViewModel {
@@ -35,13 +38,17 @@ class ClubMemberListView extends StatefulWidget {
 class _ClubMemberListViewState extends State<ClubMemberListView> {
   ClubmemberListViewModel _viewModel = ClubmemberListViewModel();
 
-  Future<void> initClubMemberListView() async {
+  void _showSnackBar(String text) {
+    showSnackBar(context, text);
+  }
+
+  Future<void> _initClubMemberListView() async {
     _viewModel.clubId = widget.clubId;
     await _viewModel.getMemberList();
     setState(() {});
   }
 
-  Icon getRoleIcon(String role) {
+  Icon _getRoleIcon(String role) {
     switch (role) {
       case '회장':
         return const Icon(Icons.stars, color: Colors.yellow);
@@ -54,10 +61,22 @@ class _ClubMemberListViewState extends State<ClubMemberListView> {
     }
   }
 
+  Future<void> _inviteBtnListener() async {
+    var data = await ClubApi.registMember(_viewModel.clubId, "Dummy_userA");
+    if (data == null) {
+      _showSnackBar("등록 실패..");
+      return;
+    }
+    await _viewModel.getMemberList();
+    setState(() {
+      _showSnackBar("등록 성공!");
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    initClubMemberListView();
+    _initClubMemberListView();
   }
 
   @override
@@ -73,10 +92,11 @@ class _ClubMemberListViewState extends State<ClubMemberListView> {
         title: const Text("회원 목록"),
         actions: [
           ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () async => await _inviteBtnListener(),
             label: const Icon(Icons.person_add),
             style: ButtonStyle(
               backgroundColor: WidgetStateProperty.all(Colors.yellow),
+              elevation: WidgetStateProperty.all(2.0),
             ),
           ),
           const VerticalDivider(color: Colors.white),
@@ -86,15 +106,27 @@ class _ClubMemberListViewState extends State<ClubMemberListView> {
         padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
         itemCount: members.length,
         itemBuilder: (context, index) {
+          log("username : ${members[index].username}");
           return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: ListTile(
-              leading: getRoleIcon(members[index].roleName),
-              title: Text(members[index].roleName),
-              subtitle:
-                  Text('${members[index].name}  |  ${members[index].username}'),
-              trailing: Text(members[index].statusName),
-              onTap: () {},
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Card(
+              elevation: 5.0, // 그림자 효과
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40.0),
+              ),
+              child: ListTile(
+                leading: _getRoleIcon(members[index].roleName),
+                title: Text(members[index].roleName),
+                subtitle: Text(
+                    '${members[index].name}  |  ${members[index].username}'),
+                trailing: Text(members[index].status),
+                onTap: () {
+                  context.push(
+                    RouterPath.userProfile,
+                    extra: {"username": members[index].username},
+                  );
+                },
+              ),
             ),
           );
         },
