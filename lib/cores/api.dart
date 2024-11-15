@@ -430,10 +430,26 @@ class ClubApi {
   }
 
   // 회원 권한 변경
+  static Future<bool> changeMemberRole(int memberId, String role) async {
+    Uri url = Uri.parse("${_authInfoApi.url}/member/role");
+    Map<String, String> header = {
+      "Content-Type": "application/json",
+      'username': _authInfoApi.username!,
+    };
+    Map<String, dynamic> body = {"memberId": memberId, "role": role};
+
+    return await HttpInterface.requestPatch(url, header, body);
+  }
 
   // 회원 강퇴
+  static Future<bool> removeMember(int memberId) async {
+    Uri url = Uri.parse("${_authInfoApi.url}/member/$memberId/ban");
+    Map<String, String> header = {'username': _authInfoApi.username!};
 
-  // 회원 탈퇴
+    return await HttpInterface.requestPatchWithoutBody(url, header);
+  }
+
+  // 회원 탈퇴, 아직 할당되지 않음
   static Future<bool> deleteMyFromClub(int clubId) async {
     Uri url = Uri.parse("${_authInfoApi.url}/member/$clubId/withdraw");
     Map<String, String> header = {'username': _authInfoApi.username!};

@@ -41,6 +41,75 @@ class MyInfo with ChangeNotifier {
   }
 }
 
+class UserInfo with ChangeNotifier {
+  String? username;
+  int? memberId;
+  User? user;
+  String? role;
+
+  void _clear() {
+    username = null;
+    memberId = null;
+    user = null;
+    role = null;
+  }
+
+  void setUserInfo(String username, int memberId, String role) {
+    _clear();
+    this.username = username;
+    this.memberId = memberId;
+    this.role = role;
+  }
+
+  Future<bool> getUserProfile() async {
+    if (username == null || memberId == null) {
+      log("username null in getUserProfile");
+      return false;
+    }
+    var data = await ProfileApi.getUserProfile(username!);
+    if (data == null) {
+      log("get club detail failed");
+      return false;
+    }
+    user = User.fromMap(data);
+    return true;
+  }
+
+  Future<bool> removeFromClub() async {
+    bool result = await ClubApi.removeMember(memberId!);
+    if (result == false) {
+      log("remove member from this club fail");
+      return false;
+    }
+    return true;
+  }
+
+  Future<bool> changeRole(String role) async {
+    String? roleParam;
+    switch (role) {
+      case "회장":
+        roleParam = "OWNER";
+        break;
+      case "관리자":
+        roleParam = "MANAGER";
+        break;
+      case "일반":
+        roleParam = "REGULAR";
+        break;
+      default:
+        log("changeRole in repository err");
+        return false;
+    }
+
+    bool result = await ClubApi.changeMemberRole(memberId!, roleParam);
+    if (result == false) {
+      log("changeRole from this club fail");
+      return false;
+    }
+    return true;
+  }
+}
+
 class ClubDetail with ChangeNotifier {
   int? clubId;
   String? role; // 회장, 관리자, 일반
@@ -62,7 +131,7 @@ class ClubDetail with ChangeNotifier {
 
   void _clearMember() {
     members.clear();
-    pnMem = 2;
+    pnMem = 1;
   }
 
   Future<bool> initClubDetail(int clubId, String role) async {

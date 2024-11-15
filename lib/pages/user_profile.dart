@@ -3,44 +3,132 @@ import 'dart:developer';
 import 'package:band_front/cores/api.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../cores/data_class.dart';
+import '../cores/repository.dart';
 import '../cores/router.dart';
 import '../cores/widget_utils.dart';
 
-class UserProfileViewModel {
-  late String username;
-  User? user;
-
-  Future<bool> getUserProfile() async {
-    var data = await ProfileApi.getUserProfile(username);
-    if (data == null) {
-      log("get club detail failed");
-      return false;
-    }
-    user = User.fromMap(data);
-    return true;
-  }
-}
-
 class UserProfileView extends StatefulWidget {
-  UserProfileView({super.key, required this.username});
-  String username;
+  const UserProfileView({super.key});
 
   @override
   State<UserProfileView> createState() => _UserProfileViewState();
 }
 
 class _UserProfileViewState extends State<UserProfileView> {
-  UserProfileViewModel _viewModel = UserProfileViewModel();
+  bool _isLoaded = false;
+  String? _role;
+
+  void _showSnackBar(String text) => showSnackBar(context, text);
 
   Future<void> _initUserProfileView() async {
-    _viewModel.username = widget.username;
-    bool result = await _viewModel.getUserProfile();
-    if (result == true) {
-      setState(() {});
+    _role = context.read<UserInfo>().role;
+    ;
+    bool result = await context.read<UserInfo>().getUserProfile();
+    if (result == false) {
+      return;
     }
-    return;
+    setState(() => _isLoaded = true);
+  }
+
+  Future<void> _banBtnListener() async {
+    bool result = await context.read<UserInfo>().removeFromClub();
+    if (result == false) {
+      _showSnackBar("추방 실패..");
+      return;
+    }
+
+    await _banBtnHandler();
+  }
+
+  Future<void> _banBtnHandler() async {
+    await context.read<ClubDetail>().getMemberList().then((_) {
+      _showSnackBar("추방되었습니다");
+      context.pop();
+    });
+  }
+
+  Future<void> _changeRoleBtnListener() async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context, stateSetter) {
+          return AlertDialog(
+            title: const Text("권한 부여"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Radio<String>(
+                      value: "회장",
+                      groupValue: _role,
+                      onChanged: (String? value) {
+                        stateSetter(() => _role = value!);
+                      },
+                    ),
+                    const Text("회장"),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Radio<String>(
+                      value: "관리자",
+                      groupValue: _role,
+                      onChanged: (String? value) {
+                        stateSetter(() => _role = value!);
+                      },
+                    ),
+                    const Text("관리자"),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Radio<String>(
+                      value: "일반",
+                      groupValue: _role,
+                      onChanged: (String? value) {
+                        stateSetter(() => _role = value!);
+                      },
+                    ),
+                    const Text("일반"),
+                  ],
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => context.pop(),
+                child: const Text("취소"),
+              ),
+              TextButton(
+                onPressed: () async => await _changeRoleBtnHandler(),
+                child: const Text("확인"),
+              ),
+            ],
+          );
+        });
+      },
+    );
+  }
+
+  Future<void> _changeRoleBtnHandler() async {
+    bool result = await context.read<UserInfo>().changeRole(_role!);
+    if (result == false) {
+      _showSnackBar("권한 변경 실패..");
+      return;
+    }
+
+    await _returnHandler();
+  }
+
+  Future<void> _returnHandler() async {
+    await context.read<ClubDetail>().getMemberList().then((_) {
+      context.pop();
+      context.pop();
+    });
   }
 
   @override
@@ -51,11 +139,12 @@ class _UserProfileViewState extends State<UserProfileView> {
 
   @override
   Widget build(BuildContext context) {
-    if (_viewModel.user == null) {
-      return Scaffold(body: const Center(child: CircularProgressIndicator()));
+    if (_isLoaded == false) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    User user = _viewModel.user!;
+    String myRole = context.watch<ClubDetail>().role!;
+    User user = context.watch<UserInfo>().user!;
     double parentWidth = MediaQuery.of(context).size.width;
     Image image = user.image == null
         ? Image.asset(
@@ -72,7 +161,20 @@ class _UserProfileViewState extends State<UserProfileView> {
           );
 
     return Scaffold(
-      appBar: AppBar(title: Text("${user.name}")),
+      appBar: AppBar(
+        title: Text("${user.name}"),
+        actions: [
+          ElevatedButton.icon(
+            onPressed: () async => await _banBtnListener(),
+            label: const Icon(Icons.block),
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.all(Colors.red),
+              elevation: WidgetStateProperty.all(2.0),
+            ),
+          ),
+          const VerticalDivider(color: Colors.white),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -138,6 +240,19 @@ class _UserProfileViewState extends State<UserProfileView> {
                 ),
               ]),
             ),
+            myRole == "일반"
+                ? const SizedBox.shrink()
+                : Container(
+                    width: parentWidth,
+                    padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
+                    child: ElevatedButton(
+                      onPressed: () async => await _changeRoleBtnListener(),
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(Colors.orange),
+                      ),
+                      child: const Text("권한 부여"),
+                    ),
+                  ),
           ],
         ),
       ),

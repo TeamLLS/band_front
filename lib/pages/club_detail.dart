@@ -1,6 +1,4 @@
 // dependencies
-import 'package:band_front/cores/repository.dart';
-import 'package:band_front/pages/club_manage.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +9,7 @@ import '../cores/api.dart';
 import '../cores/widget_utils.dart';
 import '../cores/router.dart';
 import '../cores/data_class.dart';
+import '../cores/repository.dart';
 import 'drawers.dart';
 
 class ClubDetailView extends StatefulWidget {
@@ -54,7 +53,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
     }
 
     Club club = context.watch<ClubDetail>().club!;
-    List<ActivityEntity> actList = context.watch<ClubDetail>().actList!;
+    List<ActivityEntity> actList = context.watch<ClubDetail>().actList;
     String role = context.watch<ClubDetail>().role!;
 
     return Scaffold(
@@ -62,12 +61,12 @@ class _ClubDetailViewState extends State<ClubDetailView> {
       appBar: AppBar(
         title: Text(club.name),
         actions: [
-          role != "일반"
-              ? IconButton(
+          role == "일반"
+              ? const SizedBox.shrink()
+              : IconButton(
                   icon: const Icon(Icons.build_outlined),
                   onPressed: () => _navigateToManage(club),
-                )
-              : const SizedBox.shrink(),
+                ),
           IconButton(
             icon: const Icon(Icons.notifications_none),
             onPressed: () async {
@@ -166,7 +165,19 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 16),
-                    child: Text('${club.name}의 활동 목록'),
+                    child: Stack(
+                      children: [
+                        Center(child: Text('${club.name}의 활동 목록')),
+                        Positioned(
+                          top: -15,
+                          right: 0,
+                          child: IconButton(
+                            icon: const Icon(Icons.create),
+                            onPressed: () {},
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const Divider(color: Colors.black, thickness: 1),
                   ListView.builder(

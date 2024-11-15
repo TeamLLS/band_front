@@ -34,6 +34,11 @@ class _ClubMemberListViewState extends State<ClubMemberListView> {
     }
   }
 
+  void _navigateToUserProfile(String username, int memberId, String role) {
+    context.read<UserInfo>().setUserInfo(username, memberId, role);
+    context.push(RouterPath.userProfile);
+  }
+
   Future<void> _inviteBtnListener() async {
     int clubId = context.read<ClubDetail>().clubId!;
     var data = await ClubApi.registMember(clubId, "Dummy_userD");
@@ -97,12 +102,11 @@ class _ClubMemberListViewState extends State<ClubMemberListView> {
                 subtitle: Text(
                     '${members[index].name}  |  ${members[index].username}'),
                 trailing: Text(members[index].status),
-                onTap: () {
-                  context.push(
-                    RouterPath.userProfile,
-                    extra: {"username": members[index].username},
-                  );
-                },
+                onTap: () => _navigateToUserProfile(
+                  members[index].username,
+                  members[index].memberId,
+                  members[index].roleName,
+                ),
               ),
             ),
           );

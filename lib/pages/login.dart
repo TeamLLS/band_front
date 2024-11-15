@@ -65,22 +65,22 @@ class _SignViewState extends State<SignView> {
   }
 
   Future<bool> loginTestUser() async {
-    var kakao = KakaoSignMethod();
+    // var kakao = KakaoSignMethod();
 
-    //1. get kakao authorization
-    String? kakaoToken = await kakao.signInKakao();
-    if (kakaoToken == null) {
-      log("accToken err");
-      return false;
-    }
-    //log("kakao accessToken: $kakaoToken");
+    // //1. get kakao authorization
+    // String? kakaoToken = await kakao.signInKakao();
+    // if (kakaoToken == null) {
+    //   log("accToken err");
+    //   return false;
+    // }
+    // //log("kakao accessToken: $kakaoToken");
 
-    //2. get server authorization
-    bool result = await LogInApi.logInToServer("kakao", kakaoToken);
-    if (result == false) {
-      log("log in to server err");
-      return false;
-    }
+    // //2. get server authorization
+    // bool result = await LogInApi.logInToServer("kakao", kakaoToken);
+    // if (result == false) {
+    //   log("log in to server err");
+    //   return false;
+    // }
 
     //3. test user
     LogInApi.setUserName("Dummy_userC");

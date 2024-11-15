@@ -27,6 +27,7 @@ class BandApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => MyInfo()),
+        ChangeNotifierProvider(create: (_) => UserInfo()),
         ChangeNotifierProvider(create: (_) => ClubDetail()),
         ChangeNotifierProvider(create: (_) => ClubList()),
       ],

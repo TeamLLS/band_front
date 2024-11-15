@@ -110,12 +110,7 @@ final GoRouter route = GoRouter(
         //need to push
         GoRoute(
           path: "userProfile",
-          builder: (context, state) {
-            final Map<String, dynamic>? argument =
-                state.extra as Map<String, dynamic>?;
-            var data = argument?['username'];
-            return UserProfileView(username: data);
-          },
+          builder: (context, state) => const UserProfileView(),
         ),
       ],
     ),
