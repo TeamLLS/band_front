@@ -1,3 +1,5 @@
+import 'package:band_front/cores/widget_utils.dart';
+
 class Club {
   final int clubId;
   final String name; // 리스트에 표기
@@ -286,6 +288,33 @@ class Member {
       'gender': gender,
       'roleRank': roleRank,
     };
+  }
+}
+
+class BudgetRecordEntity {
+  final int clubId;
+  final String description;
+  final int amount;
+  final String username;
+  final String time;
+  //clubId: 4, description: created, amount: 0, username: kakao_3778335311, time: 2024-11-14T19:11:18.092508372Z
+
+  BudgetRecordEntity({
+    required this.clubId,
+    required this.description,
+    required this.amount,
+    required this.username,
+    required this.time,
+  });
+
+  factory BudgetRecordEntity.fromMap(Map<String, dynamic> map) {
+    return BudgetRecordEntity(
+      clubId: map['clubId'] as int,
+      description: map['description'],
+      amount: map['amount'] as int,
+      username: map['username'],
+      time: formatToYMDHM(map['time'] as String),
+    );
   }
 }
 

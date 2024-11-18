@@ -526,3 +526,76 @@ class ActivityApi {
     return true;
   }
 }
+
+class BudgetApi {
+  static final AuthInfoApi _authInfoApi = AuthInfoApi();
+
+  /// 예산 관련 조회
+  // 총 예산 조회
+  static Future<dynamic> getBudgetAmount(int clubId, DateTime? time) async {
+    Uri url;
+    if (time == null) {
+      url = Uri.parse("${_authInfoApi.url}/budget/$clubId");
+    } else {
+      String timeParam = time.toUtc().toIso8601String();
+      url = Uri.parse("${_authInfoApi.url}/budget/$clubId?time=$timeParam");
+    }
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    dynamic data = await HttpInterface.requestGet(url, header);
+    if (data == null) {
+      log("err from getBudgetAmount");
+      return;
+    }
+
+    return data;
+  }
+
+  //예산 기록 조회
+  static Future<dynamic> getBudgetRecord(
+    int clubId,
+    int pn,
+    DateTime? time,
+  ) async {
+    Uri url;
+    if (time == null) {
+      url = Uri.parse("${_authInfoApi.url}/budget/$clubId/records?pageNo=$pn");
+    } else {
+      String timeParam = time.toUtc().toIso8601String();
+      url = Uri.parse(
+        "${_authInfoApi.url}/budget/$clubId/records?pageNo=$pn&time=$timeParam",
+      );
+    }
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    dynamic data = await HttpInterface.requestGet(url, header);
+    if (data == null) {
+      log("err from getBudgetRecord");
+      return;
+    }
+
+    return data;
+  }
+
+  //예산 갱신
+
+  /// 장부 관련 조회
+  //장부 생성
+  //장부 취소
+  //장부 만료
+  //장부 목록 조회
+  static Future<dynamic> getPaymentList() async {}
+  //장부 조회
+  //내 장부 목록 조회
+
+  /// 납부 대상 상호작용
+  //특정 장부의 납부 대상 목록 조회
+  //납부 대상 등록-전체
+  //납부 대상 등록-선택
+  //특정 회원 납부 대상 제외
+
+  /// 회원 납부 상황 변경
+  //납부됨
+  //미납됨
+  //연체 납부됨
+}

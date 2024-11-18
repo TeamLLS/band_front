@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+//그냥 유틸 함수까지 같이 저장
 
 void showSnackBar(BuildContext context, String text) {
   ScaffoldMessenger.of(context).showSnackBar(
@@ -8,6 +11,20 @@ void showSnackBar(BuildContext context, String text) {
     ),
   );
   return;
+}
+
+String formatToYMDHM(String isoDate) {
+  DateTime dateTime = DateTime.parse(isoDate);
+
+  DateFormat formatter = DateFormat('yy.MM.dd HH:mm');
+  return formatter.format(dateTime);
+}
+
+String formatToYMD(String isoDate) {
+  DateTime dateTime = DateTime.parse(isoDate);
+
+  DateFormat formatter = DateFormat('yy.MM.dd');
+  return formatter.format(dateTime);
 }
 
 Widget inputTextUnit(TextEditingController ctl) {

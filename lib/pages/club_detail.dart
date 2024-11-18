@@ -149,9 +149,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                           ),
                           IconButton(
                             icon: Icon(Icons.account_balance_wallet),
-                            onPressed: () {
-                              // 장부 기능
-                            },
+                            onPressed: () => context.push(RouterPath.budget),
                           ),
                           IconButton(
                             icon: Icon(Icons.event),

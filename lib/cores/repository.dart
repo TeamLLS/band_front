@@ -235,3 +235,100 @@ class ClubList with ChangeNotifier {
     return true;
   }
 }
+
+class BudgetInfo with ChangeNotifier {
+  int? budgetId;
+  int? clubId;
+  int? budget;
+  List<BudgetRecordEntity> record = [];
+  int pn = 0;
+
+  void _clear() {
+    budgetId = null;
+    clubId = null;
+    budget = null;
+    record.clear();
+    pn = 0;
+    return;
+  }
+
+  void _clearForReload() {
+    budget = null;
+    record.clear();
+    pn = 0;
+    return;
+  }
+
+  Future<bool> _getBudgetAmount(DateTime? time) async {
+    var data = await BudgetApi.getBudgetAmount(clubId!, time);
+    if (data == null) {
+      log("getBudgetAmount fail");
+      return false;
+    }
+
+    budget = data['amount'];
+    return true;
+  }
+
+  Future<bool> _getBudgetRecord(DateTime? time) async {
+    var data = await BudgetApi.getBudgetRecord(clubId!, pn, time);
+    if (data == null) {
+      log("getBudgetRecord fail");
+      return false;
+    }
+    log("$data");
+
+    var list = data['list'];
+    for (Map<String, dynamic> element in list) {
+      BudgetRecordEntity temp = BudgetRecordEntity.fromMap(element);
+      record.add(temp);
+    }
+    pn++;
+    return true;
+  }
+
+  Future<bool> initBudgetInfo(int clubId) async {
+    _clear();
+    this.clubId = clubId;
+
+    //budget amount init
+    bool result = await _getBudgetAmount(null);
+    if (result == false) {
+      log("init fail");
+      return false;
+    }
+
+    //record init
+    result = await _getBudgetRecord(null);
+    if (result == false) {
+      log("init fail");
+      return false;
+    }
+
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> reloadBudgetInfo(DateTime time) async {
+    _clearForReload();
+
+    //get budget amount
+    bool result = await _getBudgetAmount(time);
+    if (result == false) {
+      log("get budget amount fail");
+      return false;
+    }
+
+    //get record
+    result = await _getBudgetRecord(time);
+    if (result == false) {
+      log("get record fail");
+      return false;
+    }
+
+    notifyListeners();
+    return true;
+  }
+}
+
+class PaymentInfo with ChangeNotifier {}

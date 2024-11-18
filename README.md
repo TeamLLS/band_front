@@ -1,14 +1,95 @@
 # band_front
 
 # 회의 때 말할 것
-- 내 클럽 리스트 조회
-페이지당 보내는 클럽 갯수 더 늘려주세요
+- 예산 기록 조회
+필드에 갱신 액수가 증감된 후 예산의 값을 보내주세여
 
-모임 해체 시 운영 종료로 표시됨
+[예산 조회 에러]
+- 상황
+time을 null로 주고 요청 -> 성공
+time을 지정하고 요청 -> 실패
+상기 두 요청을 dummy user A로도 수행해보고 카카오 계정으로도 수행해봤으나 같은 오류 발생
 
-- 회원 등록 api
-오류 발생, Status code: 415
+- 오류 로그
+[log] 500 failed
+[log] body : {"timestamp":"2024-11-19T04:41:45.210+09:00","status":500,"error":"Internal Server Error","path":"/budget/1"}
 
+- api code
+  static Future<dynamic> getBudgetAmount(int clubId, DateTime? time) async {
+    // url 생성
+    Uri url;
+    if (time == null) 
+    {
+      url = Uri.parse("${_authInfoApi.url}/budget/$clubId");
+    } 
+    else 
+    {
+      String timeParam = time.toUtc().toIso8601String();
+      url = Uri.parse("${_authInfoApi.url}/budget/$clubId?time=$timeParam");
+    }
+
+    // header 생성
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    // http get 요청
+    dynamic data = await HttpInterface.requestGet(url, header);
+    if (data == null) {
+      log("err from getBudgetAmount");
+      return;
+    }
+
+    return data;
+  }
+
+
+- 예산
+1. 예산 조회
+-> time을 줘야 함
+? 예산 조회는 time 시점의 총 예산을 조회하는건가?
+
+2. 예산 갱신
+-> 예산의 입출 정보를 서버에 송신
+
+3. 예산 기록 조회
+-> time을 줘야 함
+-> 입출 내역인듯
+=> 통장처럼 차라리 입출한 후의 결과까지 포함해주지
+
+예산 조회 -> 현재 누적 예산 조회
+예산 기록 조회 -> 예산 입출 기록 + 입출 후 누적 예산 상태
+근데 내가 걍 조합하면 되긴하는데
+이렇게 해서 현재 누적 예산 크게 표시하고 예산 입출 내역 페이지 하나 만들자
+
+
+- 장부
+장부 생성 :	모임에 장부 추가, 납부대상을 정해야 하므로 
+장부 취소 :	장부 등록 취소
+장부 만료 :	장부 만료	
+필) 장부 목록 조회 : 모임의 장부 목록 조회		
+필) 장부 조회 : 해당 장부 조회
+
+- interaction
+납부 대상 등록-전체	해당 Club의 모든 회원을 해당 PayBook의 납부대상으로 등록	
+납부 대상 등록-선택	선택된 Member들을 해당 PayBook의 납부대상으로 등록	
+회원 납부	해당 회원의 납부 상태를 "납부"로 변경	PayMember 변경
+회원 미납	해당 회원의 납부 상태를 "미납"으로 변경	PayMember 변경	
+회원 연체 납부	해당 회원의 납부 상태를 "연체 납부"로 변경	PayMember 변경	
+납부 대상 제외	해당 회원 PayBook의 납부 대상에서 제외	PayMember 변경
+납부 대상 목록 조회	해당 장부의 납부 대상 목록 조회		
+내 장부 목록 조회	내가 등록된 장부 목록 조회
+
+# issueing
+- 오류 수정
+회원 등록
+
+- 구현 순서 변경
+activity 서버 관련 api -> budget api
+
+- 구현된 budget page
+
+
+
+# 발생한 오류
 - 클럽 정보 변경 api
 1. 연락처도 변경해야되지않을까?
 2. 변경 시도 시 오류
@@ -22,35 +103,11 @@
 [log] {"timestamp":"2024-11-13T04:08:24.738+09:00","status":400,"error":"Bad Request","path":"/club"}
 [log] false
 
-# issueing
-- 수정 항목
-이미지 관련 오류 수정 -> 프로필 변경, 클럽 생성 정상 작동.
-UI 유닛에 외곽선 추가.
-데이터 변경 시 변경 내역 바로 반영하도록 수정.
-ex - 내 프로필 정보 변경 후 수정 정보 바로 출력.
-
-- 추가 항목
-상대방 프로필 조회 페이지 추가.
-모임 정보 변경 페이지 추가.
-
-- 추가된 기능
-클럽 해체.
-회원 탈퇴.
-
-- 발생 오류
-회원 등록, 클럽 정보 변경 api.
-
-- 다음 주 예상 진행 상황
-발생한 오류 해결, activity 서버 관련 api 완성.
-
 # 메모
 form 필요한건 한꺼번에 해야겠다
 - 프로필변경
 - 클럽생성
 - 클럽정보변경
-
-
-
 
 # setting
 1. regist android platform

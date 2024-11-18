@@ -1,5 +1,6 @@
 //dependencies
 import 'package:band_front/pages/activity_detail.dart';
+import 'package:band_front/pages/budget.dart';
 import 'package:band_front/pages/club_manage.dart';
 import 'package:band_front/pages/club_regist.dart';
 import 'package:band_front/pages/user_profile.dart';
@@ -27,6 +28,8 @@ class RouterPath {
   static const String clubEdit = '/myClubList/clubDetail/manage/edit';
 
   static const String activityDetail = '/myClubList/clubDetail/activityDetail';
+
+  static const String budget = '/myClubList/clubDetail/budget';
 
   static const String clubRegist = '/myClubList/clubRegist';
 
@@ -86,6 +89,10 @@ final GoRouter route = GoRouter(
                     int clubId = argument?['actId'];
                     return ActivityDetailView(actId: actId, clubId: clubId);
                   },
+                ),
+                GoRoute(
+                  path: 'budget',
+                  builder: (context, state) => const BudgetCtrlView(),
                 ),
               ],
             ),

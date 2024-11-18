@@ -83,7 +83,7 @@ class _SignViewState extends State<SignView> {
     // }
 
     //3. test user
-    LogInApi.setUserName("Dummy_userC");
+    LogInApi.setUserName("Dummy_userA");
     LogInApi.printAuth();
     return true;
   }

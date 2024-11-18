@@ -28,6 +28,8 @@ class BandApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => MyInfo()),
         ChangeNotifierProvider(create: (_) => UserInfo()),
+        ChangeNotifierProvider(create: (_) => BudgetInfo()),
+        ChangeNotifierProvider(create: (_) => PaymentInfo()),
         ChangeNotifierProvider(create: (_) => ClubDetail()),
         ChangeNotifierProvider(create: (_) => ClubList()),
       ],
@@ -36,14 +38,20 @@ class BandApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: const ColorScheme(
-            brightness: Brightness.light, //라이트모드, 다크모드
-            primary: Colors.black, //버튼, 앱바, 하이라이트되는 UI 요소 등의 기본 색상(글씨)
-            onPrimary: Colors.orange,
+            //라이트모드, 다크모드
+            brightness: Brightness.light,
+            // 로딩 인디케이터, 버튼, 앱바, 하이라이트되는 UI 요소 등의 기본 색상(글씨)
+            // tabbar, bottomnavigator가 하이라이트 될 때
+            // datepicker의 picked된 날짜를 칠한 색, 원래 지정되어있던 날짜를 나타내는 색
+            primary: Colors.black,
+            // primary가 주어지는 ui의 테두리, 글 색 등
+            onPrimary: Colors.white,
             secondary: Colors.yellow,
             onSecondary: Colors.green,
             error: Colors.cyan,
             onError: Colors.blueAccent,
             surface: Colors.white,
+            //버튼, 앱바, 하이라이트되는 UI 요소 등의 기본 색상(글씨)
             onSurface: Colors.black,
           ),
           appBarTheme: const AppBarTheme(scrolledUnderElevation: 0),
