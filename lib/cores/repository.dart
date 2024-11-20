@@ -311,6 +311,7 @@ class BudgetInfo with ChangeNotifier {
 
   Future<bool> reloadBudgetInfo(DateTime time) async {
     _clearForReload();
+    log("start reload");
 
     //get budget amount
     bool result = await _getBudgetAmount(time);

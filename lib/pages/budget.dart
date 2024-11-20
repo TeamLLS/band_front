@@ -112,9 +112,8 @@ class _BudgetViewState extends State<BudgetView> {
     }
 
     double parentWidth = MediaQuery.of(context).size.width;
-    int amount = context.watch<BudgetInfo>().budget!;
+    int amount = context.watch<BudgetInfo>().budget ?? 0;
     List<BudgetRecordEntity> record = context.watch<BudgetInfo>().record;
-
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Column(children: [

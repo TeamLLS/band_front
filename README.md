@@ -82,11 +82,13 @@ time을 지정하고 요청 -> 실패
 - 오류 수정
 회원 등록
 
-- 구현 순서 변경
-activity 서버 관련 api -> budget api
+- 추가 사항
+회원에 대한 권한 관련 상호작용 api 연결(제명, 권한 변경 등)
 
 - 구현된 budget page
 
+- 구현 순서 변경
+activity 서버 관련 api -> budget api
 
 
 # 발생한 오류
