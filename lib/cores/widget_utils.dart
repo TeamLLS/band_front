@@ -27,6 +27,13 @@ String formatToYMD(String isoDate) {
   return formatter.format(dateTime);
 }
 
+String formatToYM(String isoDate) {
+  DateTime dateTime = DateTime.parse(isoDate);
+
+  DateFormat formatter = DateFormat('yy.MM');
+  return formatter.format(dateTime);
+}
+
 Widget inputTextUnit(TextEditingController ctl) {
   return Material(
     elevation: 3.0,

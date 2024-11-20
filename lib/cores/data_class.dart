@@ -318,6 +318,38 @@ class BudgetRecordEntity {
   }
 }
 
+class PaymentEntity {
+  final int id;
+  final String name; //출력
+  final String status; //출력
+  final DateTime createdAt; //출력
+
+  PaymentEntity({
+    required this.id,
+    required this.name,
+    required this.status,
+    required this.createdAt,
+  });
+
+  factory PaymentEntity.fromMap(Map<String, dynamic> map) {
+    return PaymentEntity(
+      id: map['id'] as int,
+      name: map['name'],
+      status: map['status'],
+      createdAt: DateTime.parse(map['createdAt']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'status': status,
+      'createdAt': createdAt.toIso8601String(),
+    };
+  }
+}
+
 //////////////////////////test//////////////////////////////////////////////////
 
 List<Member> testMembers = List.generate(5, (index) {

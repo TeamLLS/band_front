@@ -276,7 +276,6 @@ class BudgetInfo with ChangeNotifier {
       log("getBudgetRecord fail");
       return false;
     }
-    log("$data");
 
     var list = data['list'];
     for (Map<String, dynamic> element in list) {
@@ -332,4 +331,44 @@ class BudgetInfo with ChangeNotifier {
   }
 }
 
-class PaymentInfo with ChangeNotifier {}
+class PaymentInfo with ChangeNotifier {
+  int? clubId;
+  List<PaymentEntity> paments = [];
+  int pn = 0;
+
+  void _clear() {
+    clubId = null;
+    paments.clear();
+    pn = 0;
+  }
+
+  Future<bool> initPaymentInfo(int clubId) async {
+    _clear();
+    this.clubId = clubId;
+    bool ret = await getPaymentList();
+    if (ret == false) {
+      log("init PaymentInfo fail");
+      return false;
+    }
+
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> getPaymentList() async {
+    var data = await BudgetApi.getPaymentList(clubId!, pn);
+    if (data == null) {
+      log("getPaymentList fail");
+      return false;
+    }
+    log("$data");
+
+    var list = data['list'];
+    for (Map<String, dynamic> element in list) {
+      PaymentEntity temp = PaymentEntity.fromMap(element);
+      paments.add(temp);
+    }
+    pn++;
+    return true;
+  }
+}

@@ -214,8 +214,76 @@ class PaymentView extends StatefulWidget {
 }
 
 class _PaymentViewState extends State<PaymentView> {
+  bool isLoaded = false;
+
+  void _showSnackBar(String text) => showSnackBar(context, text);
+
+  Future<void> _initPaymentView() async {
+    int clubId = context.read<ClubDetail>().clubId!;
+    bool result = await context.read<PaymentInfo>().initPaymentInfo(clubId);
+    if (result == false) {
+      _showSnackBar("장부 목록 불러오기 실패..");
+      return;
+    }
+
+    setState(() => isLoaded = true);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initPaymentView();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('Search Screen'));
+    if (isLoaded == false) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    List<PaymentEntity> payments = context.watch<PaymentInfo>().paments;
+
+    return ListView.builder(
+      itemCount: payments.length,
+      itemBuilder: (context, index) {
+        PaymentEntity pament = payments[index];
+
+        return Container(
+          margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8.0),
+            border: Border.all(color: Colors.grey, width: 1.5),
+            // boxShadow: const [
+            //   BoxShadow(
+            //     color: Colors.black,
+            //     blurRadius: 1,
+            //     offset: Offset(2, 2),
+            //   )
+            // ],
+          ),
+          child: ListTile(
+            title: Text(pament.name),
+            trailing: Text(pament.status),
+            subtitle: Text("${formatToYMD(pament.createdAt.toString())} ~"),
+            onTap: () {},
+          ),
+        );
+      },
+    );
+  }
+}
+
+class PaymentDetailView extends StatefulWidget {
+  const PaymentDetailView({super.key});
+
+  @override
+  State<PaymentDetailView> createState() => _PaymentDetailViewState();
+}
+
+class _PaymentDetailViewState extends State<PaymentDetailView> {
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
   }
 }

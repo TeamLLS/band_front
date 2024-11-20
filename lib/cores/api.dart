@@ -580,16 +580,31 @@ class BudgetApi {
   //예산 갱신
 
   /// 장부 관련 조회
+  /// 관리자 장부 상호작용
   //장부 생성
   //장부 취소
   //장부 만료
+
+  /// 모든 회원 접근 가능
   //장부 목록 조회
-  static Future<dynamic> getPaymentList() async {}
-  //장부 조회
-  //내 장부 목록 조회
+  static Future<dynamic> getPaymentList(int clubId, int pn) async {
+    Uri url = Uri.parse("${_authInfoApi.url}/paybook/$clubId/list?pageNo=$pn");
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    dynamic data = await HttpInterface.requestGet(url, header);
+    if (data == null) {
+      log("err from getBudgetRecord");
+      return;
+    }
+
+    return data;
+  }
+  //장부 조회 :
+
+  //내 장부 목록 조회 : 내가 등록된 장부 목록 조회
 
   /// 납부 대상 상호작용
-  //특정 장부의 납부 대상 목록 조회
+  //특정 장부의 납부 대상 목록 조회 : 해당 장부의 납부 대상 목록 조회
   //납부 대상 등록-전체
   //납부 대상 등록-선택
   //특정 회원 납부 대상 제외

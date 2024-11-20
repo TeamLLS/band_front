@@ -1,45 +1,9 @@
 # band_front
 
 # 회의 때 말할 것
-- 예산 기록 조회
-필드에 갱신 액수가 증감된 후 예산의 값을 보내주세여
-
-[예산 조회 에러]
-- 상황
-time을 null로 주고 요청 -> 성공
-time을 지정하고 요청 -> 실패
-상기 두 요청을 dummy user A로도 수행해보고 카카오 계정으로도 수행해봤으나 같은 오류 발생
-
-- 오류 로그
-[log] 500 failed
-[log] body : {"timestamp":"2024-11-19T04:41:45.210+09:00","status":500,"error":"Internal Server Error","path":"/budget/1"}
-
-- api code
-  static Future<dynamic> getBudgetAmount(int clubId, DateTime? time) async {
-    // url 생성
-    Uri url;
-    if (time == null) 
-    {
-      url = Uri.parse("${_authInfoApi.url}/budget/$clubId");
-    } 
-    else 
-    {
-      String timeParam = time.toUtc().toIso8601String();
-      url = Uri.parse("${_authInfoApi.url}/budget/$clubId?time=$timeParam");
-    }
-
-    // header 생성
-    Map<String, String> header = {'username': _authInfoApi.username!};
-
-    // http get 요청
-    dynamic data = await HttpInterface.requestGet(url, header);
-    if (data == null) {
-      log("err from getBudgetAmount");
-      return;
-    }
-
-    return data;
-  }
+- 장부 조회
+현재 구현되어있는거 보면 저 dto 하나만 받던데, 보통 장부라고 하면 납부자, 납부 금액, 납부 날짜, 납부 상태 등을 리스트 형식으로 정리해놓지 않나요?
+다른 api와 조합해서 구현하는건지 궁금해서 보니까 납부 대상 목록 조회가 적절하던데 여기에는 납부 금액이 빠져있네영 혹시 어떤 형식인지 좀 알 수 있을까영
 
 
 - 예산
