@@ -618,6 +618,20 @@ class BudgetApi {
 
   /// 납부 대상 상호작용
   //특정 장부의 납부 대상 목록 조회 : 해당 장부의 납부 대상 목록 조회
+  static Future<dynamic> getPaymentTargets(int paymentId, int pn) async {
+    Uri url = Uri.parse(
+      "${_authInfoApi.url}/paymember/$paymentId/list?pageNo=$pn",
+    );
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    dynamic data = await HttpInterface.requestGet(url, header);
+    if (data == null) {
+      log("err from getPaymentTargets");
+      return;
+    }
+
+    return data;
+  }
   //납부 대상 등록-전체
   //납부 대상 등록-선택
   //특정 회원 납부 대상 제외

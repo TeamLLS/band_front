@@ -399,6 +399,46 @@ class Payment {
   }
 }
 
+class PaymentTargetEntity {
+  final int id;
+  final int payBookId;
+  final String username;
+  final int memberId;
+  final String memberName;
+  final String status;
+
+  PaymentTargetEntity({
+    required this.id,
+    required this.payBookId,
+    required this.username,
+    required this.memberId,
+    required this.memberName,
+    required this.status,
+  });
+
+  factory PaymentTargetEntity.fromMap(Map<String, dynamic> map) {
+    return PaymentTargetEntity(
+      id: map['id'] as int,
+      payBookId: map['payBookId'] as int,
+      username: map['username'],
+      memberId: map['memberId'] as int,
+      memberName: map['memberName'],
+      status: map['status'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'payBookId': payBookId,
+      'username': username,
+      'memberId': memberId,
+      'memberName': memberName,
+      'status': status,
+    };
+  }
+}
+
 //////////////////////////test//////////////////////////////////////////////////
 
 List<Member> testMembers = List.generate(5, (index) {

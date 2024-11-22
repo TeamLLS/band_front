@@ -377,11 +377,15 @@ class PaymentDetail with ChangeNotifier {
   int? clubId;
   int? paymentId;
   Payment? payment;
+  List<PaymentTargetEntity> paymentTargets = [];
+  int pn = 0;
 
   void _clear() {
     clubId = null;
     paymentId = null;
     payment = null;
+    paymentTargets.clear();
+    pn = 0;
   }
 
   Future<bool> initPaymentDetail(int clubId, int paymentId) async {
@@ -395,6 +399,13 @@ class PaymentDetail with ChangeNotifier {
       return false;
     }
 
+    ret = await getPaymentTargets();
+    if (ret == false) {
+      log("init fail");
+      return false;
+    }
+
+    notifyListeners();
     return true;
   }
 
@@ -405,6 +416,22 @@ class PaymentDetail with ChangeNotifier {
       return false;
     }
     payment = Payment.fromMap(data);
+    return true;
+  }
+
+  Future<bool> getPaymentTargets() async {
+    var data = await BudgetApi.getPaymentTargets(paymentId!, pn);
+    if (data == null) {
+      log("getPaymentTargets fail");
+      return false;
+    }
+
+    var list = data['list'];
+    for (Map<String, dynamic> element in list) {
+      PaymentTargetEntity temp = PaymentTargetEntity.fromMap(element);
+      paymentTargets.add(temp);
+    }
+    pn++;
     return true;
   }
 }

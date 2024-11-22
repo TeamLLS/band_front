@@ -253,7 +253,10 @@ class _PaymentViewState extends State<PaymentView> {
             // ],
           ),
           child: ListTile(
-            title: Text(payment.name),
+            title: Text(
+              payment.name,
+              style: const TextStyle(fontSize: 18),
+            ),
             trailing: Text(payment.status),
             subtitle: Text("${formatToYMD(payment.createdAt.toString())} ~"),
             onTap: () {
@@ -355,9 +358,37 @@ class _PaymentDetailViewState extends State<PaymentDetailView> {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: 50,
+              itemCount: context.watch<PaymentDetail>().paymentTargets.length,
               itemBuilder: (context, index) {
-                return Text("$index");
+                PaymentTargetEntity target =
+                    context.watch<PaymentDetail>().paymentTargets[index];
+
+                return desUnit(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(children: [
+                      const Spacer(flex: 1),
+                      Expanded(
+                        flex: 7,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              target.memberName,
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                            Text(target.username),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Text(target.status),
+                      ),
+                      const Spacer(flex: 1),
+                    ]),
+                  ),
+                );
               },
             ),
           ),
