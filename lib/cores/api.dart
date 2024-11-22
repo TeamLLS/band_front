@@ -581,7 +581,7 @@ class BudgetApi {
 
   /// 장부 관련 조회
   /// 관리자 장부 상호작용
-  //장부 생성
+  //장부 생성 -> amount는 모든 납부 대상에게 일정함
   //장부 취소
   //장부 만료
 
@@ -599,7 +599,20 @@ class BudgetApi {
 
     return data;
   }
-  //장부 조회 :
+
+  //장부 조회 : 납부 대상 목록 조회 와 같이 조합해서 ㄱㄱ
+  static Future<dynamic> getPayment(int payId) async {
+    Uri url = Uri.parse("${_authInfoApi.url}/paybook/$payId");
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    dynamic data = await HttpInterface.requestGet(url, header);
+    if (data == null) {
+      log("err from getPayment");
+      return;
+    }
+
+    return data;
+  }
 
   //내 장부 목록 조회 : 내가 등록된 장부 목록 조회
 

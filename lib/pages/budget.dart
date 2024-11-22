@@ -1,7 +1,9 @@
 // dependencies
 import 'package:band_front/cores/data_class.dart';
+import 'package:band_front/cores/router.dart';
 import 'package:band_front/cores/widget_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 // local dependencies
@@ -114,25 +116,13 @@ class _BudgetViewState extends State<BudgetView> {
     double parentWidth = MediaQuery.of(context).size.width;
     int amount = context.watch<BudgetInfo>().budget ?? 0;
     List<BudgetRecordEntity> record = context.watch<BudgetInfo>().record;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Column(children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 8),
-          child: desUnit(
-            child: SizedBox(
-              height: parentWidth * 0.3,
-              child: Center(
-                child: Text(
-                  "$amount  ₩",
-                  style: const TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
+          child: budgetUnit(amount: amount, parentWidth: parentWidth),
         ),
         Padding(
           padding: const EdgeInsets.only(bottom: 8),
@@ -246,7 +236,7 @@ class _PaymentViewState extends State<PaymentView> {
     return ListView.builder(
       itemCount: payments.length,
       itemBuilder: (context, index) {
-        PaymentEntity pament = payments[index];
+        PaymentEntity payment = payments[index];
 
         return Container(
           margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -263,10 +253,15 @@ class _PaymentViewState extends State<PaymentView> {
             // ],
           ),
           child: ListTile(
-            title: Text(pament.name),
-            trailing: Text(pament.status),
-            subtitle: Text("${formatToYMD(pament.createdAt.toString())} ~"),
-            onTap: () {},
+            title: Text(payment.name),
+            trailing: Text(payment.status),
+            subtitle: Text("${formatToYMD(payment.createdAt.toString())} ~"),
+            onTap: () {
+              context.push(
+                RouterPath.paymentDetail,
+                extra: {"paymentId": payment.id},
+              );
+            },
           ),
         );
       },
@@ -275,15 +270,99 @@ class _PaymentViewState extends State<PaymentView> {
 }
 
 class PaymentDetailView extends StatefulWidget {
-  const PaymentDetailView({super.key});
+  PaymentDetailView({super.key, required this.paymentId});
+  int paymentId;
 
   @override
   State<PaymentDetailView> createState() => _PaymentDetailViewState();
 }
 
 class _PaymentDetailViewState extends State<PaymentDetailView> {
+  bool _isLoaded = false;
+
+  void _showSnackBar(String text) => showSnackBar(context, text);
+
+  Future<void> _initPaymentDetailView() async {
+    int clubId = context.read<ClubDetail>().clubId!;
+    int paymentId = widget.paymentId;
+
+    bool ret = await context
+        .read<PaymentDetail>()
+        .initPaymentDetail(clubId, paymentId);
+    if (ret == false) {
+      _showSnackBar("장부 정보를 불러오지 못했습니다..");
+      return;
+    }
+
+    setState(() => _isLoaded = true);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initPaymentDetailView();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    if (_isLoaded == false) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    Payment payment = context.read<PaymentDetail>().payment!;
+    double parentWidth = MediaQuery.of(context).size.width;
+
+    return Scaffold(
+      appBar: AppBar(title: Text("납부 정보")),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+        child: Column(children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: budgetUnit(amount: payment.amount, parentWidth: parentWidth),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: desUnit(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(children: [
+                      const Spacer(flex: 1),
+                      Text("담당자 : ${payment.name}"),
+                      const Spacer(flex: 8),
+                      Text(payment.status),
+                      const Spacer(flex: 1),
+                    ]),
+                    const Divider(indent: 8, endIndent: 8, color: Colors.grey),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                      child: Text(payment.description),
+                    ),
+                    const Divider(indent: 8, endIndent: 8, color: Colors.grey),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                      child: Text(
+                        "${formatToYMD(payment.createdAt.toString())} ~ ${payment.closedAt ?? ""}",
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: 50,
+              itemBuilder: (context, index) {
+                return Text("$index");
+              },
+            ),
+          ),
+        ]),
+      ),
+    );
   }
 }

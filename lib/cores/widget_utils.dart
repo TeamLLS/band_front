@@ -138,6 +138,23 @@ Widget desUnit({required Widget child}) {
   );
 }
 
+Widget budgetUnit({required int amount, required double parentWidth}) {
+  return desUnit(
+    child: SizedBox(
+      height: parentWidth * 0.3,
+      child: Center(
+        child: Text(
+          "$amount  ₩",
+          style: const TextStyle(
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 Widget menuBarUnit({required double width, required Widget child}) {
   //club detail의 아이콘 메뉴 바
   return SizedBox(

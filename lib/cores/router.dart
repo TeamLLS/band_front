@@ -30,6 +30,8 @@ class RouterPath {
   static const String activityDetail = '/myClubList/clubDetail/activityDetail';
 
   static const String budget = '/myClubList/clubDetail/budget';
+  static const String paymentDetail =
+      '/myClubList/clubDetail/budget/paymentDetail';
 
   static const String clubRegist = '/myClubList/clubRegist';
 
@@ -93,6 +95,17 @@ final GoRouter route = GoRouter(
                 GoRoute(
                   path: 'budget',
                   builder: (context, state) => const BudgetCtrlView(),
+                  routes: [
+                    GoRoute(
+                      path: 'paymentDetail',
+                      builder: (context, state) {
+                        final Map<String, dynamic>? argument =
+                            state.extra as Map<String, dynamic>?;
+                        var data = argument?['paymentId'];
+                        return PaymentDetailView(paymentId: data);
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),

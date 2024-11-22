@@ -350,6 +350,55 @@ class PaymentEntity {
   }
 }
 
+class Payment {
+  final int id;
+  final int clubId;
+  final String name;
+  final String description;
+  final String status;
+  final int amount;
+  final DateTime createdAt;
+  final DateTime? closedAt;
+
+  Payment({
+    required this.id,
+    required this.clubId,
+    required this.name,
+    required this.description,
+    required this.status,
+    required this.amount,
+    required this.createdAt,
+    required this.closedAt,
+  });
+
+  factory Payment.fromMap(Map<String, dynamic> map) {
+    return Payment(
+      id: map['id'] as int,
+      clubId: map['clubId'] as int,
+      name: map['name'],
+      description: map['description'],
+      status: map['status'],
+      amount: map['amount'] as int,
+      createdAt: DateTime.parse(map['createdAt']),
+      closedAt:
+          map['closedAt'] != null ? DateTime.parse(map['closedAt']) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'clubId': clubId,
+      'name': name,
+      'description': description,
+      'status': status,
+      'amount': amount,
+      'createdAt': createdAt.toIso8601String(),
+      'closedAt': closedAt?.toIso8601String(),
+    };
+  }
+}
+
 //////////////////////////test//////////////////////////////////////////////////
 
 List<Member> testMembers = List.generate(5, (index) {

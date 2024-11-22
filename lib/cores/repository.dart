@@ -372,3 +372,39 @@ class PaymentInfo with ChangeNotifier {
     return true;
   }
 }
+
+class PaymentDetail with ChangeNotifier {
+  int? clubId;
+  int? paymentId;
+  Payment? payment;
+
+  void _clear() {
+    clubId = null;
+    paymentId = null;
+    payment = null;
+  }
+
+  Future<bool> initPaymentDetail(int clubId, int paymentId) async {
+    _clear();
+    this.clubId = clubId;
+    this.paymentId = paymentId;
+
+    bool ret = await getPayment();
+    if (ret == false) {
+      log("init fail");
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<bool> getPayment() async {
+    var data = await BudgetApi.getPayment(paymentId!);
+    if (data == null) {
+      log("getPayment fail");
+      return false;
+    }
+    payment = Payment.fromMap(data);
+    return true;
+  }
+}

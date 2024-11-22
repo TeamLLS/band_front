@@ -30,6 +30,7 @@ class BandApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => UserInfo()),
         ChangeNotifierProvider(create: (_) => BudgetInfo()),
         ChangeNotifierProvider(create: (_) => PaymentInfo()),
+        ChangeNotifierProvider(create: (_) => PaymentDetail()),
         ChangeNotifierProvider(create: (_) => ClubDetail()),
         ChangeNotifierProvider(create: (_) => ClubList()),
       ],
