@@ -73,6 +73,64 @@ form 필요한건 한꺼번에 해야겠다
 - 클럽생성
 - 클럽정보변경
 
+
+# 이벤트 정리 (회원 활동 위주)
+- club server
+클럽 생성
+클럽 해체
+
+회원 등록(참가)
+회원 권한 변경
+회원 탈퇴
+회원 강퇴
+
+ClubCreated - ClubClosed
+MemberCreated - MemberBanned
+BudgetCreated - BudgetClosed
+
+ClubChanged
+MemberRoleChanged
+MemberWithdrawn
+
+
+- activity server
+활동 등록
+활동 취소
+활동 종료
+활동 참가
+활동 불참
+활동 추가참가
+활동 추가불참
+
+ActivityCreated - ActivityCanceled - ActivityClosed
+ParticipantConfrimed - ParticipantCreated - ParticipantStatusChanged
+
+
+- budget server
+예산 갱신
+
+장부 생성
+장부 취소
+장부 만료
+
+납부 대상 등록
+납부 대상 제외
+
+납부
+미납
+연체 납부
+
+BudgetUpdated
+
+PayBookCreated
+PayBookCanceled
+PayBookClosed
+
+PayMemberConfirmed
+PayMemberCreated
+PayMemberStatusChanged
+
+
 # setting
 1. regist android platform
 1) 해시 키 등록 - KakaoSdk.origin으로 생성 가능
