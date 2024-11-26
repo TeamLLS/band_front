@@ -21,7 +21,7 @@ class _BudgetManageViewState extends State<BudgetManageView> {
 
   void _showSnackBar(String text) => showSnackBar(context, text);
 
-  Future<void> _writeExpense() async {
+  Future<void> _writeBtnHandler() async {
     final desCon = TextEditingController();
     final amountCon = TextEditingController();
 
@@ -54,28 +54,23 @@ class _BudgetManageViewState extends State<BudgetManageView> {
             TextButton(
               onPressed: () async {
                 String description = desCon.text;
-                int amount = -(int.tryParse(amountCon.text) ?? 0);
-                if (amount == -100) {
-                  log("amount : $amount");
+                int amount = int.tryParse(amountCon.text) ?? 0;
+                if (amount == 0) {
+                  context.pop();
+                } else {
+                  amount = -amount;
+                  await context
+                      .read<BudgetInfo>()
+                      .writeExpense(amount, description)
+                      .then((_) => context.pop());
                 }
-
-                await context
-                    .read<BudgetInfo>()
-                    .writeExpense(amount, description);
-                context.pop();
               },
               child: const Text('등록'),
             ),
           ],
         );
       },
-    ).then((result) {
-      if (result != null) {
-        final description = result['description'];
-        final amount = result['amount'];
-        print('Description: $description, Amount: $amount');
-      }
-    });
+    );
   }
 
   Future<void> _filterBtnListener() async {
@@ -137,7 +132,7 @@ class _BudgetManageViewState extends State<BudgetManageView> {
         title: const Text("예산 관리"),
         actions: [
           IconButton(
-            onPressed: () async => await _writeExpense(),
+            onPressed: () async => await _writeBtnHandler(),
             icon: const Icon(Icons.create),
           ),
         ],

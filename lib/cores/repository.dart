@@ -248,14 +248,14 @@ class BudgetInfo with ChangeNotifier {
     clubId = null;
     budget = null;
     record.clear();
-    pn = 5;
+    pn = 6;
     return;
   }
 
   void _clearForReload() {
     budget = null;
     record.clear();
-    pn = 5;
+    pn = 6;
     return;
   }
 
@@ -332,7 +332,6 @@ class BudgetInfo with ChangeNotifier {
 
   Future<bool> writeExpense(int amount, String description) async {
     dynamic ret = await BudgetApi.writeExpense(clubId!, amount, description);
-    log("${ret}");
     reloadBudgetInfo(null);
     return true;
   }
