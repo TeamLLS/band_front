@@ -331,7 +331,7 @@ class BudgetInfo with ChangeNotifier {
   }
 
   Future<bool> writeExpense(int amount, String description) async {
-    dynamic ret = await BudgetApi.writeExpense(clubId!, amount, description);
+    await BudgetApi.writeExpense(clubId!, amount, description);
     reloadBudgetInfo(null);
     return true;
   }
@@ -345,7 +345,12 @@ class PaymentInfo with ChangeNotifier {
   void _clear() {
     clubId = null;
     paments.clear();
-    pn = 0;
+    pn = 1;
+  }
+
+  void _clearForReload() {
+    paments.clear();
+    pn = 1;
   }
 
   Future<bool> initPaymentInfo(int clubId) async {
@@ -354,6 +359,18 @@ class PaymentInfo with ChangeNotifier {
     bool ret = await getPaymentList();
     if (ret == false) {
       log("init PaymentInfo fail");
+      return false;
+    }
+
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> reloadPaymentInfo() async {
+    _clearForReload();
+    bool ret = await getPaymentList();
+    if (ret == false) {
+      log("init reloadPaymentInfo fail");
       return false;
     }
 
@@ -375,6 +392,16 @@ class PaymentInfo with ChangeNotifier {
       paments.add(temp);
     }
     pn++;
+    return true;
+  }
+
+  Future<bool> registPayment(
+    int amount,
+    String name,
+    String description,
+  ) async {
+    await BudgetApi.registPayment(clubId!, amount, name, description);
+    await reloadPaymentInfo();
     return true;
   }
 }

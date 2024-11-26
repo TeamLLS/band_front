@@ -4,6 +4,7 @@ import 'package:band_front/pages/club_budget.dart';
 import 'package:band_front/pages/club_manage.dart';
 import 'package:band_front/pages/club_regist.dart';
 import 'package:band_front/pages/manage_budget.dart';
+import 'package:band_front/pages/manage_payment.dart';
 import 'package:band_front/pages/user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -29,6 +30,10 @@ class RouterPath {
   static const String clubEdit = '/myClubList/clubDetail/manage/edit';
   static const String budgetManage =
       '/myClubList/clubDetail/manage/budgetManage';
+  static const String paymentManage =
+      '/myClubList/clubDetail/manage/paymentManage';
+  static const String paymentDetailManage =
+      '/myClubList/clubDetail/manage/paymentDetailManage';
 
   static const String activityDetail = '/myClubList/clubDetail/activityDetail';
 
@@ -77,6 +82,19 @@ final GoRouter route = GoRouter(
                     GoRoute(
                       path: 'budgetManage',
                       builder: (context, state) => BudgetManageView(),
+                    ),
+                    GoRoute(
+                      path: 'paymentManage',
+                      builder: (context, state) => PaymentManageView(),
+                    ),
+                    GoRoute(
+                      path: 'paymentDetailManage',
+                      builder: (context, state) {
+                        final Map<String, dynamic>? argument =
+                            state.extra as Map<String, dynamic>?;
+                        var data = argument?['paymentId'];
+                        return PaymentDetailManageView(paymentId: data);
+                      },
                     ),
                   ],
                 ),

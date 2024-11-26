@@ -29,6 +29,39 @@
 인원수 추가, 연락처 추가
 -> 대답 못받음
 
+5. 장부 생성 api 오류
+200 success 왔으나 "장부 목록 조회 api"로 조회 시 보이지 않음.
+
+static Future<dynamic> registPayment(
+    int clubId,
+    int amount,
+    String name,
+    String description,
+  ) async {
+    Uri url = Uri.parse("${_authInfoApi.url}/budget");
+    Map<String, String> header = {
+      "Content-Type": "application/json",
+      'username': _authInfoApi.username!,
+    };
+    Map<String, dynamic> body = {
+      "clubId": clubId,
+      "amount": amount,
+      "name": name,
+      "description": description,
+    };
+
+    log("regist info - amount : $amount, name : $name, des : $description, clubId : $clubId");
+
+    dynamic data = await HttpInterface.requestPost(url, header, body);
+    if (data == null) {
+      log("err from registPayment");
+      return;
+    }
+
+    return data;
+  }
+
+
 
 
 # 메모

@@ -650,7 +650,36 @@ class BudgetApi {
     return data;
   }
 
-  //장부 생성 -> amount는 모든 납부 대상에게 일정함
+  //장부 생성, amount = 회비
+  static Future<dynamic> registPayment(
+    int clubId,
+    int amount,
+    String name,
+    String description,
+  ) async {
+    Uri url = Uri.parse("${_authInfoApi.url}/budget");
+    Map<String, String> header = {
+      "Content-Type": "application/json",
+      'username': _authInfoApi.username!,
+    };
+    Map<String, dynamic> body = {
+      "clubId": clubId,
+      "amount": amount,
+      "name": name,
+      "description": description,
+    };
+
+    log("regist info - amount : $amount, name : $name, des : $description, clubId : $clubId");
+
+    dynamic data = await HttpInterface.requestPost(url, header, body);
+    if (data == null) {
+      log("err from registPayment");
+      return;
+    }
+
+    return data;
+  }
+
   //장부 취소
   //장부 만료
 

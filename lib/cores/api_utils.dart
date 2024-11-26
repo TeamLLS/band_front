@@ -95,6 +95,8 @@ class HttpInterface {
       return;
     }
 
+    log("${response.statusCode}");
+
     return HttpMethod.handle(response);
   }
 
