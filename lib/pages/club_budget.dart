@@ -238,33 +238,49 @@ class _PaymentViewState extends State<PaymentView> {
       itemBuilder: (context, index) {
         PaymentEntity payment = payments[index];
 
-        return Container(
-          margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8.0),
-            border: Border.all(color: Colors.grey, width: 1.5),
-            // boxShadow: const [
-            //   BoxShadow(
-            //     color: Colors.black,
-            //     blurRadius: 1,
-            //     offset: Offset(2, 2),
-            //   )
-            // ],
-          ),
-          child: ListTile(
-            title: Text(
-              payment.name,
-              style: const TextStyle(fontSize: 18),
+        Color stateColor;
+        if (payment.status == "모금중") {
+          stateColor = Colors.green;
+        } else if (payment.status == "모금종료") {
+          stateColor = Colors.red;
+        } else {
+          stateColor = Colors.grey;
+        }
+
+        return InkWell(
+          onTap: () {
+            context.push(
+              RouterPath.paymentDetail,
+              extra: {"paymentId": payment.id},
+            );
+          },
+          child: desUnit(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        payment.name,
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                      Text("${formatToYMD(payment.createdAt.toString())} ~"),
+                    ],
+                  ),
+                  Text(
+                    payment.status,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: stateColor,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            trailing: Text(payment.status),
-            subtitle: Text("${formatToYMD(payment.createdAt.toString())} ~"),
-            onTap: () {
-              context.push(
-                RouterPath.paymentDetail,
-                extra: {"paymentId": payment.id},
-              );
-            },
           ),
         );
       },
@@ -356,6 +372,15 @@ class _PaymentDetailViewState extends State<PaymentDetailView> {
               ),
             ),
           ),
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Text("납부자 목록"),
+                Divider(),
+              ],
+            ),
+          ),
           Expanded(
             child: ListView.builder(
               itemCount: context.watch<PaymentDetail>().paymentTargets.length,
@@ -383,7 +408,15 @@ class _PaymentDetailViewState extends State<PaymentDetailView> {
                       ),
                       Expanded(
                         flex: 1,
-                        child: Text(target.status),
+                        child: Text(
+                          target.status,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w900,
+                            color: target.status != "납부"
+                                ? Colors.red
+                                : Colors.blue,
+                          ),
+                        ),
                       ),
                       const Spacer(flex: 1),
                     ]),

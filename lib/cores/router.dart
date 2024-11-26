@@ -1,14 +1,15 @@
 //dependencies
 import 'package:band_front/pages/activity_detail.dart';
-import 'package:band_front/pages/budget.dart';
+import 'package:band_front/pages/club_budget.dart';
 import 'package:band_front/pages/club_manage.dart';
 import 'package:band_front/pages/club_regist.dart';
+import 'package:band_front/pages/manage_budget.dart';
 import 'package:band_front/pages/user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 // pages
-import '../pages/club_edit.dart';
+import '../pages/manage_edit.dart';
 import '../pages/login.dart';
 import '../pages/club_list.dart';
 import '../pages/club_detail.dart';
@@ -26,6 +27,8 @@ class RouterPath {
   static const String manage = '/myClubList/clubDetail/manage';
 
   static const String clubEdit = '/myClubList/clubDetail/manage/edit';
+  static const String budgetManage =
+      '/myClubList/clubDetail/manage/budgetManage';
 
   static const String activityDetail = '/myClubList/clubDetail/activityDetail';
 
@@ -70,6 +73,10 @@ final GoRouter route = GoRouter(
                     GoRoute(
                       path: 'edit',
                       builder: (context, state) => ClubEditView(),
+                    ),
+                    GoRoute(
+                      path: 'budgetManage',
+                      builder: (context, state) => BudgetManageView(),
                     ),
                   ],
                 ),

@@ -131,7 +131,7 @@ class ClubDetail with ChangeNotifier {
 
   void _clearMember() {
     members.clear();
-    pnMem = 1;
+    pnMem = 0;
   }
 
   Future<bool> initClubDetail(int clubId, String role) async {
@@ -248,14 +248,14 @@ class BudgetInfo with ChangeNotifier {
     clubId = null;
     budget = null;
     record.clear();
-    pn = 0;
+    pn = 5;
     return;
   }
 
   void _clearForReload() {
     budget = null;
     record.clear();
-    pn = 0;
+    pn = 5;
     return;
   }
 
@@ -308,7 +308,7 @@ class BudgetInfo with ChangeNotifier {
     return true;
   }
 
-  Future<bool> reloadBudgetInfo(DateTime time) async {
+  Future<bool> reloadBudgetInfo(DateTime? time) async {
     _clearForReload();
     log("start reload");
 
@@ -327,6 +327,13 @@ class BudgetInfo with ChangeNotifier {
     }
 
     notifyListeners();
+    return true;
+  }
+
+  Future<bool> writeExpense(int amount, String description) async {
+    dynamic ret = await BudgetApi.writeExpense(clubId!, amount, description);
+    log("${ret}");
+    reloadBudgetInfo(null);
     return true;
   }
 }

@@ -530,8 +530,8 @@ class ActivityApi {
 class BudgetApi {
   static final AuthInfoApi _authInfoApi = AuthInfoApi();
 
-  /// 예산 관련 조회
-  // 총 예산 조회
+  /// 모든 회원 접근 가능
+  // 시간에 따른 예산 누적 액수 조회
   static Future<dynamic> getBudgetAmount(int clubId, DateTime? time) async {
     Uri url;
     if (time == null) {
@@ -551,7 +551,7 @@ class BudgetApi {
     return data;
   }
 
-  //예산 기록 조회
+  // 시간에 따른 납부 내역 조회
   static Future<dynamic> getBudgetRecord(
     int clubId,
     int pn,
@@ -577,16 +577,7 @@ class BudgetApi {
     return data;
   }
 
-  //예산 갱신
-
-  /// 장부 관련 조회
-  /// 관리자 장부 상호작용
-  //장부 생성 -> amount는 모든 납부 대상에게 일정함
-  //장부 취소
-  //장부 만료
-
-  /// 모든 회원 접근 가능
-  //장부 목록 조회
+  // 회비 납부 장부 목록 조회
   static Future<dynamic> getPaymentList(int clubId, int pn) async {
     Uri url = Uri.parse("${_authInfoApi.url}/paybook/$clubId/list?pageNo=$pn");
     Map<String, String> header = {'username': _authInfoApi.username!};
@@ -600,7 +591,7 @@ class BudgetApi {
     return data;
   }
 
-  //장부 조회 : 납부 대상 목록 조회 와 같이 조합해서 ㄱㄱ
+  // 회비 납부 장부 조회
   static Future<dynamic> getPayment(int payId) async {
     Uri url = Uri.parse("${_authInfoApi.url}/paybook/$payId");
     Map<String, String> header = {'username': _authInfoApi.username!};
@@ -614,9 +605,6 @@ class BudgetApi {
     return data;
   }
 
-  //내 장부 목록 조회 : 내가 등록된 장부 목록 조회
-
-  /// 납부 대상 상호작용
   //특정 장부의 납부 대상 목록 조회 : 해당 장부의 납부 대상 목록 조회
   static Future<dynamic> getPaymentTargets(int paymentId, int pn) async {
     Uri url = Uri.parse(
@@ -632,6 +620,42 @@ class BudgetApi {
 
     return data;
   }
+
+  //내 장부 목록 조회 : 내가 등록된 장부 목록 조회
+
+  /// 관리 api
+  // 예산 갱신
+  static Future<dynamic> writeExpense(
+    int clubId,
+    int amount,
+    String description,
+  ) async {
+    Uri url = Uri.parse("${_authInfoApi.url}/budget");
+    Map<String, String> header = {
+      "Content-Type": "application/json",
+      'username': _authInfoApi.username!,
+    };
+    Map<String, dynamic> body = {
+      "clubId": clubId,
+      "description": description,
+      "amount": amount,
+    };
+
+    dynamic data = await HttpInterface.requestPost(url, header, body);
+    if (data == null) {
+      log("err from writeExpense");
+      return;
+    }
+
+    return data;
+  }
+
+  //장부 생성 -> amount는 모든 납부 대상에게 일정함
+  //장부 취소
+  //장부 만료
+
+  /// 납부 대상 상호작용
+
   //납부 대상 등록-전체
   //납부 대상 등록-선택
   //특정 회원 납부 대상 제외

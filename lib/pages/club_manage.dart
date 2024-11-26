@@ -36,27 +36,33 @@ class _ClubManageState extends State<ClubManage> {
     });
   }
 
-  Future<dynamic> _editBtnListener() async {
-    context.push(RouterPath.clubEdit);
-  }
+  void _editBtnListener() => context.push(RouterPath.clubEdit);
+
+  void _budgetManageBtnListener() => context.push(RouterPath.budgetManage);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("관리자 페이지")),
-      body: Center(
-        child: Column(children: [
+      body: Column(
+        children: [
           ElevatedButton(
             onPressed: () => _editBtnListener(),
-            child: Text("모임 정보 변경하기"),
+            child: const Text("모임 정보 수정하기"),
           ),
-          ElevatedButton(onPressed: () {}, child: Text("")),
-          ElevatedButton(onPressed: () {}, child: Text("")),
           ElevatedButton(
-            onPressed: () async => _deleteBtnListener(),
-            child: Text("모임 해체"),
+            onPressed: () => _budgetManageBtnListener(),
+            child: const Text("예산 관리"),
           ),
-        ]),
+          ElevatedButton(
+            onPressed: () {},
+            child: const Text("납부 내역 관리"),
+          ),
+          ElevatedButton(
+            child: const Text("모임 해체"),
+            onPressed: () async => _deleteBtnListener(),
+          ),
+        ],
       ),
     );
   }

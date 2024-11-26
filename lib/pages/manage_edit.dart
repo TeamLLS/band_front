@@ -44,11 +44,11 @@ class _ClubEditViewState extends State<ClubEditView> {
     String? desParam = _desCon.text == "" ? null : _desCon.text;
     String? statusParam;
     if (_clubStatus == ClubStatus.ACTIVE) {
-      statusParam = "운영중";
+      statusParam = "ACTIVE";
     } else if (_clubStatus == ClubStatus.CLOSED) {
-      statusParam = "운영종료";
+      statusParam = "CLOSED";
     } else if (_clubStatus == ClubStatus.RECRUITING) {
-      statusParam = "모집중";
+      statusParam = "RECRUITING";
     }
 
     bool result = await ClubApi.changeClubDetail(
