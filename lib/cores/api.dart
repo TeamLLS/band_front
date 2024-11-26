@@ -461,8 +461,6 @@ class ClubApi {
 class ActivityApi {
   static final AuthInfoApi _authInfoApi = AuthInfoApi();
 
-  // 활동 생성
-
   // 활동 목록 조회
   static Future<dynamic> getActivityList(int clubId, int pn) async {
     Uri url = Uri.parse("${_authInfoApi.url}/activity/$clubId/list?pageNo=$pn");
@@ -509,6 +507,7 @@ class ActivityApi {
     return data;
   }
 
+  // 활동 등록
   // 활동 취소
   // 활동 종료
   // 활동 불참
@@ -621,7 +620,21 @@ class BudgetApi {
     return data;
   }
 
-  //내 장부 목록 조회 : 내가 등록된 장부 목록 조회
+  //내 장부 목록 조회 : 내가 등록된 장부 목록 조회, 디버깅용으로만 쓰고 출력은 하지말것
+  static Future<dynamic> getMyPayments(int clubId) async {
+    Uri url = Uri.parse(
+      "${_authInfoApi.url}/paymember/$clubId/paybook/list?pageNo=0",
+    );
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    dynamic data = await HttpInterface.requestGet(url, header);
+    if (data == null) {
+      log("err from getMyPayments");
+      return;
+    }
+
+    return data;
+  }
 
   /// 관리 api
   // 예산 갱신
@@ -651,6 +664,7 @@ class BudgetApi {
   }
 
   //장부 생성, amount = 회비
+  //TODO:오류
   static Future<dynamic> registPayment(
     int clubId,
     int amount,
@@ -684,8 +698,7 @@ class BudgetApi {
   //장부 만료
 
   /// 납부 대상 상호작용
-
-  //납부 대상 등록-전체
+  //납부 대상 등록-전체 (디폴트로 장부 생성 시 동작)
   //납부 대상 등록-선택
   //특정 회원 납부 대상 제외
 

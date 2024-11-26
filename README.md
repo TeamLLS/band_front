@@ -29,8 +29,12 @@
 인원수 추가, 연락처 추가
 -> 대답 못받음
 
-5. 장부 생성 api 오류
+5. 예산 기록 조회
+필드에 갱신 액수가 증감된 후 예산의 값을 보내주세여
+
+6. 장부 생성 api 오류
 200 success 왔으나 "장부 목록 조회 api"로 조회 시 보이지 않음.
+각 항목 int, String, String으로 잘 전달 됨.
 
 static Future<dynamic> registPayment(
     int clubId,

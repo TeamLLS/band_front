@@ -330,56 +330,50 @@ class _PaymentDetailViewState extends State<PaymentDetailView> {
 
     Payment payment = context.read<PaymentDetail>().payment!;
     double parentWidth = MediaQuery.of(context).size.width;
+    String startDate = formatToYMD(payment.createdAt.toString());
+    String endDate = payment.closedAt == null
+        ? ""
+        : "  ~  ${formatToYMDHM(payment.closedAt.toString())}";
 
     return Scaffold(
       appBar: AppBar(title: Text("납부 정보")),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
         child: Column(children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: budgetUnit(amount: payment.amount, parentWidth: parentWidth),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: desUnit(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(children: [
-                      const Spacer(flex: 1),
-                      Text("담당자 : ${payment.name}"),
-                      const Spacer(flex: 8),
-                      Text(payment.status),
-                      const Spacer(flex: 1),
-                    ]),
-                    const Divider(indent: 8, endIndent: 8, color: Colors.grey),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                      child: Text(payment.description),
-                    ),
-                    const Divider(indent: 8, endIndent: 8, color: Colors.grey),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                      child: Text(
-                        "${formatToYMD(payment.createdAt.toString())} ~ ${payment.closedAt ?? ""}",
-                      ),
-                    ),
-                  ],
-                ),
+          desUnit(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text("회비  :  ${payment.amount}"),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text("담당자  :  ${payment.name}"),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text("상태  :  현재 ${payment.status}"),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text("일자  :  $startDate$endDate"),
+                  ),
+                  const Divider(color: Colors.grey),
+                  Text(payment.description),
+                ],
               ),
             ),
           ),
           const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Text("납부자 목록"),
-                Divider(),
-              ],
-            ),
+            padding: EdgeInsets.fromLTRB(8, 16, 8, 8),
+            child: Column(children: [
+              Text("납부자 목록"),
+              Divider(),
+            ]),
           ),
           Expanded(
             child: ListView.builder(
@@ -387,6 +381,16 @@ class _PaymentDetailViewState extends State<PaymentDetailView> {
               itemBuilder: (context, index) {
                 PaymentTargetEntity target =
                     context.watch<PaymentDetail>().paymentTargets[index];
+                Color statusColor;
+                if (target.status == "납부") {
+                  statusColor = Colors.blue;
+                } else if (target.status == "미납") {
+                  statusColor = Colors.red;
+                } else if (target.status == "연체 납부") {
+                  statusColor = Colors.orange;
+                } else {
+                  statusColor = Colors.grey;
+                }
 
                 return desUnit(
                   child: Padding(
@@ -412,9 +416,7 @@ class _PaymentDetailViewState extends State<PaymentDetailView> {
                           target.status,
                           style: TextStyle(
                             fontWeight: FontWeight.w900,
-                            color: target.status != "납부"
-                                ? Colors.red
-                                : Colors.blue,
+                            color: statusColor,
                           ),
                         ),
                       ),

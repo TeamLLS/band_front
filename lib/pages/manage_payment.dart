@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../cores/api.dart';
 import '../cores/data_class.dart';
 import '../cores/repository.dart';
 import '../cores/router.dart';
@@ -17,7 +18,7 @@ import '../cores/widget_utils.dart';
   납부 대상 등록
   납부 대상 제외
 
-  회원 납부, 미납, 연체 납부
+  회원 납부, 미납, 연체 납부 설정
 
   expanded tile
  */
@@ -104,6 +105,10 @@ class _PaymentManageViewState extends State<PaymentManageView> {
       _showSnackBar("장부 목록 불러오기 실패..");
       return;
     }
+
+    // TODO: 디버깅용. 끝나면 지울 것
+    // dynamic ret = await BudgetApi.getMyPayments(clubId);
+    // log("$ret");
 
     setState(() => isLoaded = true);
   }
@@ -204,7 +209,21 @@ class PaymentDetailManageView extends StatefulWidget {
 class _PaymentDetailManageViewState extends State<PaymentDetailManageView> {
   bool _isLoaded = false;
 
+  //// 넣을 기능 (expanded tile 활용)
+  // 장부 취소
+  // 장부 만료
+
+  // 납부 대상 등록 - 전체,선택, 특정 회원 제외
+  // 선택 등록 빼고 특정 제외 회원으로만 구현하자
+  // 회원 납부 상황 변경 - 납부, 미납, 연체 납부
+
+  // 회원 expansion에 버튼 뭐 구현할까
+  // 1. 미납 - 납부 - 연체 납부
+  // 2. 특정 회원 제외 - 납부 대상 포함
+
   void _showSnackBar(String text) => showSnackBar(context, text);
+
+  // show dialog, return bool
 
   Future<void> _initPaymentDetailManageView() async {
     int clubId = context.read<ClubDetail>().clubId!;
@@ -235,45 +254,57 @@ class _PaymentDetailManageViewState extends State<PaymentDetailManageView> {
 
     Payment payment = context.read<PaymentDetail>().payment!;
     double parentWidth = MediaQuery.of(context).size.width;
+    String startDate = formatToYMD(payment.createdAt.toString());
+    String endDate = payment.closedAt == null
+        ? ""
+        : "  ~  ${formatToYMDHM(payment.closedAt.toString())}";
 
     return Scaffold(
-      appBar: AppBar(title: Text("납부 정보")),
+      appBar: AppBar(
+        title: const Text("장부 상세 정보"),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              //return await _setPaymentState();
+            },
+            icon: const Icon(Icons.close),
+          ),
+          IconButton(
+            onPressed: () async {
+              //return await _setPaymentState();
+            },
+            icon: const Icon(Icons.task_alt),
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
         child: Column(children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: budgetUnit(amount: payment.amount, parentWidth: parentWidth),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: desUnit(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(children: [
-                      const Spacer(flex: 1),
-                      Text("담당자 : ${payment.name}"),
-                      const Spacer(flex: 8),
-                      Text(payment.status),
-                      const Spacer(flex: 1),
-                    ]),
-                    const Divider(indent: 8, endIndent: 8, color: Colors.grey),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                      child: Text(payment.description),
-                    ),
-                    const Divider(indent: 8, endIndent: 8, color: Colors.grey),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                      child: Text(
-                        "${formatToYMD(payment.createdAt.toString())} ~ ${payment.closedAt ?? ""}",
-                      ),
-                    ),
-                  ],
-                ),
+          desUnit(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text("회비  :  ${payment.amount}"),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text("담당자  :  ${payment.name}"),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text("현재 상태  :  ${payment.status}"),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text("일자  :  $startDate$endDate"),
+                  ),
+                  const Divider(color: Colors.grey),
+                  Text(payment.description),
+                ],
               ),
             ),
           ),
@@ -293,40 +324,131 @@ class _PaymentDetailManageViewState extends State<PaymentDetailManageView> {
                 PaymentTargetEntity target =
                     context.watch<PaymentDetail>().paymentTargets[index];
 
-                return desUnit(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(children: [
-                      const Spacer(flex: 1),
-                      Expanded(
-                        flex: 7,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              target.memberName,
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                            Text(target.username),
-                          ],
+                Color statusColor;
+                if (target.status == "납부") {
+                  statusColor = Colors.blue;
+                } else if (target.status == "미납") {
+                  statusColor = Colors.red;
+                } else if (target.status == "연체 납부") {
+                  statusColor = Colors.orange;
+                } else {
+                  statusColor = Colors.grey;
+                }
+
+                ElevatedButton btn1;
+                if (target.status == "제외") {
+                  btn1 = ElevatedButton(
+                    onPressed: () {},
+                    style: ButtonStyle(
+                      backgroundColor:
+                          WidgetStateProperty.all(Colors.grey[400]),
+                    ),
+                    child: const Text(" - "),
+                  );
+                } else if (payment.status == "모금종료" && target.status == "미납") {
+                  btn1 = ElevatedButton(
+                    onPressed: () {},
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.all(Colors.orange),
+                    ),
+                    child: const Text("연체 납부됨"),
+                  );
+                } else if (payment.status == "모금종료" && target.status != "미납") {
+                  btn1 = ElevatedButton(
+                    onPressed: () {},
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.all(Colors.red),
+                    ),
+                    child: const Text("미납"),
+                  );
+                } else if (payment.status == "모금중" && target.status == "미납") {
+                  btn1 = ElevatedButton(
+                    onPressed: () {},
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.all(Colors.green),
+                    ),
+                    child: const Text("납부됨"),
+                  );
+                } else if (payment.status == "모금중" && target.status != "미납") {
+                  btn1 = ElevatedButton(
+                    onPressed: () {},
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.all(Colors.red),
+                    ),
+                    child: const Text("미납"),
+                  );
+                } else {
+                  btn1 = ElevatedButton(
+                    onPressed: () {},
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.all(Colors.black),
+                    ),
+                    child: const Text("exception"),
+                  );
+                }
+
+                ElevatedButton btn2;
+                if (target.status == "제외") {
+                  btn2 = ElevatedButton(
+                    onPressed: () {},
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.all(Colors.green),
+                    ),
+                    child: const Text("포함"),
+                  );
+                } else {
+                  btn2 = ElevatedButton(
+                    onPressed: () {},
+                    style: ButtonStyle(
+                      backgroundColor:
+                          WidgetStateProperty.all(Colors.grey[400]),
+                    ),
+                    child: const Text("제외"),
+                  );
+                }
+
+                if (payment.status == "취소됨") {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: ListTile(
+                      leading: const Icon(Icons.remove),
+                      title: Text(target.memberName),
+                      subtitle: Text(target.username),
+                      trailing: Text(
+                        target.status,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          color: statusColor,
                         ),
                       ),
-                      Expanded(
-                        flex: 1,
-                        child: Text(
-                          target.status,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w900,
-                            color: target.status != "납부"
-                                ? Colors.red
-                                : Colors.blue,
-                          ),
+                    ),
+                  );
+                } else {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: ExpansionTile(
+                      shape: Border.all(color: Colors.transparent),
+                      title: Text(target.memberName),
+                      subtitle: Text(target.username),
+                      trailing: Text(
+                        target.status,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          color: statusColor,
                         ),
                       ),
-                      const Spacer(flex: 1),
-                    ]),
-                  ),
-                );
+                      controlAffinity: ListTileControlAffinity.leading,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [btn1, btn2],
+                        ),
+                      ],
+                    ),
+                  );
+                }
               },
             ),
           ),

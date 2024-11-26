@@ -45,7 +45,7 @@ class _ClubManageState extends State<ClubManage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("관리자 페이지")),
+      appBar: AppBar(title: const Text("모임 관리")),
       body: Column(
         children: [
           ElevatedButton(

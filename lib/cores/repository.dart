@@ -345,12 +345,12 @@ class PaymentInfo with ChangeNotifier {
   void _clear() {
     clubId = null;
     paments.clear();
-    pn = 1;
+    pn = 0;
   }
 
   void _clearForReload() {
     paments.clear();
-    pn = 1;
+    pn = 0;
   }
 
   Future<bool> initPaymentInfo(int clubId) async {
