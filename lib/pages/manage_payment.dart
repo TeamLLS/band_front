@@ -173,8 +173,7 @@ class _PaymentManageViewState extends State<PaymentManageView> {
                             payment.name,
                             style: const TextStyle(fontSize: 18),
                           ),
-                          Text(
-                              "${formatToYMD(payment.createdAt.toString())} ~"),
+                          Text("${formatToYMD(payment.deadline.toString())} ~"),
                         ],
                       ),
                       Text(

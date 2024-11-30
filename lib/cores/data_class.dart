@@ -320,23 +320,26 @@ class BudgetRecordEntity {
 
 class PaymentEntity {
   final int id;
-  final String name; //출력
-  final String status; //출력
-  final DateTime createdAt; //출력
+  final String name;
+  final int amount;
+  final String status;
+  final DateTime deadline;
 
   PaymentEntity({
     required this.id,
     required this.name,
+    required this.amount,
     required this.status,
-    required this.createdAt,
+    required this.deadline,
   });
 
   factory PaymentEntity.fromMap(Map<String, dynamic> map) {
     return PaymentEntity(
       id: map['id'] as int,
       name: map['name'],
+      amount: map['amount'] as int,
       status: map['status'],
-      createdAt: DateTime.parse(map['createdAt']),
+      deadline: DateTime.parse(map['deadline']),
     );
   }
 
@@ -345,7 +348,7 @@ class PaymentEntity {
       'id': id,
       'name': name,
       'status': status,
-      'createdAt': createdAt.toIso8601String(),
+      'createdAt': deadline.toIso8601String(),
     };
   }
 }
@@ -357,8 +360,10 @@ class Payment {
   final String description;
   final String status;
   final int amount;
+  final String createdBy;
   final DateTime createdAt;
   final DateTime? closedAt;
+  final DateTime deadline;
 
   Payment({
     required this.id,
@@ -367,8 +372,10 @@ class Payment {
     required this.description,
     required this.status,
     required this.amount,
+    required this.createdBy,
     required this.createdAt,
     required this.closedAt,
+    required this.deadline,
   });
 
   factory Payment.fromMap(Map<String, dynamic> map) {
@@ -379,9 +386,11 @@ class Payment {
       description: map['description'],
       status: map['status'],
       amount: map['amount'] as int,
+      createdBy: map['createdBy'],
       createdAt: DateTime.parse(map['createdAt']),
       closedAt:
           map['closedAt'] != null ? DateTime.parse(map['closedAt']) : null,
+      deadline: DateTime.parse(map['deadline']),
     );
   }
 
@@ -405,6 +414,7 @@ class PaymentTargetEntity {
   final String username;
   final int memberId;
   final String memberName;
+  final DateTime? paidAt;
   final String status;
 
   PaymentTargetEntity({
@@ -413,6 +423,7 @@ class PaymentTargetEntity {
     required this.username,
     required this.memberId,
     required this.memberName,
+    required this.paidAt,
     required this.status,
   });
 
@@ -423,6 +434,7 @@ class PaymentTargetEntity {
       username: map['username'],
       memberId: map['memberId'] as int,
       memberName: map['memberName'],
+      paidAt: map['paidAt'] != null ? DateTime.parse(map['paidAt']) : null,
       status: map['status'],
     );
   }

@@ -384,7 +384,6 @@ class PaymentInfo with ChangeNotifier {
       log("getPaymentList fail");
       return false;
     }
-    log("$data");
 
     var list = data['list'];
     for (Map<String, dynamic> element in list) {
@@ -458,6 +457,7 @@ class PaymentDetail with ChangeNotifier {
       log("getPaymentTargets fail");
       return false;
     }
+    log("$data");
 
     var list = data['list'];
     for (Map<String, dynamic> element in list) {

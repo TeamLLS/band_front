@@ -247,6 +247,12 @@ class _PaymentViewState extends State<PaymentView> {
           stateColor = Colors.grey;
         }
 
+        // id x
+        // name o
+        // amount
+        // status o
+        // deadline o
+
         return InkWell(
           onTap: () {
             context.push(
@@ -256,7 +262,7 @@ class _PaymentViewState extends State<PaymentView> {
           },
           child: desUnit(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -267,16 +273,17 @@ class _PaymentViewState extends State<PaymentView> {
                         payment.name,
                         style: const TextStyle(fontSize: 18),
                       ),
-                      Text("${formatToYMD(payment.createdAt.toString())} ~"),
+                      Text(
+                        "회비  :  ${payment.amount}",
+                      ),
+                      Text(
+                        "마감일  :  ${formatToYMD(payment.deadline.toString())}",
+                      ),
                     ],
                   ),
                   Text(
                     payment.status,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: stateColor,
-                    ),
+                    style: TextStyle(fontSize: 18, color: stateColor),
                   ),
                 ],
               ),
@@ -331,12 +338,23 @@ class _PaymentDetailViewState extends State<PaymentDetailView> {
     Payment payment = context.read<PaymentDetail>().payment!;
     double parentWidth = MediaQuery.of(context).size.width;
     String startDate = formatToYMD(payment.createdAt.toString());
-    String endDate = payment.closedAt == null
-        ? ""
-        : "  ~  ${formatToYMDHM(payment.closedAt.toString())}";
+    String deadline = formatToYMDHM(payment.deadline.toString());
+    Widget endDate = payment.closedAt == null
+        ? const SizedBox.shrink()
+        : Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Text("${formatToYMD(payment.closedAt.toString())}에 모금 종료됨"),
+          );
+
+    //status 추가 : 입금액이 회비에 못미치면 ex) 진행 중
+    // 현재 납부액 -> 고려 중
+    // 총액
+    // 미납 인원 (진행중 까지) -> 추가 예정
+    // 납부 인원
+    // 제외 인원
 
     return Scaffold(
-      appBar: AppBar(title: Text("납부 정보")),
+      appBar: AppBar(title: Text(payment.name)),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
         child: Column(children: [
@@ -352,7 +370,7 @@ class _PaymentDetailViewState extends State<PaymentDetailView> {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 4),
-                    child: Text("담당자  :  ${payment.name}"),
+                    child: Text("담당자  :  ${payment.createdBy}"),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 4),
@@ -360,8 +378,9 @@ class _PaymentDetailViewState extends State<PaymentDetailView> {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 4),
-                    child: Text("일자  :  $startDate$endDate"),
+                    child: Text("모금 기간  :  $startDate  ~  $deadline"),
                   ),
+                  endDate,
                   const Divider(color: Colors.grey),
                   Text(payment.description),
                 ],
@@ -394,12 +413,11 @@ class _PaymentDetailViewState extends State<PaymentDetailView> {
 
                 return desUnit(
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(children: [
-                      const Spacer(flex: 1),
-                      Expanded(
-                        flex: 7,
-                        child: Column(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
@@ -407,21 +425,19 @@ class _PaymentDetailViewState extends State<PaymentDetailView> {
                               style: const TextStyle(fontSize: 18),
                             ),
                             Text(target.username),
+                            target.paidAt == null
+                                ? const SizedBox.shrink()
+                                : Text(
+                                    "입금 날짜  :  ${formatToYMD(target.paidAt.toString())}",
+                                  ),
                           ],
                         ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Text(
+                        Text(
                           target.status,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w900,
-                            color: statusColor,
-                          ),
+                          style: TextStyle(fontSize: 18, color: statusColor),
                         ),
-                      ),
-                      const Spacer(flex: 1),
-                    ]),
+                      ],
+                    ),
                   ),
                 );
               },
