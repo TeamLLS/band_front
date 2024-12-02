@@ -48,8 +48,8 @@ class BandApp extends StatelessWidget {
             primary: Colors.black,
             // primary가 주어지는 ui의 테두리, 글 색 등
             onPrimary: Colors.white,
-            secondary: Colors.yellow,
-            onSecondary: Colors.green,
+            secondary: Colors.black, //timepicker am pm 하이라이트
+            onSecondary: Colors.white,
             error: Colors.cyan,
             onError: Colors.blueAccent,
             surface: Colors.white,

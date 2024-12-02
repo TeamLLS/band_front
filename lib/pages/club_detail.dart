@@ -171,7 +171,8 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                           right: 0,
                           child: IconButton(
                             icon: const Icon(Icons.create),
-                            onPressed: () {},
+                            onPressed: () =>
+                                context.push(RouterPath.activityRegist),
                           ),
                         ),
                       ],
@@ -205,7 +206,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text("${actList[index].name}과 듀오"),
+                                      Text(actList[index].name),
                                       Text(actList[index].status),
                                     ],
                                   ),

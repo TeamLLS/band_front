@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 // pages
+import '../pages/activity_regist.dart';
 import '../pages/manage_edit.dart';
 import '../pages/login.dart';
 import '../pages/club_list.dart';
@@ -36,6 +37,8 @@ class RouterPath {
       '/myClubList/clubDetail/manage/paymentDetailManage';
 
   static const String activityDetail = '/myClubList/clubDetail/activityDetail';
+
+  static const String activityRegist = '/myClubList/clubDetail/activityRegist';
 
   static const String budget = '/myClubList/clubDetail/budget';
   static const String paymentDetail =
@@ -116,6 +119,10 @@ final GoRouter route = GoRouter(
                     int clubId = argument?['actId'];
                     return ActivityDetailView(actId: actId, clubId: clubId);
                   },
+                ),
+                GoRoute(
+                  path: 'activityRegist',
+                  builder: (context, state) => const ActivityRegistView(),
                 ),
                 GoRoute(
                   path: 'budget',

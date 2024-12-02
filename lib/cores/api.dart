@@ -509,6 +509,62 @@ class ActivityApi {
   }
 
   // 활동 등록
+  static Future<bool> registActivity(
+    int clubId,
+    String name,
+    String description,
+    XFile image,
+    String location,
+    DateTime startTime,
+    DateTime endTime,
+    DateTime deadline,
+  ) async {
+    Uri url = Uri.parse("${_authInfoApi.url}/activity");
+
+    var request = http.MultipartRequest('POST', url);
+    request.headers['username'] = _authInfoApi.username!;
+
+    Map<String, dynamic> body = {
+      'clubId': clubId,
+      'name': name,
+      'description': description,
+      'location': location,
+      'startTime': startTime.toIso8601String(),
+      'endTime': endTime.toIso8601String(),
+      'deadline': deadline.toIso8601String(),
+    };
+
+    request.fields['data'] = jsonEncode(body);
+
+    var file = await http.MultipartFile.fromPath('image', image.path);
+    request.files.add(file);
+
+    return await HttpInterface.requestMultipart(request);
+
+    // Uri url = Uri.parse("${_authInfoApi.url}/activity");
+
+    // // 요청 객체 생성
+    // var request = http.MultipartRequest('POST', url);
+
+    // // write header
+    // request.headers['username'] = _authInfoApi.username!;
+
+    // // import image
+    // var file = await http.MultipartFile.fromPath('image', image.path);
+    // request.files.add(file);
+
+    // request.fields['clubId'] = clubId;
+    // request.fields['name'] = name;
+    // request.fields['description'] = description;
+    // request.fields['location'] = location;
+    // request.fields['startTime'] = startTime.toIso8601String();
+    // request.fields['endTime'] = endTime.toIso8601String();
+    // request.fields['deadline'] = deadline.toIso8601String();
+
+    // // 요청 전송
+    // return await HttpInterface.requestMultipart(request);
+  }
+
   // 활동 종료
   // 활동 취소
 

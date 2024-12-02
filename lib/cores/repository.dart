@@ -6,6 +6,9 @@ import 'package:image_picker/image_picker.dart';
 import 'api.dart';
 import 'data_class.dart';
 
+//TODO: 활동 참가, 취소 오류(주최자는 활동참가, 취소가 되지 않아야 함)
+// 주최자가 명시되어야 활동 종료, 취소 등이 가능.
+
 class MyRepo with ChangeNotifier {
   User? me;
 
@@ -526,6 +529,7 @@ class ActivityDetailRepo with ChangeNotifier {
   Future<bool> getActivityDetail() async {
     try {
       var data = await ActivityApi.getActivityDetail(actId!);
+      log("$data");
       activity = Activity.fromMap(data);
       return true;
     } catch (e) {
@@ -536,7 +540,6 @@ class ActivityDetailRepo with ChangeNotifier {
   Future<bool> getParticipants() async {
     try {
       var data = await ActivityApi.getParticipant(actId!, pn);
-      log("$data");
       isAttended = data['attend'];
       var list = data['list'];
       for (Map<String, dynamic> element in list) {

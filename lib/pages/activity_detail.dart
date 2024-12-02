@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 import '../cores/data_class.dart';
 import '../cores/repository.dart';
 
+//TODO : readme의 활동 상세, 활동 참가, 취소 api 오류 해결하기
+
 class ActivityDetailView extends StatefulWidget {
   ActivityDetailView({super.key, required this.actId, required this.clubId});
   int actId;

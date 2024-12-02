@@ -1,46 +1,91 @@
 # band_front
 
-
 # 자고일어나서 하기
 활동 디텔에서 신청하기 액션들, 모집중 글씨 색 바꾸기
-
 
 # 회의 때 말할 것
 - 납부 대상 목록 조회
 입금액은 필드에 포함 못한다고 했었지?
 
-- 활동 참가, 취소 오류
-Dummy user A로 수행 시 attend만 변경되고 리스트에서 제거되지 않음.
+- 활동 상세, 활동 참가, 취소 api 오류
+1. Dummy user A로 참가 및 취소 수행 시 attend만 변경되고 리스트에서 제거되지 않음.
 [log] {attend: true, list: [{id: 1, activityId: 1, username: Dummy_userA, memberId: 1, memberName: 허연준, status: 참가, changedAt: 2024-11-29T06:32:14.465080Z}, {id: 2, activityId: 1, username: Dummy_userB, memberId: 2, memberName: 임윤빈, status: 참가, changedAt: 2024-11-29T06:32:14.485275Z}]}
 [log] {attend: false, list: [{id: 1, activityId: 1, username: Dummy_userA, memberId: 1, memberName: 허연준, status: 불참, changedAt: 2024-12-02T18:42:32.293819Z}, {id: 2, activityId: 1, username: Dummy_userB, memberId: 2, memberName: 임윤빈, status: 참가, changedAt: 2024-11-29T06:32:14.485275Z}]}
-또한 현재 참여 인원이 2명임에도 0명으로 나오고, 참가 취소 시 -1명이 됨.
+
+2. participant list에 2명이 있음에도 활동 상세 api에서 participantNum이 0명으로 나옴. 또한 참가 취소 시 -1명이 됨.
+
+3. "활동 종료, 활동 취소, 활동 추가참가, 추가불참" api는 활동을 개설한 주최자가 수행해야 할 기능인 것 같은데 맞는지?
+-> 맞다면 "활동 조회"에 주최자 명시 요망
+
+- 모든 api에 대해
+image 필드에는 null을 넣어 보내도 되는가?
+
+- 활동 생성
+1. location은 nullable?
+2. 400 err, post맞나 코드보려니까 controller에 선언이 안되어있던데 푸쉬가안된건가여
+2-1. log
+[log] {"timestamp":"2024-12-03T05:13:08.973+09:00","status":400,"error":"Bad Request","path":"/activity"}
+2-2. api 함수, 시도한 코드 1, 2 둘 다 같은 오류로 실패.
+  static Future<bool> registActivity(
+    int clubId,
+    String name,
+    String description,
+    XFile image,
+    String location,
+    DateTime startTime,
+    DateTime endTime,
+    DateTime deadline,
+  ) async {
+    // ===================== 시도한 코드 1 ===================== 
+    Uri url = Uri.parse("${_authInfoApi.url}/activity");
+
+    var request = http.MultipartRequest('POST', url);
+    request.headers['username'] = _authInfoApi.username!;
+
+    Map<String, dynamic> body = {
+      'clubId': clubId,
+      'name': name,
+      'description': description,
+      'location': location,
+      'startTime': startTime.toIso8601String(),
+      'endTime': endTime.toIso8601String(),
+      'deadline': deadline.toIso8601String(),
+    };
+
+    request.fields['data'] = jsonEncode(body);
+
+    var file = await http.MultipartFile.fromPath('image', image.path);
+    request.files.add(file);
+
+    return await HttpInterface.requestMultipart(request);
 
 
+    // ===================== 시도한 코드 2 ===================== 
+    // Uri url = Uri.parse("${_authInfoApi.url}/activity");
 
-납부정보에
-미에있는사람 
-입금액 작으면 진행 중
-입금 날짜
-계좌랑 정보가 대조되어야됨 -> 
-시간 금액
-납부 장부의 총액
-미납자 몇명인지
+    // // 요청 객체 생성
+    // var request = http.MultipartRequest('POST', url);
 
-후원 목적으로 더 많이 내는 사람
-미납자 명수, 누군지, 미납자에게 알람
+    // // write header
+    // request.headers['username'] = _authInfoApi.username!;
 
-납부 빨리하는사람은 포인트업
-db에 들가는 모든 정보에 포인트
-포인트테이블
-관리자가 포인트 설정할수있
+    // // import image
+    // var file = await http.MultipartFile.fromPath('image', image.path);
+    // request.files.add(file);
+
+    // request.fields['clubId'] = clubId;
+    // request.fields['name'] = name;
+    // request.fields['description'] = description;
+    // request.fields['location'] = location;
+    // request.fields['startTime'] = startTime.toIso8601String();
+    // request.fields['endTime'] = endTime.toIso8601String();
+    // request.fields['deadline'] = deadline.toIso8601String();
+
+    // // 요청 전송
+    // return await HttpInterface.requestMultipart(request);
+  }
 
 
-활동 - 온라인, 오프라인
-사용자 편의에 맞춰라
-
-앱에서 db 모니터링
-스케줄링으로 한번씩 요청하자 얼마마다
-마코프체인은 메모리를 두던지 해라
 
 
 # issueing
@@ -143,6 +188,31 @@ api 대신 파이썬으로 데잍 ㅓ생성
 실물자료는 없냐?
 마르코프체인은 이해했냐?
 스탶
+
+납부정보에
+미에있는사람 
+입금액 작으면 진행 중
+입금 날짜
+계좌랑 정보가 대조되어야됨 -> 
+시간 금액
+납부 장부의 총액
+미납자 몇명인지
+
+후원 목적으로 더 많이 내는 사람
+미납자 명수, 누군지, 미납자에게 알람
+
+납부 빨리하는사람은 포인트업
+db에 들가는 모든 정보에 포인트
+포인트테이블
+관리자가 포인트 설정할수있
+
+
+활동 - 온라인, 오프라인
+사용자 편의에 맞춰라
+
+앱에서 db 모니터링
+스케줄링으로 한번씩 요청하자 얼마마다
+마코프체인은 메모리를 두던지 해라
 
 # 이벤트 정리 (회원 활동 위주)
 데이터 기반 수치로 어떤 것을 나타낼까
