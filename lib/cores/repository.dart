@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'api.dart';
 import 'data_class.dart';
 
-class MyInfo with ChangeNotifier {
+class MyRepo with ChangeNotifier {
   User? me;
 
   Future<bool> getMyInfo() async {
@@ -41,7 +41,7 @@ class MyInfo with ChangeNotifier {
   }
 }
 
-class UserInfo with ChangeNotifier {
+class UserRepo with ChangeNotifier {
   String? username;
   int? memberId;
   User? user;
@@ -110,7 +110,7 @@ class UserInfo with ChangeNotifier {
   }
 }
 
-class ClubDetail with ChangeNotifier {
+class ClubDetailRepo with ChangeNotifier {
   int? clubId;
   String? role; // 회장, 관리자, 일반
   Club? club;
@@ -172,7 +172,9 @@ class ClubDetail with ChangeNotifier {
       log("club id null in getActivityList");
       return false;
     }
+
     var data = await ActivityApi.getActivityList(clubId!, pnAct);
+
     var list = data['list'];
     for (Map<String, dynamic> element in list) {
       actList.add(ActivityEntity.fromMap(element));
@@ -195,7 +197,7 @@ class ClubDetail with ChangeNotifier {
   }
 }
 
-class ClubList with ChangeNotifier {
+class ClubListRepo with ChangeNotifier {
   List<ClubEntity> clubs = [];
   int pn = 0;
 
@@ -236,7 +238,7 @@ class ClubList with ChangeNotifier {
   }
 }
 
-class BudgetInfo with ChangeNotifier {
+class BudgetRepo with ChangeNotifier {
   int? budgetId;
   int? clubId;
   int? budget;
@@ -337,7 +339,7 @@ class BudgetInfo with ChangeNotifier {
   }
 }
 
-class PaymentInfo with ChangeNotifier {
+class PaymentListRepo with ChangeNotifier {
   int? clubId;
   List<PaymentEntity> paments = [];
   int pn = 0;
@@ -405,7 +407,7 @@ class PaymentInfo with ChangeNotifier {
   }
 }
 
-class PaymentDetail with ChangeNotifier {
+class PaymentDetailRepo with ChangeNotifier {
   int? clubId;
   int? paymentId;
   Payment? payment;
@@ -465,6 +467,111 @@ class PaymentDetail with ChangeNotifier {
       paymentTargets.add(temp);
     }
     pn++;
+    return true;
+  }
+}
+
+class ActivityDetailRepo with ChangeNotifier {
+  int? clubId;
+  int? actId;
+  Activity? activity;
+  bool? isAttended;
+  List<ParticipantEntity> participantsList = [];
+  int pn = 0;
+
+  void _clear() {
+    clubId = null;
+    actId = null;
+    activity = null;
+    isAttended = null;
+    participantsList.clear();
+    pn = 0;
+  }
+
+  void _clearForReload() {
+    activity = null;
+    isAttended = null;
+    participantsList.clear();
+    pn = 0;
+  }
+
+  Future<bool> initActivityDetail(int actId, int clubId) async {
+    _clear();
+    this.actId = actId;
+    this.clubId = clubId;
+
+    bool ret = await getActivityDetail();
+    if (ret == false) return false;
+
+    ret = await getParticipants();
+    if (ret == false) return false;
+
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> _reloadActivityDetail() async {
+    _clearForReload();
+
+    bool ret = await getActivityDetail();
+    if (ret == false) return false;
+
+    ret = await getParticipants();
+    if (ret == false) return false;
+
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> getActivityDetail() async {
+    try {
+      var data = await ActivityApi.getActivityDetail(actId!);
+      activity = Activity.fromMap(data);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> getParticipants() async {
+    try {
+      var data = await ActivityApi.getParticipant(actId!, pn);
+      log("$data");
+      isAttended = data['attend'];
+      var list = data['list'];
+      for (Map<String, dynamic> element in list) {
+        participantsList.add(ParticipantEntity.fromMap(element));
+      }
+      pn++;
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> attendto() async {
+    if (clubId == null || actId == null) return false;
+
+    bool ret = await ActivityApi.attendActivity(clubId!, actId!);
+    if (ret == false) return false;
+
+    ret = await _reloadActivityDetail();
+    if (ret == false) return false;
+
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> withdrawFrom() async {
+    if (clubId == null || actId == null) return false;
+
+    bool ret = await ActivityApi.withdrawActivity(clubId!, actId!);
+    if (ret == false) return false;
+
+    ret = await _reloadActivityDetail();
+    if (ret == false) return false;
+
+    notifyListeners();
     return true;
   }
 }

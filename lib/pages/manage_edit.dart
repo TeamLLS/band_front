@@ -62,7 +62,7 @@ class _ClubEditViewState extends State<ClubEditView> {
   }
 
   void _initClubEdit() {
-    club = context.read<ClubDetail>().club!;
+    club = context.read<ClubDetailRepo>().club!;
     _nameCon.text = club.name;
     _desCon.text = club.description ?? "";
     if (club.status == "운영중") {

@@ -13,6 +13,11 @@ void showSnackBar(BuildContext context, String text) {
   return;
 }
 
+String formatToMDHM(DateTime dateTime) {
+  DateFormat formatter = DateFormat('MM.dd HH:mm');
+  return formatter.format(dateTime);
+}
+
 String formatToYMDHM(String isoDate) {
   DateTime dateTime = DateTime.parse(isoDate);
 

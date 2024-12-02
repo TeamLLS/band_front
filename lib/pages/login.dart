@@ -56,7 +56,7 @@ class _SignViewState extends State<SignView> {
 
     //3. get profile
     // ignore: use_build_context_synchronously
-    result = await context.read<MyInfo>().getMyInfo();
+    result = await context.read<MyRepo>().getMyInfo();
     if (result == false) {
       log("get profile err");
       return false;

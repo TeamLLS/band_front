@@ -88,23 +88,27 @@ class Activity {
   final int id;
   final int clubId;
   final String name;
+  final String? image;
+  final String? location; // 추가된 필드
   final String description;
   final DateTime startTime;
   final DateTime endTime;
-  final String status;
-  final String? image;
+  final DateTime deadline; // 추가된 필드
+  final String status; //모집중	모집종료	취소됨
   final int participantNum;
 
   Activity({
     required this.id,
     required this.clubId,
     required this.name,
+    required this.image,
+    required this.location, // 추가된 필드
     required this.description,
     required this.startTime,
     required this.endTime,
+    required this.deadline, // 추가된 필드
     required this.status,
     required this.participantNum,
-    this.image,
   });
 
   // 팩토리 메서드
@@ -113,12 +117,14 @@ class Activity {
       id: map['id'] as int,
       clubId: map['clubId'] as int,
       name: map['name'],
+      image: map['image'],
+      location: map['location'],
       description: map['description'],
       startTime: DateTime.parse(map['startTime']),
       endTime: DateTime.parse(map['endTime']),
+      deadline: DateTime.parse(map['deadline']),
       status: map['status'],
       participantNum: map['participantNum'] as int,
-      image: map['image'],
     );
   }
 }

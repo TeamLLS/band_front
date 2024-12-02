@@ -24,9 +24,9 @@ class _UserProfileViewState extends State<UserProfileView> {
   void _showSnackBar(String text) => showSnackBar(context, text);
 
   Future<void> _initUserProfileView() async {
-    _role = context.read<UserInfo>().role;
+    _role = context.read<UserRepo>().role;
     ;
-    bool result = await context.read<UserInfo>().getUserProfile();
+    bool result = await context.read<UserRepo>().getUserProfile();
     if (result == false) {
       return;
     }
@@ -34,7 +34,7 @@ class _UserProfileViewState extends State<UserProfileView> {
   }
 
   Future<void> _banBtnListener() async {
-    bool result = await context.read<UserInfo>().removeFromClub();
+    bool result = await context.read<UserRepo>().removeFromClub();
     if (result == false) {
       _showSnackBar("추방 실패..");
       return;
@@ -44,7 +44,7 @@ class _UserProfileViewState extends State<UserProfileView> {
   }
 
   Future<void> _banBtnHandler() async {
-    await context.read<ClubDetail>().getMemberList().then((_) {
+    await context.read<ClubDetailRepo>().getMemberList().then((_) {
       _showSnackBar("추방되었습니다");
       context.pop();
     });
@@ -115,7 +115,7 @@ class _UserProfileViewState extends State<UserProfileView> {
   }
 
   Future<void> _changeRoleBtnHandler() async {
-    bool result = await context.read<UserInfo>().changeRole(_role!);
+    bool result = await context.read<UserRepo>().changeRole(_role!);
     if (result == false) {
       _showSnackBar("권한 변경 실패..");
       return;
@@ -125,7 +125,7 @@ class _UserProfileViewState extends State<UserProfileView> {
   }
 
   Future<void> _returnHandler() async {
-    await context.read<ClubDetail>().getMemberList().then((_) {
+    await context.read<ClubDetailRepo>().getMemberList().then((_) {
       context.pop();
       context.pop();
     });
@@ -143,8 +143,8 @@ class _UserProfileViewState extends State<UserProfileView> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    String myRole = context.watch<ClubDetail>().role!;
-    User user = context.watch<UserInfo>().user!;
+    String myRole = context.watch<ClubDetailRepo>().role!;
+    User user = context.watch<UserRepo>().user!;
     double parentWidth = MediaQuery.of(context).size.width;
     Image image = user.image == null
         ? Image.asset(

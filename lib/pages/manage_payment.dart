@@ -81,7 +81,7 @@ class _PaymentManageViewState extends State<PaymentManageView> {
                 } else {
                   log("start");
                   await context
-                      .read<PaymentInfo>()
+                      .read<PaymentListRepo>()
                       .registPayment(
                         amount,
                         name,
@@ -99,8 +99,8 @@ class _PaymentManageViewState extends State<PaymentManageView> {
   }
 
   Future<void> _initPaymentManageView() async {
-    int clubId = context.read<ClubDetail>().clubId!;
-    bool result = await context.read<PaymentInfo>().initPaymentInfo(clubId);
+    int clubId = context.read<ClubDetailRepo>().clubId!;
+    bool result = await context.read<PaymentListRepo>().initPaymentInfo(clubId);
     if (result == false) {
       _showSnackBar("장부 목록 불러오기 실패..");
       return;
@@ -125,7 +125,7 @@ class _PaymentManageViewState extends State<PaymentManageView> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    List<PaymentEntity> payments = context.watch<PaymentInfo>().paments;
+    List<PaymentEntity> payments = context.watch<PaymentListRepo>().paments;
 
     return Scaffold(
       appBar: AppBar(
@@ -225,11 +225,11 @@ class _PaymentDetailManageViewState extends State<PaymentDetailManageView> {
   // show dialog, return bool
 
   Future<void> _initPaymentDetailManageView() async {
-    int clubId = context.read<ClubDetail>().clubId!;
+    int clubId = context.read<ClubDetailRepo>().clubId!;
     int paymentId = widget.paymentId;
 
     bool ret = await context
-        .read<PaymentDetail>()
+        .read<PaymentDetailRepo>()
         .initPaymentDetail(clubId, paymentId);
     if (ret == false) {
       _showSnackBar("장부 정보를 불러오지 못했습니다..");
@@ -251,7 +251,7 @@ class _PaymentDetailManageViewState extends State<PaymentDetailManageView> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    Payment payment = context.read<PaymentDetail>().payment!;
+    Payment payment = context.read<PaymentDetailRepo>().payment!;
     double parentWidth = MediaQuery.of(context).size.width;
     String startDate = formatToYMD(payment.createdAt.toString());
     String endDate = payment.closedAt == null
@@ -318,10 +318,11 @@ class _PaymentDetailManageViewState extends State<PaymentDetailManageView> {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: context.watch<PaymentDetail>().paymentTargets.length,
+              itemCount:
+                  context.watch<PaymentDetailRepo>().paymentTargets.length,
               itemBuilder: (context, index) {
                 PaymentTargetEntity target =
-                    context.watch<PaymentDetail>().paymentTargets[index];
+                    context.watch<PaymentDetailRepo>().paymentTargets[index];
 
                 Color statusColor;
                 if (target.status == "납부") {

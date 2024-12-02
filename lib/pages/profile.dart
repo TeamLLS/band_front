@@ -25,9 +25,9 @@ class _MyProfileViewState extends State<MyProfileView> {
   User? _me;
 
   Future<void> initProfileView() async {
-    await context.read<MyInfo>().getMyInfo();
+    await context.read<MyRepo>().getMyInfo();
     setState(() {
-      _me = context.read<MyInfo>().me;
+      _me = context.read<MyRepo>().me;
     });
   }
 
@@ -186,7 +186,7 @@ class _MyProfileEditViewState extends State<MyProfileEditView> {
       return;
     }
 
-    result = await context.read<MyInfo>().getMyInfo();
+    result = await context.read<MyRepo>().getMyInfo();
     if (result == false) {
       _showSnackBar("프로필 변경 실패");
       return;
@@ -210,7 +210,7 @@ class _MyProfileEditViewState extends State<MyProfileEditView> {
     log("description : $desParam");
     log("===========================================");
     bool result = await context
-        .read<MyInfo>()
+        .read<MyRepo>()
         .changeMyInfo(_image, emailParam, phNumParam, desParam);
     _changeMyProfileHandler(result);
   }
@@ -218,7 +218,7 @@ class _MyProfileEditViewState extends State<MyProfileEditView> {
   @override
   void initState() {
     super.initState();
-    _me = context.read<MyInfo>().me!;
+    _me = context.read<MyRepo>().me!;
   }
 
   @override

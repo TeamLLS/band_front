@@ -26,13 +26,14 @@ class BandApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => MyInfo()),
-        ChangeNotifierProvider(create: (_) => UserInfo()),
-        ChangeNotifierProvider(create: (_) => BudgetInfo()),
-        ChangeNotifierProvider(create: (_) => PaymentInfo()),
-        ChangeNotifierProvider(create: (_) => PaymentDetail()),
-        ChangeNotifierProvider(create: (_) => ClubDetail()),
-        ChangeNotifierProvider(create: (_) => ClubList()),
+        ChangeNotifierProvider(create: (_) => MyRepo()),
+        ChangeNotifierProvider(create: (_) => UserRepo()),
+        ChangeNotifierProvider(create: (_) => BudgetRepo()),
+        ChangeNotifierProvider(create: (_) => PaymentListRepo()),
+        ChangeNotifierProvider(create: (_) => PaymentDetailRepo()),
+        ChangeNotifierProvider(create: (_) => ClubDetailRepo()),
+        ChangeNotifierProvider(create: (_) => ClubListRepo()),
+        ChangeNotifierProvider(create: (_) => ActivityDetailRepo()),
       ],
       child: MaterialApp.router(
         routerConfig: route,

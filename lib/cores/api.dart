@@ -120,6 +120,7 @@ class LogInApi {
   //Dummy_A용 메소드
   //유저네임 auth에 등록
   static void setUserName(String username) {
+    log("logged in with $username");
     _authInfoApi.setUserName(username);
   }
 
@@ -508,11 +509,8 @@ class ActivityApi {
   }
 
   // 활동 등록
-  // 활동 취소
   // 활동 종료
-  // 활동 불참
-  // 활동 추가참가
-  // 활동 추가불참
+  // 활동 취소
 
   // 활동 참가
   static Future<bool> attendActivity(int clubId, int activityId) async {
@@ -524,6 +522,29 @@ class ActivityApi {
     await HttpInterface.requestPostWithoutBody(url, header);
     return true;
   }
+
+  // 활동 불참
+  static Future<bool> withdrawActivity(int clubId, int activityId) async {
+    Uri url = Uri.parse(
+      "${_authInfoApi.url}/activity/$clubId/$activityId/not-attend",
+    );
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    await HttpInterface.requestPostWithoutBody(url, header);
+    return true;
+  }
+
+  // 활동 추가참가
+  // static Future<bool> attendActivitylate(int clubId, int activityId) async {
+  //   Uri url = Uri.parse(
+  //     "${_authInfoApi.url}/activity/$clubId/$activityId/attend",
+  //   );
+  //   Map<String, String> header = {'username': _authInfoApi.username!};
+
+  //   await HttpInterface.requestPostWithoutBody(url, header);
+  //   return true;
+  // }
+  // 활동 추가불참
 }
 
 class BudgetApi {

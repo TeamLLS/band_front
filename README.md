@@ -1,43 +1,19 @@
 # band_front
 
-# 회의 때 말할 것
 
+# 자고일어나서 하기
+활동 디텔에서 신청하기 액션들, 모집중 글씨 색 바꾸기
+
+
+# 회의 때 말할 것
 - 납부 대상 목록 조회
 입금액은 필드에 포함 못한다고 했었지?
 
-혹시 장부 name이랑 createdBy랑 바껴서 오나요?
-- 장부 목록 조회 시
-[log] {list: [
-  {
-    id: 1, 
-    name: TestManager, 
-    amount: 10000, 
-    status: 모금중, 
-    deadline: 2024-12-07T14:32:25.014507Z
-  }, 
-  {
-    id: 2, 
-    name: TestManager, 
-    amount: 11000, 
-    status: 모금중, 
-    deadline: 2024-12-15T22:32:25.014523Z
-  }
-]}
-
-- 장부 조회 시
-[log] 
-{
-  id: 1, 
-  clubId: 1,
-   name: TestManager, 
-   description: for october dues, 
-   status: 모금중, 
-   amount: 10000, 
-   createdBy: October, 
-   createdAt: 2024-11-29T06:32:25.014545Z, 
-   closedAt: null, 
-   deadline: 2024-12-07T14:32:25.014507Z
-}
+- 활동 참가, 취소 오류
+Dummy user A로 수행 시 attend만 변경되고 리스트에서 제거되지 않음.
+[log] {attend: true, list: [{id: 1, activityId: 1, username: Dummy_userA, memberId: 1, memberName: 허연준, status: 참가, changedAt: 2024-11-29T06:32:14.465080Z}, {id: 2, activityId: 1, username: Dummy_userB, memberId: 2, memberName: 임윤빈, status: 참가, changedAt: 2024-11-29T06:32:14.485275Z}]}
+[log] {attend: false, list: [{id: 1, activityId: 1, username: Dummy_userA, memberId: 1, memberName: 허연준, status: 불참, changedAt: 2024-12-02T18:42:32.293819Z}, {id: 2, activityId: 1, username: Dummy_userB, memberId: 2, memberName: 임윤빈, status: 참가, changedAt: 2024-11-29T06:32:14.485275Z}]}
+또한 현재 참여 인원이 2명임에도 0명으로 나오고, 참가 취소 시 -1명이 됨.
 
 
 

@@ -59,7 +59,7 @@ class _ClubRegistState extends State<ClubRegist> {
   }
 
   Future<void> _navigateToMyClubList() async {
-    await context.read<ClubList>().initClubList().then((_) {
+    await context.read<ClubListRepo>().initClubList().then((_) {
       _showSnackBar("모임 등록 성공!");
       context.pop();
     });

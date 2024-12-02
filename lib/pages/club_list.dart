@@ -44,7 +44,7 @@ class _ClubListViewState extends State<ClubListView> {
   void _openDrawer() => _scaffoldKey.currentState?.openEndDrawer();
 
   Future<void> _initClubList() async {
-    bool result = await context.read<ClubList>().initClubList();
+    bool result = await context.read<ClubListRepo>().initClubList();
     if (result == false) {
       _showSnackBar("목록을 불러오지 못했습니다..");
     }
@@ -59,7 +59,7 @@ class _ClubListViewState extends State<ClubListView> {
 
   @override
   Widget build(BuildContext context) {
-    List<ClubEntity> clubs = context.watch<ClubList>().clubs;
+    List<ClubEntity> clubs = context.watch<ClubListRepo>().clubs;
 
     return Scaffold(
       key: _scaffoldKey,

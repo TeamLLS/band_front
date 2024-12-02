@@ -78,7 +78,7 @@ class _BudgetViewState extends State<BudgetView> {
 
   Future<void> _filterBtnHandler() async {
     bool result =
-        await context.read<BudgetInfo>().reloadBudgetInfo(_filteredDate!);
+        await context.read<BudgetRepo>().reloadBudgetInfo(_filteredDate!);
     if (result == false) {
       _showSnackBar("기록을 불러오지 못했습니다..");
       return;
@@ -88,8 +88,8 @@ class _BudgetViewState extends State<BudgetView> {
   void _showSnackBar(String text) => showSnackBar(context, text);
 
   Future<void> _initBudgetView() async {
-    int clubId = context.read<ClubDetail>().clubId!;
-    bool result = await context.read<BudgetInfo>().initBudgetInfo(clubId);
+    int clubId = context.read<ClubDetailRepo>().clubId!;
+    bool result = await context.read<BudgetRepo>().initBudgetInfo(clubId);
     if (result == false) {
       _showSnackBar("예산 불러오기 실패..");
       return;
@@ -114,8 +114,8 @@ class _BudgetViewState extends State<BudgetView> {
     }
 
     double parentWidth = MediaQuery.of(context).size.width;
-    int amount = context.watch<BudgetInfo>().budget ?? 0;
-    List<BudgetRecordEntity> record = context.watch<BudgetInfo>().record;
+    int amount = context.watch<BudgetRepo>().budget ?? 0;
+    List<BudgetRecordEntity> record = context.watch<BudgetRepo>().record;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -209,8 +209,8 @@ class _PaymentViewState extends State<PaymentView> {
   void _showSnackBar(String text) => showSnackBar(context, text);
 
   Future<void> _initPaymentView() async {
-    int clubId = context.read<ClubDetail>().clubId!;
-    bool result = await context.read<PaymentInfo>().initPaymentInfo(clubId);
+    int clubId = context.read<ClubDetailRepo>().clubId!;
+    bool result = await context.read<PaymentListRepo>().initPaymentInfo(clubId);
     if (result == false) {
       _showSnackBar("장부 목록 불러오기 실패..");
       return;
@@ -231,7 +231,7 @@ class _PaymentViewState extends State<PaymentView> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    List<PaymentEntity> payments = context.watch<PaymentInfo>().paments;
+    List<PaymentEntity> payments = context.watch<PaymentListRepo>().paments;
 
     return ListView.builder(
       itemCount: payments.length,
@@ -309,11 +309,11 @@ class _PaymentDetailViewState extends State<PaymentDetailView> {
   void _showSnackBar(String text) => showSnackBar(context, text);
 
   Future<void> _initPaymentDetailView() async {
-    int clubId = context.read<ClubDetail>().clubId!;
+    int clubId = context.read<ClubDetailRepo>().clubId!;
     int paymentId = widget.paymentId;
 
     bool ret = await context
-        .read<PaymentDetail>()
+        .read<PaymentDetailRepo>()
         .initPaymentDetail(clubId, paymentId);
     if (ret == false) {
       _showSnackBar("장부 정보를 불러오지 못했습니다..");
@@ -335,7 +335,7 @@ class _PaymentDetailViewState extends State<PaymentDetailView> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    Payment payment = context.read<PaymentDetail>().payment!;
+    Payment payment = context.read<PaymentDetailRepo>().payment!;
     double parentWidth = MediaQuery.of(context).size.width;
     String startDate = formatToYMD(payment.createdAt.toString());
     String deadline = formatToYMDHM(payment.deadline.toString());
@@ -396,10 +396,11 @@ class _PaymentDetailViewState extends State<PaymentDetailView> {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: context.watch<PaymentDetail>().paymentTargets.length,
+              itemCount:
+                  context.watch<PaymentDetailRepo>().paymentTargets.length,
               itemBuilder: (context, index) {
                 PaymentTargetEntity target =
-                    context.watch<PaymentDetail>().paymentTargets[index];
+                    context.watch<PaymentDetailRepo>().paymentTargets[index];
                 Color statusColor;
                 if (target.status == "납부") {
                   statusColor = Colors.blue;

@@ -31,7 +31,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
 
   Future<void> _initClubDetail() async {
     bool result = await context
-        .read<ClubDetail>()
+        .read<ClubDetailRepo>()
         .initClubDetail(widget.clubId, widget.role);
     if (result == false) {
       log("init clubDetail failed");
@@ -52,9 +52,9 @@ class _ClubDetailViewState extends State<ClubDetailView> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    Club club = context.watch<ClubDetail>().club!;
-    List<ActivityEntity> actList = context.watch<ClubDetail>().actList;
-    String role = context.watch<ClubDetail>().role!;
+    Club club = context.watch<ClubDetailRepo>().club!;
+    List<ActivityEntity> actList = context.watch<ClubDetailRepo>().actList;
+    String role = context.watch<ClubDetailRepo>().role!;
 
     return Scaffold(
       key: _scaffoldKey,

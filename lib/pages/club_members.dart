@@ -35,12 +35,12 @@ class _ClubMemberListViewState extends State<ClubMemberListView> {
   }
 
   void _navigateToUserProfile(String username, int memberId, String role) {
-    context.read<UserInfo>().setUserInfo(username, memberId, role);
+    context.read<UserRepo>().setUserInfo(username, memberId, role);
     context.push(RouterPath.userProfile);
   }
 
   Future<void> _inviteBtnListener() async {
-    int clubId = context.read<ClubDetail>().clubId!;
+    int clubId = context.read<ClubDetailRepo>().clubId!;
     var data = await ClubApi.registMember(clubId, "Dummy_userD");
 
     await _inviteBtnHandler(data);
@@ -51,12 +51,12 @@ class _ClubMemberListViewState extends State<ClubMemberListView> {
       _showSnackBar("등록 실패..");
       return;
     }
-    await context.read<ClubDetail>().getMemberList();
+    await context.read<ClubDetailRepo>().getMemberList();
     _showSnackBar("등록 성공!");
   }
 
   Future<void> _initClubMemberListView() async {
-    await context.read<ClubDetail>().getMemberList();
+    await context.read<ClubDetailRepo>().getMemberList();
   }
 
   @override
@@ -67,7 +67,7 @@ class _ClubMemberListViewState extends State<ClubMemberListView> {
 
   @override
   Widget build(BuildContext context) {
-    List<Member> members = context.watch<ClubDetail>().members;
+    List<Member> members = context.watch<ClubDetailRepo>().members;
 
     return Scaffold(
       appBar: AppBar(

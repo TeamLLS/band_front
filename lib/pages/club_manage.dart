@@ -20,7 +20,7 @@ class _ClubManageState extends State<ClubManage> {
   void _showSnackBar(String text) => showSnackBar(context, text);
 
   Future<dynamic> _deleteBtnListener() async {
-    int clubId = context.read<ClubDetail>().clubId!;
+    int clubId = context.read<ClubDetailRepo>().clubId!;
     bool result = await ClubApi.deleteMyClub(clubId);
     if (result == false) {
       _showSnackBar("클럽 해체 실패..");
@@ -30,7 +30,7 @@ class _ClubManageState extends State<ClubManage> {
   }
 
   Future<void> _deleteBtnHandler() async {
-    await context.read<ClubList>().initClubList().then((_) {
+    await context.read<ClubListRepo>().initClubList().then((_) {
       _showSnackBar("클럽을 해체하였습니다");
       context.go(RouterPath.myClubList);
     });

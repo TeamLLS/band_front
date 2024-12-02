@@ -60,7 +60,7 @@ class _BudgetManageViewState extends State<BudgetManageView> {
                 } else {
                   amount = -amount;
                   await context
-                      .read<BudgetInfo>()
+                      .read<BudgetRepo>()
                       .writeExpense(amount, description)
                       .then((_) => context.pop());
                 }
@@ -90,7 +90,7 @@ class _BudgetManageViewState extends State<BudgetManageView> {
 
   Future<void> _filterBtnHandler() async {
     bool result =
-        await context.read<BudgetInfo>().reloadBudgetInfo(_filteredDate!);
+        await context.read<BudgetRepo>().reloadBudgetInfo(_filteredDate!);
     if (result == false) {
       _showSnackBar("기록을 불러오지 못했습니다..");
       return;
@@ -98,8 +98,8 @@ class _BudgetManageViewState extends State<BudgetManageView> {
   }
 
   Future<void> _initBudgetManageView() async {
-    int clubId = context.read<ClubDetail>().clubId!;
-    bool result = await context.read<BudgetInfo>().initBudgetInfo(clubId);
+    int clubId = context.read<ClubDetailRepo>().clubId!;
+    bool result = await context.read<BudgetRepo>().initBudgetInfo(clubId);
     if (result == false) {
       _showSnackBar("예산 불러오기 실패..");
       return;
@@ -124,8 +124,8 @@ class _BudgetManageViewState extends State<BudgetManageView> {
     }
 
     double parentWidth = MediaQuery.of(context).size.width;
-    int amount = context.watch<BudgetInfo>().budget ?? 0;
-    List<BudgetRecordEntity> record = context.watch<BudgetInfo>().record;
+    int amount = context.watch<BudgetRepo>().budget ?? 0;
+    List<BudgetRecordEntity> record = context.watch<BudgetRepo>().record;
 
     return Scaffold(
       appBar: AppBar(
