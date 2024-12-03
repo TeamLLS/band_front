@@ -21,7 +21,7 @@ class _BudgetManageViewState extends State<BudgetManageView> {
 
   void _showSnackBar(String text) => showSnackBar(context, text);
 
-  Future<void> _writeBtnHandler() async {
+  Future<void> _writeBtnListener() async {
     final desCon = TextEditingController();
     final amountCon = TextEditingController();
 
@@ -53,7 +53,6 @@ class _BudgetManageViewState extends State<BudgetManageView> {
             ),
             TextButton(
               onPressed: () async {
-                String description = desCon.text;
                 int amount = int.tryParse(amountCon.text) ?? 0;
                 if (amount == 0) {
                   context.pop();
@@ -61,8 +60,16 @@ class _BudgetManageViewState extends State<BudgetManageView> {
                   amount = -amount;
                   await context
                       .read<BudgetRepo>()
-                      .writeExpense(amount, description)
-                      .then((_) => context.pop());
+                      .writeExpense(amount, desCon.text)
+                      .then((ret) {
+                    if (ret == false) {
+                      _showSnackBar("something went wrong..");
+                      context.pop();
+                    } else {
+                      _showSnackBar("작성되었습니다.");
+                      context.pop();
+                    }
+                  });
                 }
               },
               child: const Text('등록'),
@@ -72,6 +79,17 @@ class _BudgetManageViewState extends State<BudgetManageView> {
       },
     );
   }
+
+  // Future<bool> _writeBtnHandler(int amount, String description) async {
+  //   await context
+  //       .read<BudgetRepo>()
+  //       .writeExpense(amount, description)
+  //       .then((ret) {
+  //     if (ret == false) return false;
+  //     return true;
+  //   });
+  //   return true;
+  // }
 
   Future<void> _filterBtnListener() async {
     final DateTime? picked = await showDatePicker(
@@ -132,7 +150,7 @@ class _BudgetManageViewState extends State<BudgetManageView> {
         title: const Text("예산 관리"),
         actions: [
           IconButton(
-            onPressed: () async => await _writeBtnHandler(),
+            onPressed: () async => await _writeBtnListener(),
             icon: const Icon(Icons.create),
           ),
         ],

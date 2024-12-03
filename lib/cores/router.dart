@@ -34,7 +34,7 @@ class RouterPath {
   static const String paymentManage =
       '/myClubList/clubDetail/manage/paymentManage';
   static const String paymentDetailManage =
-      '/myClubList/clubDetail/manage/paymentDetailManage';
+      '/myClubList/clubDetail/manage/paymentManage/paymentDetailManage';
 
   static const String activityDetail = '/myClubList/clubDetail/activityDetail';
 
@@ -89,15 +89,17 @@ final GoRouter route = GoRouter(
                     GoRoute(
                       path: 'paymentManage',
                       builder: (context, state) => PaymentManageView(),
-                    ),
-                    GoRoute(
-                      path: 'paymentDetailManage',
-                      builder: (context, state) {
-                        final Map<String, dynamic>? argument =
-                            state.extra as Map<String, dynamic>?;
-                        var data = argument?['paymentId'];
-                        return PaymentDetailManageView(paymentId: data);
-                      },
+                      routes: [
+                        GoRoute(
+                          path: 'paymentDetailManage',
+                          builder: (context, state) {
+                            final Map<String, dynamic>? argument =
+                                state.extra as Map<String, dynamic>?;
+                            var data = argument?['paymentId'];
+                            return PaymentDetailManageView(paymentId: data);
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),

@@ -137,10 +137,32 @@ class ClubDetailRepo with ChangeNotifier {
     pnMem = 0;
   }
 
+  void _clearForReload() {
+    club = null;
+    actList.clear();
+    pnAct = 1;
+  }
+
   Future<bool> initClubDetail(int clubId, String role) async {
     _clear();
     this.clubId = clubId;
     this.role = role;
+    await getClubDetail().then((bool result) {
+      if (result == false) {
+        return false;
+      }
+    });
+    await getActivityList().then((bool result) {
+      if (result == false) {
+        return false;
+      }
+    });
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> reloadClubDetail() async {
+    _clearForReload();
     await getClubDetail().then((bool result) {
       if (result == false) {
         return false;
@@ -198,6 +220,21 @@ class ClubDetailRepo with ChangeNotifier {
     notifyListeners();
     return;
   }
+
+  Future<bool> registActivity(
+      String name,
+      String des,
+      XFile image,
+      String location,
+      DateTime startTime,
+      DateTime endTime,
+      DateTime deadline) async {
+    bool ret = await ActivityApi.registActivity(
+        clubId!, name, des, image, location, startTime, endTime, deadline);
+    if (ret == false) return false;
+
+    return await reloadClubDetail();
+  }
 }
 
 class ClubListRepo with ChangeNotifier {
@@ -253,14 +290,14 @@ class BudgetRepo with ChangeNotifier {
     clubId = null;
     budget = null;
     record.clear();
-    pn = 6;
+    pn = 0;
     return;
   }
 
   void _clearForReload() {
     budget = null;
     record.clear();
-    pn = 6;
+    pn = 0;
     return;
   }
 
@@ -287,7 +324,6 @@ class BudgetRepo with ChangeNotifier {
       BudgetRecordEntity temp = BudgetRecordEntity.fromMap(element);
       record.add(temp);
     }
-    pn++;
     return true;
   }
 
@@ -337,7 +373,8 @@ class BudgetRepo with ChangeNotifier {
 
   Future<bool> writeExpense(int amount, String description) async {
     await BudgetApi.writeExpense(clubId!, amount, description);
-    reloadBudgetInfo(null);
+    await reloadBudgetInfo(null);
+    notifyListeners();
     return true;
   }
 }
@@ -350,12 +387,12 @@ class PaymentListRepo with ChangeNotifier {
   void _clear() {
     clubId = null;
     paments.clear();
-    pn = 0;
+    pn = 1;
   }
 
   void _clearForReload() {
     paments.clear();
-    pn = 0;
+    pn = 1;
   }
 
   Future<bool> initPaymentInfo(int clubId) async {
@@ -403,9 +440,11 @@ class PaymentListRepo with ChangeNotifier {
     int amount,
     String name,
     String description,
+    DateTime dateTime,
   ) async {
-    await BudgetApi.registPayment(clubId!, amount, name, description);
+    await BudgetApi.registPayment(clubId!, amount, name, description, dateTime);
     await reloadPaymentInfo();
+    notifyListeners();
     return true;
   }
 }
@@ -529,7 +568,6 @@ class ActivityDetailRepo with ChangeNotifier {
   Future<bool> getActivityDetail() async {
     try {
       var data = await ActivityApi.getActivityDetail(actId!);
-      log("$data");
       activity = Activity.fromMap(data);
       return true;
     } catch (e) {
@@ -572,6 +610,35 @@ class ActivityDetailRepo with ChangeNotifier {
     if (ret == false) return false;
 
     ret = await _reloadActivityDetail();
+    if (ret == false) return false;
+
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> removeActivity() async {
+    //need pop and clubDetail reload
+    if (clubId == null || actId == null) return false;
+
+    dynamic ret = await ActivityApi.removeActivity(clubId!, actId!);
+    if (ret == false) return false;
+
+    ret = await _reloadActivityDetail();
+    log("reloaded");
+    if (ret == false) return false;
+
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> closeActivity() async {
+    if (clubId == null || actId == null) return false;
+
+    dynamic ret = await ActivityApi.closeActivity(clubId!, actId!);
+    if (ret == false || ret == null) return false;
+
+    ret = await _reloadActivityDetail();
+    log("reloaded");
     if (ret == false) return false;
 
     notifyListeners();

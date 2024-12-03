@@ -9,7 +9,7 @@
   deadline: 모집 종료 시간  (Instnat, ISO 8601)
 */
 
-// TODO: 위치 선택 추가, 등록 api 오류 해결하기
+// TODO: 위치 선택 추가, 등록 성공 시 리로딩 추가
 
 import 'dart:developer';
 import 'dart:io';
@@ -57,7 +57,13 @@ class _ActivityRegistViewState extends State<ActivityRegistView> {
 
     if (time == null) return null;
 
-    return DateTime(date.year, date.month, date.day, time.hour, time.minute);
+    return DateTime.utc(
+      date.year,
+      date.month,
+      date.day,
+      time.hour,
+      time.minute,
+    );
   }
 
   Future<void> _pickImage() async {
@@ -70,17 +76,15 @@ class _ActivityRegistViewState extends State<ActivityRegistView> {
   }
 
   Future<void> regist() async {
-    log("enter regist func");
-    int? clubId = context.read<ClubDetailRepo>().clubId;
     if (_image == null ||
         startTime == null ||
         endTime == null ||
-        deadline == null ||
-        clubId == null) {
+        deadline == null) {
+      _showSnackBar("모두 입력해주세요");
       return;
     }
 
-    bool ret = await ActivityApi.registActivity(clubId, nameCon.text,
+    bool ret = await context.read<ClubDetailRepo>().registActivity(nameCon.text,
         desCon.text, _image!, "장소장소", startTime!, endTime!, deadline!);
     registHandler(ret);
   }

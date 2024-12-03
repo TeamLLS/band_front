@@ -59,6 +59,7 @@ class _PaymentManageViewState extends State<PaymentManageView> {
                 decoration: const InputDecoration(hintText: '장부명'),
               ),
               const SizedBox(height: 16),
+              ElevatedButton(onPressed: () {}, child: Text("ㅇ")),
               TextField(
                 maxLines: 3,
                 controller: desCon,
@@ -86,6 +87,7 @@ class _PaymentManageViewState extends State<PaymentManageView> {
                         amount,
                         name,
                         description,
+                        DateTime.now().toUtc(),
                       )
                       .then((_) => context.pop());
                 }

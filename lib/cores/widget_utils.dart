@@ -73,6 +73,41 @@ Widget inputTextUnit(TextEditingController ctl) {
   // );
 }
 
+Widget inputOnelineTextUnit(TextEditingController ctl) {
+  return Material(
+    elevation: 3.0,
+    borderRadius: BorderRadius.circular(20.0),
+    child: TextField(
+      controller: ctl,
+      minLines: 1,
+      decoration: InputDecoration(
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20.0),
+          borderSide: const BorderSide(color: Colors.grey, width: 0.8),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20.0),
+          borderSide: const BorderSide(color: Colors.grey, width: 0.8),
+        ),
+      ),
+    ),
+  );
+
+  // return TextField(
+  //   controller: ctl,
+  //   decoration: InputDecoration(
+  //     enabledBorder: OutlineInputBorder(
+  //       borderRadius: BorderRadius.circular(40.0),
+  //       borderSide: const BorderSide(color: Colors.grey, width: 0.8),
+  //     ),
+  //     focusedBorder: OutlineInputBorder(
+  //       borderRadius: BorderRadius.circular(40.0),
+  //       borderSide: const BorderSide(color: Colors.grey, width: 0.8),
+  //     ),
+  //   ),
+  // );
+}
+
 Widget InputMultiTextUnit(TextEditingController ctl) {
   //wrap with desUnit
   return TextField(

@@ -27,12 +27,18 @@ class HttpInterface {
   }
 
   static Future<bool> requestGetWithoutHeader(Uri url) async {
+    // TODO: go reference and check interaction
     http.Response? response = await HttpMethod.tryGetWithoutHeader(url);
     if (response == null) {
       log("err from try get");
       return false;
     }
-    return HttpMethod.handleBool(response);
+
+    String? ret = HttpMethod.handle(response);
+    if (ret == null) {
+      return false;
+    }
+    return true;
   }
 
   static Future<bool> requestPatch(
@@ -46,7 +52,12 @@ class HttpInterface {
       return false;
     }
 
-    return HttpMethod.handleBool(response);
+    String? ret = HttpMethod.handle(response);
+    if (ret == null) {
+      return false;
+    }
+    return true;
+    //TODO: check reference's action
   }
 
   static Future<bool> requestPatchWithoutBody(
@@ -59,7 +70,12 @@ class HttpInterface {
       return false;
     }
 
-    return HttpMethod.handleBool(response);
+    String? ret = HttpMethod.handle(response);
+    if (ret == null) {
+      return false;
+    }
+    return true;
+    //TODO: check reference's action
   }
 
   static Future<dynamic> requestPostWithoutBody(
@@ -74,14 +90,17 @@ class HttpInterface {
 
     String? json = HttpMethod.handle(response);
     if (json == null) {
+      //err
       log("err from handling response");
       return null;
     } else if (json == "") {
+      //success without body
       return true;
+    } else {
+      //success with body
+      dynamic data = jsonDecode(json);
+      return data;
     }
-
-    dynamic data = jsonDecode(json);
-    return data;
   }
 
   static Future<dynamic> requestPost(
@@ -203,23 +222,13 @@ class HttpMethod {
 
   //response handler
   static String? handle(http.Response response) {
+    // return value must be handled in 3 case, null, "", body
     if (response.statusCode != 200) {
       log("${response.statusCode} failed");
       log("body : ${response.body}");
       return null;
     }
     return response.body;
-  }
-
-  static bool handleBool(http.Response response) {
-    if (response.statusCode != 200) {
-      log("${response.statusCode} failed");
-      log("body : ${response.body}");
-      return false;
-    }
-    log("${response.statusCode} successed");
-    log("body : ${response.body}");
-    return true;
   }
 }
 

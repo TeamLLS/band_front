@@ -1,11 +1,34 @@
 # band_front
 
 # 자고일어나서 하기
-활동 디텔에서 신청하기 액션들, 모집중 글씨 색 바꾸기
+장부 인터렉션 기능 완성
+그랲
+(추가된다면)게시판
+앨범 -> 내 활동
 
 # 회의 때 말할 것
+- 활동 조회
+장소랑 설명 바껴서 와여
+
+- 활동 종료, 활동 취소 api 오류
+DummyA(관리자)로 적용 시
+[log] 404 failed
+[log] body : {"clubId":3,"error":"NOT_MEMBER_EXCEPTION","message":"회원 아님","username":"Dummy_userA"}
+카카오계정 로그인 후 모임 생성(회장) 및 활동 만들고 취소/종료
+[log] 404 failed
+[log] body : {"clubId":8,"error":"NOT_MEMBER_EXCEPTION","message":"회원 아님","username":"kakao_3778335311"}
+
+- 예산 조회
+처음 time에 null값 주고 조회 시 0원 나옴
+
+- 장부 등록, 조회
+등록 시 200
+
+
+
+12/2
 - 납부 대상 목록 조회
-입금액은 필드에 포함 못한다고 했었지?
+입금액은 필드에 포함 못한다고 했었는데 맞나영
 
 - 활동 상세, 활동 참가, 취소 api 오류
 1. Dummy user A로 참가 및 취소 수행 시 attend만 변경되고 리스트에서 제거되지 않음.
@@ -19,71 +42,6 @@
 
 - 모든 api에 대해
 image 필드에는 null을 넣어 보내도 되는가?
-
-- 활동 생성
-1. location은 nullable?
-2. 400 err, post맞나 코드보려니까 controller에 선언이 안되어있던데 푸쉬가안된건가여
-2-1. log
-[log] {"timestamp":"2024-12-03T05:13:08.973+09:00","status":400,"error":"Bad Request","path":"/activity"}
-2-2. api 함수, 시도한 코드 1, 2 둘 다 같은 오류로 실패.
-  static Future<bool> registActivity(
-    int clubId,
-    String name,
-    String description,
-    XFile image,
-    String location,
-    DateTime startTime,
-    DateTime endTime,
-    DateTime deadline,
-  ) async {
-    // ===================== 시도한 코드 1 ===================== 
-    Uri url = Uri.parse("${_authInfoApi.url}/activity");
-
-    var request = http.MultipartRequest('POST', url);
-    request.headers['username'] = _authInfoApi.username!;
-
-    Map<String, dynamic> body = {
-      'clubId': clubId,
-      'name': name,
-      'description': description,
-      'location': location,
-      'startTime': startTime.toIso8601String(),
-      'endTime': endTime.toIso8601String(),
-      'deadline': deadline.toIso8601String(),
-    };
-
-    request.fields['data'] = jsonEncode(body);
-
-    var file = await http.MultipartFile.fromPath('image', image.path);
-    request.files.add(file);
-
-    return await HttpInterface.requestMultipart(request);
-
-
-    // ===================== 시도한 코드 2 ===================== 
-    // Uri url = Uri.parse("${_authInfoApi.url}/activity");
-
-    // // 요청 객체 생성
-    // var request = http.MultipartRequest('POST', url);
-
-    // // write header
-    // request.headers['username'] = _authInfoApi.username!;
-
-    // // import image
-    // var file = await http.MultipartFile.fromPath('image', image.path);
-    // request.files.add(file);
-
-    // request.fields['clubId'] = clubId;
-    // request.fields['name'] = name;
-    // request.fields['description'] = description;
-    // request.fields['location'] = location;
-    // request.fields['startTime'] = startTime.toIso8601String();
-    // request.fields['endTime'] = endTime.toIso8601String();
-    // request.fields['deadline'] = deadline.toIso8601String();
-
-    // // 요청 전송
-    // return await HttpInterface.requestMultipart(request);
-  }
 
 
 
@@ -127,6 +85,8 @@ status 추가 : 입금액이 회비에 못미치면 ex) 진행 중
 # 발생한 오류
 1. 클럽 정보 변경 api
 연락처도 변경해야되지않을까?
+
+image랑 location 전부 null 가능해요
 
 변경 시도 시 오류
 1) status를 문자열 ACTIVE로 해서

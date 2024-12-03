@@ -40,7 +40,10 @@ class _ClubManageState extends State<ClubManage> {
 
   void _budgetManageBtnListener() => context.push(RouterPath.budgetManage);
 
-  void _paymentManageBtnListener() => context.push(RouterPath.paymentManage);
+  void _paymentManageBtnListener() {
+    log("goto context.push(RouterPath.paymentManage);");
+    context.push(RouterPath.paymentManage);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +60,10 @@ class _ClubManageState extends State<ClubManage> {
             child: const Text("예산 관리"),
           ),
           ElevatedButton(
-            onPressed: () => _paymentManageBtnListener(),
+            onPressed: () {
+              log("pressed 납부 내역 관리");
+              _paymentManageBtnListener();
+            },
             child: const Text("납부 내역 관리"),
           ),
           ElevatedButton(

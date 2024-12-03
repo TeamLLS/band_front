@@ -519,54 +519,58 @@ class ActivityApi {
     DateTime endTime,
     DateTime deadline,
   ) async {
+    log("==== regist activity argument =====");
+    log("club Id : $clubId");
+    log("name : $name");
+    log("description : $description");
+    log("location : $location");
+    log("startTime : $startTime");
+    log("endTime : $endTime");
+    log("deadline : $deadline");
+
     Uri url = Uri.parse("${_authInfoApi.url}/activity");
 
+    // 요청 객체 생성
     var request = http.MultipartRequest('POST', url);
+
+    // write header
     request.headers['username'] = _authInfoApi.username!;
 
-    Map<String, dynamic> body = {
-      'clubId': clubId,
-      'name': name,
-      'description': description,
-      'location': location,
-      'startTime': startTime.toIso8601String(),
-      'endTime': endTime.toIso8601String(),
-      'deadline': deadline.toIso8601String(),
-    };
-
-    request.fields['data'] = jsonEncode(body);
-
+    // import image
     var file = await http.MultipartFile.fromPath('image', image.path);
     request.files.add(file);
 
+    request.fields['clubId'] = clubId.toString();
+    request.fields['name'] = name;
+    request.fields['description'] = description;
+    request.fields['location'] = location;
+    request.fields['startTime'] = startTime.toIso8601String();
+    request.fields['endTime'] = endTime.toIso8601String();
+    request.fields['deadline'] = deadline.toIso8601String();
+
+    // 요청 전송
     return await HttpInterface.requestMultipart(request);
-
-    // Uri url = Uri.parse("${_authInfoApi.url}/activity");
-
-    // // 요청 객체 생성
-    // var request = http.MultipartRequest('POST', url);
-
-    // // write header
-    // request.headers['username'] = _authInfoApi.username!;
-
-    // // import image
-    // var file = await http.MultipartFile.fromPath('image', image.path);
-    // request.files.add(file);
-
-    // request.fields['clubId'] = clubId;
-    // request.fields['name'] = name;
-    // request.fields['description'] = description;
-    // request.fields['location'] = location;
-    // request.fields['startTime'] = startTime.toIso8601String();
-    // request.fields['endTime'] = endTime.toIso8601String();
-    // request.fields['deadline'] = deadline.toIso8601String();
-
-    // // 요청 전송
-    // return await HttpInterface.requestMultipart(request);
   }
 
-  // 활동 종료
-  // 활동 취소
+  // 활동 모집 취소
+  static Future<bool> removeActivity(int clubId, int activityId) async {
+    Uri url = Uri.parse(
+      "${_authInfoApi.url}/activity/$clubId/$activityId/cancel",
+    );
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    return await HttpInterface.requestPatchWithoutBody(url, header);
+  }
+
+  // 활동 모집 종료
+  static Future<dynamic> closeActivity(int clubId, int activityId) async {
+    Uri url = Uri.parse(
+      "${_authInfoApi.url}/activity/$clubId/$activityId/close",
+    );
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    return await HttpInterface.requestPostWithoutBody(url, header);
+  }
 
   // 활동 참가
   static Future<bool> attendActivity(int clubId, int activityId) async {
@@ -596,10 +600,11 @@ class ActivityApi {
   //     "${_authInfoApi.url}/activity/$clubId/$activityId/attend",
   //   );
   //   Map<String, String> header = {'username': _authInfoApi.username!};
-
+  //
   //   await HttpInterface.requestPostWithoutBody(url, header);
   //   return true;
   // }
+
   // 활동 추가불참
 }
 
@@ -747,8 +752,9 @@ class BudgetApi {
     int amount,
     String name,
     String description,
+    DateTime deadline, //need to utc
   ) async {
-    Uri url = Uri.parse("${_authInfoApi.url}/budget");
+    Uri url = Uri.parse("${_authInfoApi.url}/paybook");
     Map<String, String> header = {
       "Content-Type": "application/json",
       'username': _authInfoApi.username!,
@@ -758,6 +764,7 @@ class BudgetApi {
       "amount": amount,
       "name": name,
       "description": description,
+      "deadline": deadline.toIso8601String(),
     };
 
     log("regist info - amount : $amount, name : $name, des : $description, clubId : $clubId");

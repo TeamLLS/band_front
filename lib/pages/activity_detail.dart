@@ -3,12 +3,14 @@ import 'dart:developer';
 import 'package:band_front/cores/api.dart';
 import 'package:band_front/cores/widget_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../cores/data_class.dart';
 import '../cores/repository.dart';
 
-//TODO : readme의 활동 상세, 활동 참가, 취소 api 오류 해결하기
+//TODO : 활동 참가, 취소 api 오류 해결하기
+//회원 추가 참가 / 취소 추가하기
 
 class ActivityDetailView extends StatefulWidget {
   ActivityDetailView({super.key, required this.actId, required this.clubId});
@@ -23,6 +25,123 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
   bool isLoaded = false;
 
   void _showSnackBar(String text) => showSnackBar(context, text);
+
+  void _showActivityHandleView() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("모임 활동 변경"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton(
+                onPressed: () async {
+                  await context
+                      .read<ActivityDetailRepo>()
+                      .closeActivity()
+                      .then((ret) async {
+                    if (ret == false) {
+                      _showSnackBar("잘못된 접근입니다.");
+                      context.pop();
+                    } else {
+                      await context.read<ClubDetailRepo>().reloadClubDetail();
+                      _showSnackBar("활동 마감되었습니다");
+                      context.pop();
+                    }
+                  });
+                },
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.all(Colors.orange),
+                ),
+                child: const Text("모임 마감하기"),
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: () async {
+                  await context
+                      .read<ActivityDetailRepo>()
+                      .removeActivity()
+                      .then((ret) async {
+                    if (ret == false) {
+                      _showSnackBar("잘못된 접근입니다.");
+                      context.pop();
+                    } else {
+                      await context.read<ClubDetailRepo>().reloadClubDetail();
+                      _showSnackBar("활동 등록을 취소하였습니다.");
+                      context.pop();
+                    }
+                  });
+                },
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.all(Colors.red),
+                ),
+                child: const Text("모임 취소하기"),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => context.pop(),
+              child: const Text("닫기"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showLateAttendView() {
+    TextEditingController lateAttend = TextEditingController();
+    TextEditingController lateWithdraw = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("추가 참가자 관리"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text("참가자 추가 등록"),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.check, color: Colors.green),
+                  ),
+                ],
+              ),
+              desUnit(
+                child: inputOnelineTextUnit(lateAttend),
+              ),
+              const SizedBox(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text("불참 참가자 등록"),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.check, color: Colors.red),
+                  ),
+                ],
+              ),
+              desUnit(
+                child: inputOnelineTextUnit(lateAttend),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => context.pop(),
+              child: const Text("닫기"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Future<void> appliBtnHandler(String status, bool isAttended) async {
     if (status != "모집중") return;
@@ -78,6 +197,7 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
     List<ParticipantEntity> participants =
         context.watch<ActivityDetailRepo>().participantsList;
     bool isAttended = context.watch<ActivityDetailRepo>().isAttended!;
+    String myRole = context.watch<ClubDetailRepo>().role!;
 
     double parentWidth = MediaQuery.of(context).size.width;
 
@@ -97,7 +217,9 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
 
     String appliText;
     Color appliColor;
+    Color statColor;
     if (activity.status == "모집중") {
+      statColor = Colors.green;
       if (isAttended == false) {
         appliText = "참가 신청";
         appliColor = Colors.green;
@@ -105,10 +227,12 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
         appliText = "신청 취소";
         appliColor = Colors.red;
       }
-    } else if (activity.status == "모집종료") {
+    } else if (activity.status == "모집 종료") {
+      statColor = Colors.red;
       appliText = "마감된 활동입니다.";
       appliColor = Colors.grey;
     } else {
+      statColor = Colors.grey;
       appliText = "취소된 활동입니다.";
       appliColor = Colors.grey;
     }
@@ -119,8 +243,20 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
-            child: Text(activity.status),
+            child: Text(activity.status, style: TextStyle(color: statColor)),
           ),
+          myRole == "일반"
+              ? const SizedBox.shrink()
+              : IconButton(
+                  onPressed: () {
+                    if (activity.status == "모집중") {
+                      _showActivityHandleView();
+                    } else if (activity.status == "모집 종료") {
+                      _showLateAttendView();
+                    }
+                  },
+                  icon: const Icon(Icons.settings),
+                ),
         ],
       ),
       body: SingleChildScrollView(
