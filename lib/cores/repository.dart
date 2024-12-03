@@ -121,6 +121,7 @@ class ClubDetailRepo with ChangeNotifier {
   int pnAct = 0;
   List<Member> members = [];
   int pnMem = 0;
+  String? buffer;
 
   void _clear() {
     clubId = null;
@@ -130,6 +131,7 @@ class ClubDetailRepo with ChangeNotifier {
     pnAct = 0;
     members.clear();
     pnMem = 0;
+    buffer = null;
   }
 
   void _clearMember() {
@@ -141,6 +143,7 @@ class ClubDetailRepo with ChangeNotifier {
     club = null;
     actList.clear();
     pnAct = 1;
+    buffer = null;
   }
 
   Future<bool> initClubDetail(int clubId, String role) async {
@@ -233,7 +236,16 @@ class ClubDetailRepo with ChangeNotifier {
         clubId!, name, des, image, location, startTime, endTime, deadline);
     if (ret == false) return false;
 
-    return await reloadClubDetail();
+    ret = await reloadClubDetail();
+    if (ret == false) return false;
+    notifyListeners();
+    return true;
+  }
+
+  void setBuffer(String str) {
+    //buffer for activity regist
+    buffer = str;
+    notifyListeners();
   }
 }
 

@@ -21,9 +21,39 @@ DummyA(관리자)로 적용 시
 - 예산 조회
 처음 time에 null값 주고 조회 시 0원 나옴
 
-- 장부 등록, 조회
+- 장부 등록 api
+url paybook으로 바꾸고 deadline까지(utc) 넣었는데 안되영
 등록 시 200
+  static Future<dynamic> registPayment(
+    int clubId,
+    int amount,
+    String name,
+    String description,
+    DateTime deadline, //need to utc
+  ) async {
+    Uri url = Uri.parse("${_authInfoApi.url}/paybook");
+    Map<String, String> header = {
+      "Content-Type": "application/json",
+      'username': _authInfoApi.username!,
+    };
+    Map<String, dynamic> body = {
+      "clubId": clubId,
+      "amount": amount,
+      "name": name,
+      "description": description,
+      "deadline": deadline.toIso8601String(),
+    };
 
+    log("regist info - amount : $amount, name : $name, des : $description, clubId : $clubId");
+
+    dynamic data = await HttpInterface.requestPost(url, header, body);
+    if (data == null) {
+      log("err from registPayment");
+      return;
+    }
+
+    return data;
+  }
 
 
 12/2
@@ -382,6 +412,44 @@ iOS에서는 Info.plist 파일에 다음 권한을 추가해야 합니다.
 <key>NSCameraUsageDescription</key>
 <string>이 앱이 카메라를 사용할 수 있도록 허용합니다.</string>
 이제 이미지를 선택할 수 있는 기능이 완성되었습니다. 앱을 실행하고 "이미지 선택" 버튼을 클릭하여 이미지를 선택할 수 있습니다.
+
+
+6. geocoding setting
+google map key : AIzaSyBycfPyrH12BjWPPgLzx_FxsOwH3YGb2EE
+
+https://console.cloud.google.com/welcome?inv=1&invt=AbjJ7w&project=doguber-fcm-test
+Google Developers Console 로 이동합니다 .
+Google 지도를 활성화할 프로젝트를 선택하세요.
+탐색 메뉴를 선택한 다음 "Google 지도"를 선택하세요.
+Google Maps 메뉴에서 "API"를 선택하세요.
+Android용 Google 지도를 활성화하려면 "추가 API" 섹션에서 "Android용 Maps SDK"를 선택한 다음 "활성화"를 선택하세요.
+iOS용 Google 지도를 활성화하려면 "추가 API" 섹션에서 "iOS용 Maps SDK"를 선택한 다음 "활성화"를 선택하세요.
+웹용 Google Maps를 사용하려면 "Maps JavaScript API"를 활성화하세요.
+활성화한 API가 "활성화된 API" 섹션에 있는지 확인하세요.
+
+
+6-1. Android
+android/app/build.gradle 파일에서 minSdkVersion이 19 이상인지 확인합니다.
+android {
+    defaultConfig {
+        minSdkVersion 19
+    }
+}
+
+AndroidManifest.xml에 인터넷 권한 추가
+<uses-permission android:name="android.permission.INTERNET" />
+
+6-2. iOS
+ios/Runner/Info.plist에 아래 내용을 추가하여 네트워크 요청을 허용합니다.
+<key>NSAppTransportSecurity</key>
+<dict>
+    <key>NSAllowsArbitraryLoads</key>
+    <true/>
+</dict>
+
+iOS의 경우, pod install을 다시 실행하여 네이티브 종속성을 업데이트합니다.
+cd ios
+pod install
 
 # 오류
 1. 카카오 로그인 "동의하고 계속하기"이후 진행 안됨 이슈

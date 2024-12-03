@@ -20,7 +20,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geocoding/geocoding.dart';
 
+import '../cores/router.dart';
 import '../cores/widget_utils.dart';
 
 class ActivityRegistView extends StatefulWidget {
@@ -37,6 +40,7 @@ class _ActivityRegistViewState extends State<ActivityRegistView> {
   DateTime? startTime;
   DateTime? endTime;
   DateTime? deadline;
+  String? location;
 
   void _showSnackBar(String text) => showSnackBar(context, text);
 
@@ -79,13 +83,14 @@ class _ActivityRegistViewState extends State<ActivityRegistView> {
     if (_image == null ||
         startTime == null ||
         endTime == null ||
-        deadline == null) {
+        deadline == null ||
+        location == null) {
       _showSnackBar("모두 입력해주세요");
       return;
     }
 
     bool ret = await context.read<ClubDetailRepo>().registActivity(nameCon.text,
-        desCon.text, _image!, "장소장소", startTime!, endTime!, deadline!);
+        desCon.text, _image!, location!, startTime!, endTime!, deadline!);
     registHandler(ret);
   }
 
@@ -103,6 +108,7 @@ class _ActivityRegistViewState extends State<ActivityRegistView> {
     String start = startTime == null ? "~" : formatToMDHM(startTime!);
     String end = endTime == null ? "~" : formatToMDHM(endTime!);
     String dead = deadline == null ? "~" : formatToMDHM(deadline!);
+    location = context.watch<ClubDetailRepo>().buffer;
 
     return Scaffold(
       appBar: AppBar(title: const Text("모임 활동 등록하기")),
@@ -151,11 +157,11 @@ class _ActivityRegistViewState extends State<ActivityRegistView> {
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () => context.push(RouterPath.addressGet),
               style: ButtonStyle(
                 backgroundColor: WidgetStateProperty.all(Colors.green[300]),
               ),
-              child: const Text("..."),
+              child: Text(location == null ? "..." : location!),
             ),
           ),
           const Padding(
@@ -217,6 +223,126 @@ class _ActivityRegistViewState extends State<ActivityRegistView> {
             ),
           ),
         ]),
+      ),
+    );
+  }
+}
+
+class AddressGetView extends StatefulWidget {
+  const AddressGetView({super.key});
+
+  @override
+  State<AddressGetView> createState() => _AddressGetViewState();
+}
+
+class _AddressGetViewState extends State<AddressGetView> {
+  GoogleMapController? mapController;
+  TextEditingController addressCon = TextEditingController();
+  LatLng? targetLocation;
+
+  Future<void> goBtnListener(String str) async {
+    if (addressCon.text == "") return;
+    await _setAddressOnMap();
+    if (targetLocation != null && mapController != null) {
+      mapController!.animateCamera(
+        CameraUpdate.newLatLng(targetLocation!),
+      );
+    }
+  }
+
+  Future<void> _setAddressOnMap() async {
+    try {
+      List<Location> locations = await locationFromAddress(addressCon.text);
+      setState(() {
+        targetLocation = LatLng(locations[0].latitude, locations[0].longitude);
+      });
+    } catch (e) {
+      log('Error converting address to coordinates: $e');
+    }
+  }
+
+  void setBtnListener() async {
+    if (addressCon.text == "") return;
+    context.read<ClubDetailRepo>().setBuffer(addressCon.text);
+    context.pop();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initMapView();
+  }
+
+  Future<void> _initMapView() async {
+    try {
+      List<Location> locations = await locationFromAddress("경상북도 구미시 대학로 61");
+      setState(() {
+        targetLocation = LatLng(locations[0].latitude, locations[0].longitude);
+      });
+    } catch (e) {
+      log('Error converting address to coordinates: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double parentWidth = MediaQuery.of(context).size.width;
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('장소 선택'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: ElevatedButton.icon(
+              onPressed: () => setBtnListener(),
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all(Colors.blue[300]),
+              ),
+              label: const Icon(Icons.check),
+            ),
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          targetLocation == null
+              ? const Center(child: CircularProgressIndicator())
+              : GoogleMap(
+                  onMapCreated: (GoogleMapController controller) {
+                    mapController = controller;
+                  },
+                  initialCameraPosition: CameraPosition(
+                    target: targetLocation!,
+                    zoom: 15.0,
+                  ),
+                  markers: {
+                    Marker(
+                      markerId: const MarkerId('targetLocation'),
+                      position: targetLocation!,
+                    ),
+                  },
+                ),
+          Container(
+            padding: const EdgeInsets.all(8.0),
+            width: parentWidth,
+            child: Row(
+              children: [
+                Expanded(
+                  child: desUnit(
+                    child: inputOnelineTextUnit(addressCon),
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () async => await goBtnListener(addressCon.text),
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all(Colors.green[400]),
+                  ),
+                  label: const Icon(Icons.arrow_forward),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

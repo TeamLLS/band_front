@@ -39,6 +39,8 @@ class RouterPath {
   static const String activityDetail = '/myClubList/clubDetail/activityDetail';
 
   static const String activityRegist = '/myClubList/clubDetail/activityRegist';
+  static const String addressGet =
+      '/myClubList/clubDetail/activityRegist/AddressGet';
 
   static const String budget = '/myClubList/clubDetail/budget';
   static const String paymentDetail =
@@ -125,6 +127,12 @@ final GoRouter route = GoRouter(
                 GoRoute(
                   path: 'activityRegist',
                   builder: (context, state) => const ActivityRegistView(),
+                  routes: [
+                    GoRoute(
+                      path: 'AddressGet',
+                      builder: (context, state) => const AddressGetView(),
+                    ),
+                  ],
                 ),
                 GoRoute(
                   path: 'budget',
