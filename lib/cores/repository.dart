@@ -142,7 +142,7 @@ class ClubDetailRepo with ChangeNotifier {
   void _clearForReload() {
     club = null;
     actList.clear();
-    pnAct = 1;
+    pnAct = 0;
     buffer = null;
   }
 
@@ -185,6 +185,7 @@ class ClubDetailRepo with ChangeNotifier {
       log("get club detail failed");
       return false;
     }
+
     var data = await ClubApi.getClubDetail(clubId!);
     if (data == null) {
       log("get club detail failed");
@@ -207,7 +208,6 @@ class ClubDetailRepo with ChangeNotifier {
     for (Map<String, dynamic> element in list) {
       actList.add(ActivityEntity.fromMap(element));
     }
-    pnAct++;
     notifyListeners();
     return true;
   }
@@ -262,7 +262,6 @@ class ClubListRepo with ChangeNotifier {
     _clear();
     var data = await ClubApi.getMyClubList(pn);
     var list = data['list'];
-    log("$data");
     for (Map<String, dynamic> element in list) {
       ClubEntity temp = ClubEntity.fromMap(element);
       if (temp.clubStatus != "운영종료") {
@@ -399,12 +398,12 @@ class PaymentListRepo with ChangeNotifier {
   void _clear() {
     clubId = null;
     paments.clear();
-    pn = 1;
+    pn = 0;
   }
 
   void _clearForReload() {
     paments.clear();
-    pn = 1;
+    pn = 0;
   }
 
   Future<bool> initPaymentInfo(int clubId) async {
@@ -433,18 +432,18 @@ class PaymentListRepo with ChangeNotifier {
   }
 
   Future<bool> getPaymentList() async {
+    log("===== payment list =====");
     var data = await BudgetApi.getPaymentList(clubId!, pn);
     if (data == null) {
       log("getPaymentList fail");
       return false;
     }
-
+    log("$data");
     var list = data['list'];
     for (Map<String, dynamic> element in list) {
       PaymentEntity temp = PaymentEntity.fromMap(element);
       paments.add(temp);
     }
-    pn++;
     return true;
   }
 
@@ -503,6 +502,8 @@ class PaymentDetailRepo with ChangeNotifier {
       log("getPayment fail");
       return false;
     }
+    log("===== payment detail =====");
+    log("$data");
     payment = Payment.fromMap(data);
     return true;
   }
@@ -513,6 +514,7 @@ class PaymentDetailRepo with ChangeNotifier {
       log("getPaymentTargets fail");
       return false;
     }
+    log("===== payment targets =====");
     log("$data");
 
     var list = data['list'];
@@ -522,6 +524,20 @@ class PaymentDetailRepo with ChangeNotifier {
     }
     pn++;
     return true;
+  }
+
+  Future<bool> cancelPayment() async {
+    log("===== cancelPayment in repo =====");
+    log("clubId : $clubId");
+    log("paymentId : $paymentId");
+    return await BudgetApi.cancelPayment(clubId!, paymentId!);
+  }
+
+  Future<bool> expirePayment() async {
+    log("===== expirePayment in repo =====");
+    log("clubId : $clubId");
+    log("paymentId : $paymentId");
+    return await BudgetApi.expirePayment(clubId!, paymentId!);
   }
 }
 
@@ -631,6 +647,9 @@ class ActivityDetailRepo with ChangeNotifier {
   Future<bool> removeActivity() async {
     //need pop and clubDetail reload
     if (clubId == null || actId == null) return false;
+    log("== removeActivity ==");
+    log("clubId : $clubId");
+    log("activityId : $actId");
 
     dynamic ret = await ActivityApi.removeActivity(clubId!, actId!);
     if (ret == false) return false;
@@ -645,6 +664,9 @@ class ActivityDetailRepo with ChangeNotifier {
 
   Future<bool> closeActivity() async {
     if (clubId == null || actId == null) return false;
+    log("== closeActivity ==");
+    log("clubId : $clubId");
+    log("activityId : $actId");
 
     dynamic ret = await ActivityApi.closeActivity(clubId!, actId!);
     if (ret == false || ret == null) return false;

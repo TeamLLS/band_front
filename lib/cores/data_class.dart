@@ -1,5 +1,3 @@
-import 'package:band_front/cores/widget_utils.dart';
-
 class Club {
   final int clubId;
   final String name; // 리스트에 표기
@@ -8,14 +6,6 @@ class Club {
   final String? contactInfo;
   final String status; // 리스트에 표기
   final int memberNum; // 인원 수, 리스트에 표기
-
-  ///{clubId: 1, v
-  ///name: DummyClub, v
-  ///description: for test, v
-  ///image: https://d310q11a7rdsb8.cloudfront.net/common/club/default.png, v
-  ///contactInfo: null, v
-  ///status: 운영중, v
-  ///memberNum: 0} v
 
   Club({
     required this.clubId,
@@ -93,7 +83,7 @@ class Activity {
   final String description;
   final DateTime startTime;
   final DateTime endTime;
-  final DateTime deadline; // 추가된 필드
+  final DateTime? deadline; // 추가된 필드
   final String status; //모집중	모집종료	취소됨
   final int participantNum;
 
@@ -122,7 +112,8 @@ class Activity {
       description: map['description'],
       startTime: DateTime.parse(map['startTime']),
       endTime: DateTime.parse(map['endTime']),
-      deadline: DateTime.parse(map['deadline']),
+      deadline:
+          map['deadline'] == null ? null : DateTime.parse(map['deadline']),
       status: map['status'],
       participantNum: map['participantNum'] as int,
     );
@@ -132,7 +123,7 @@ class Activity {
 class ActivityEntity {
   final int id;
   final String name;
-  final String image;
+  final String? image;
   final String status;
   final int participantNum;
 
@@ -303,7 +294,6 @@ class BudgetRecordEntity {
   final int amount;
   final String username;
   final String time;
-  //clubId: 4, description: created, amount: 0, username: kakao_3778335311, time: 2024-11-14T19:11:18.092508372Z
 
   BudgetRecordEntity({
     required this.clubId,
@@ -319,7 +309,7 @@ class BudgetRecordEntity {
       description: map['description'],
       amount: map['amount'] as int,
       username: map['username'],
-      time: formatToYMDHM(map['time'] as String),
+      time: map['time'],
     );
   }
 }
@@ -329,7 +319,7 @@ class PaymentEntity {
   final String name;
   final int amount;
   final String status;
-  final DateTime deadline;
+  final DateTime? deadline;
 
   PaymentEntity({
     required this.id,
@@ -345,17 +335,9 @@ class PaymentEntity {
       name: map['name'],
       amount: map['amount'] as int,
       status: map['status'],
-      deadline: DateTime.parse(map['deadline']),
+      deadline:
+          map['deadline'] == null ? null : DateTime.parse(map['deadline']),
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'status': status,
-      'createdAt': deadline.toIso8601String(),
-    };
   }
 }
 
@@ -369,7 +351,7 @@ class Payment {
   final String createdBy;
   final DateTime createdAt;
   final DateTime? closedAt;
-  final DateTime deadline;
+  final DateTime? deadline;
 
   Payment({
     required this.id,
@@ -396,7 +378,8 @@ class Payment {
       createdAt: DateTime.parse(map['createdAt']),
       closedAt:
           map['closedAt'] != null ? DateTime.parse(map['closedAt']) : null,
-      deadline: DateTime.parse(map['deadline']),
+      deadline:
+          map['deadline'] == null ? null : DateTime.parse(map['deadline']),
     );
   }
 

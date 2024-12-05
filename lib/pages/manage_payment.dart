@@ -59,7 +59,7 @@ class _PaymentManageViewState extends State<PaymentManageView> {
                 decoration: const InputDecoration(hintText: '장부명'),
               ),
               const SizedBox(height: 16),
-              ElevatedButton(onPressed: () {}, child: Text("ㅇ")),
+              ElevatedButton(onPressed: () {}, child: const Text("마감일 지정")),
               TextField(
                 maxLines: 3,
                 controller: desCon,
@@ -80,7 +80,7 @@ class _PaymentManageViewState extends State<PaymentManageView> {
                 if (amount == 0) {
                   context.pop();
                 } else {
-                  log("start");
+                  //TODO: 생성 후 모든 회원 등록까지 수행할 것.
                   await context
                       .read<PaymentListRepo>()
                       .registPayment(
@@ -145,6 +145,8 @@ class _PaymentManageViewState extends State<PaymentManageView> {
           itemCount: payments.length,
           itemBuilder: (context, index) {
             PaymentEntity payment = payments[index];
+            String deadline =
+                payment.deadline == null ? "" : formatToYMD(payment.deadline!);
 
             Color stateColor;
             if (payment.status == "모금중") {
@@ -175,7 +177,7 @@ class _PaymentManageViewState extends State<PaymentManageView> {
                             payment.name,
                             style: const TextStyle(fontSize: 18),
                           ),
-                          Text("${formatToYMD(payment.deadline.toString())} ~"),
+                          Text("~ $deadline"),
                         ],
                       ),
                       Text(
@@ -208,8 +210,6 @@ class PaymentDetailManageView extends StatefulWidget {
 }
 
 class _PaymentDetailManageViewState extends State<PaymentDetailManageView> {
-  bool _isLoaded = false;
-
   //// 넣을 기능 (expanded tile 활용)
   // 장부 취소
   // 장부 만료
@@ -222,9 +222,59 @@ class _PaymentDetailManageViewState extends State<PaymentDetailManageView> {
   // 1. 미납 - 납부 - 연체 납부
   // 2. 특정 회원 제외 - 납부 대상 포함
 
+  bool _isLoaded = false;
+
   void _showSnackBar(String text) => showSnackBar(context, text);
 
-  // show dialog, return bool
+  Future<void> closeBtnListener() async {
+    bool ret = await context.read<PaymentDetailRepo>().cancelPayment();
+    if (ret == false) {
+      _showSnackBar("something went wrong...");
+      return;
+    }
+
+    await closeBtnHandler();
+  }
+
+  Future<void> closeBtnHandler() async {
+    //TODO: 리로딩은 잘 됐는데 서버에 반영될 동안 요청했을 때 적용 전 데이터를 받네.
+    await context.read<PaymentListRepo>().reloadPaymentInfo().then((ret) {
+      if (ret == false) {
+        _showSnackBar("something went wrong...");
+        return;
+      }
+      _showSnackBar("취소되었습니다.");
+      context.pop();
+    });
+  }
+
+  Future<void> expireBtnListener() async {
+    bool ret = await context.read<PaymentDetailRepo>().expirePayment();
+    if (ret == false) {
+      _showSnackBar("something went wrong...");
+      return;
+    }
+
+    await expireBtnHandler();
+  }
+
+  Future<void> expireBtnHandler() async {
+    //TODO: 리로딩은 잘 됐는데 서버에 반영될 동안 요청했을 때 적용 전 데이터를 받네.
+    await context.read<PaymentListRepo>().reloadPaymentInfo().then((ret) {
+      if (ret == false) {
+        _showSnackBar("something went wrong...");
+        return;
+      }
+      _showSnackBar("만료 처리되었습니다.");
+      context.pop();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initPaymentDetailManageView();
+  }
 
   Future<void> _initPaymentDetailManageView() async {
     int clubId = context.read<ClubDetailRepo>().clubId!;
@@ -242,23 +292,17 @@ class _PaymentDetailManageViewState extends State<PaymentDetailManageView> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _initPaymentDetailManageView();
-  }
-
-  @override
   Widget build(BuildContext context) {
     if (_isLoaded == false) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    Payment payment = context.read<PaymentDetailRepo>().payment!;
     double parentWidth = MediaQuery.of(context).size.width;
-    String startDate = formatToYMD(payment.createdAt.toString());
-    String endDate = payment.closedAt == null
-        ? ""
-        : "  ~  ${formatToYMDHM(payment.closedAt.toString())}";
+
+    Payment payment = context.read<PaymentDetailRepo>().payment!;
+    String startDate = formatToYMDHM(payment.createdAt);
+    String deadline =
+        payment.deadline == null ? "" : formatToYMDHM(payment.deadline!);
 
     return Scaffold(
       appBar: AppBar(
@@ -266,13 +310,13 @@ class _PaymentDetailManageViewState extends State<PaymentDetailManageView> {
         actions: [
           IconButton(
             onPressed: () async {
-              //return await _setPaymentState();
+              await closeBtnListener();
             },
             icon: const Icon(Icons.close),
           ),
           IconButton(
             onPressed: () async {
-              //return await _setPaymentState();
+              await expireBtnListener();
             },
             icon: const Icon(Icons.task_alt),
           ),
@@ -280,181 +324,237 @@ class _PaymentDetailManageViewState extends State<PaymentDetailManageView> {
       ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-        child: Column(children: [
-          desUnit(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Text("회비  :  ${payment.amount}"),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Text("담당자  :  ${payment.name}"),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Text("현재 상태  :  ${payment.status}"),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Text("일자  :  $startDate$endDate"),
-                  ),
-                  const Divider(color: Colors.grey),
-                  Text(payment.description),
-                ],
-              ),
-            ),
-          ),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Column(
+        child: Column(
+          children: [
+            Table(
+              border: TableBorder.all(color: Colors.grey, width: 1),
+              columnWidths: const {
+                0: FractionColumnWidth(0.3),
+                1: FractionColumnWidth(0.7),
+              },
               children: [
-                Text("납부자 목록"),
-                Divider(),
+                TableRow(children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text("장부명"),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(payment.name),
+                  ),
+                ]),
+                TableRow(children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text("회비"),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('${payment.amount}'),
+                  ),
+                ]),
+                TableRow(children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('담당자'),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(payment.createdBy),
+                  ),
+                ]),
+                TableRow(children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('상태'),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(payment.status),
+                  ),
+                ]),
+                TableRow(children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('생성 일자'),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(startDate),
+                  ),
+                ]),
+                TableRow(children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('마감 일자'),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(deadline),
+                  ),
+                ]),
               ],
             ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount:
-                  context.watch<PaymentDetailRepo>().paymentTargets.length,
-              itemBuilder: (context, index) {
-                PaymentTargetEntity target =
-                    context.watch<PaymentDetailRepo>().paymentTargets[index];
-
-                Color statusColor;
-                if (target.status == "납부") {
-                  statusColor = Colors.blue;
-                } else if (target.status == "미납") {
-                  statusColor = Colors.red;
-                } else if (target.status == "연체 납부") {
-                  statusColor = Colors.orange;
-                } else {
-                  statusColor = Colors.grey;
-                }
-
-                ElevatedButton btn1;
-                if (target.status == "제외") {
-                  btn1 = ElevatedButton(
-                    onPressed: () {},
-                    style: ButtonStyle(
-                      backgroundColor:
-                          WidgetStateProperty.all(Colors.grey[400]),
-                    ),
-                    child: const Text(" - "),
-                  );
-                } else if (payment.status == "모금종료" && target.status == "미납") {
-                  btn1 = ElevatedButton(
-                    onPressed: () {},
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(Colors.orange),
-                    ),
-                    child: const Text("연체 납부됨"),
-                  );
-                } else if (payment.status == "모금종료" && target.status != "미납") {
-                  btn1 = ElevatedButton(
-                    onPressed: () {},
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(Colors.red),
-                    ),
-                    child: const Text("미납"),
-                  );
-                } else if (payment.status == "모금중" && target.status == "미납") {
-                  btn1 = ElevatedButton(
-                    onPressed: () {},
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(Colors.green),
-                    ),
-                    child: const Text("납부됨"),
-                  );
-                } else if (payment.status == "모금중" && target.status != "미납") {
-                  btn1 = ElevatedButton(
-                    onPressed: () {},
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(Colors.red),
-                    ),
-                    child: const Text("미납"),
-                  );
-                } else {
-                  btn1 = ElevatedButton(
-                    onPressed: () {},
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(Colors.black),
-                    ),
-                    child: const Text("exception"),
-                  );
-                }
-
-                ElevatedButton btn2;
-                if (target.status == "제외") {
-                  btn2 = ElevatedButton(
-                    onPressed: () {},
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(Colors.green),
-                    ),
-                    child: const Text("포함"),
-                  );
-                } else {
-                  btn2 = ElevatedButton(
-                    onPressed: () {},
-                    style: ButtonStyle(
-                      backgroundColor:
-                          WidgetStateProperty.all(Colors.grey[400]),
-                    ),
-                    child: const Text("제외"),
-                  );
-                }
-
-                if (payment.status == "취소됨") {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: ListTile(
-                      leading: const Icon(Icons.remove),
-                      title: Text(target.memberName),
-                      subtitle: Text(target.username),
-                      trailing: Text(
-                        target.status,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900,
-                          color: statusColor,
-                        ),
-                      ),
-                    ),
-                  );
-                } else {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: ExpansionTile(
-                      shape: Border.all(color: Colors.transparent),
-                      title: Text(target.memberName),
-                      subtitle: Text(target.username),
-                      trailing: Text(
-                        target.status,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900,
-                          color: statusColor,
-                        ),
-                      ),
-                      controlAffinity: ListTileControlAffinity.leading,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [btn1, btn2],
-                        ),
-                      ],
-                    ),
-                  );
-                }
-              },
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+              child: desUnit(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                  child: desTextUnit(
+                    maxLine: 3,
+                    description: payment.description,
+                  ),
+                ),
+              ),
             ),
-          ),
-        ]),
+            const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    Text("납부자 목록"),
+                    Divider(),
+                  ],
+                )),
+            Expanded(
+              child: ListView.builder(
+                itemCount:
+                    context.watch<PaymentDetailRepo>().paymentTargets.length,
+                itemBuilder: (context, index) {
+                  PaymentTargetEntity target =
+                      context.watch<PaymentDetailRepo>().paymentTargets[index];
+
+                  Color statusColor;
+                  if (target.status == "납부") {
+                    statusColor = Colors.blue;
+                  } else if (target.status == "미납") {
+                    statusColor = Colors.red;
+                  } else if (target.status == "연체 납부") {
+                    statusColor = Colors.orange;
+                  } else {
+                    statusColor = Colors.grey;
+                  }
+
+                  ElevatedButton btn1;
+                  if (target.status == "제외") {
+                    btn1 = ElevatedButton(
+                      onPressed: () {},
+                      style: ButtonStyle(
+                        backgroundColor:
+                            WidgetStateProperty.all(Colors.grey[400]),
+                      ),
+                      child: const Text(" - "),
+                    );
+                  } else if (payment.status == "모금종료" &&
+                      target.status == "미납") {
+                    btn1 = ElevatedButton(
+                      onPressed: () {},
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(Colors.orange),
+                      ),
+                      child: const Text("연체 납부됨"),
+                    );
+                  } else if (payment.status == "모금종료" &&
+                      target.status != "미납") {
+                    btn1 = ElevatedButton(
+                      onPressed: () {},
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(Colors.red),
+                      ),
+                      child: const Text("미납"),
+                    );
+                  } else if (payment.status == "모금중" && target.status == "미납") {
+                    btn1 = ElevatedButton(
+                      onPressed: () {},
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(Colors.green),
+                      ),
+                      child: const Text("납부됨"),
+                    );
+                  } else if (payment.status == "모금중" && target.status != "미납") {
+                    btn1 = ElevatedButton(
+                      onPressed: () {},
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(Colors.red),
+                      ),
+                      child: const Text("미납"),
+                    );
+                  } else {
+                    btn1 = ElevatedButton(
+                      onPressed: () {},
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(Colors.black),
+                      ),
+                      child: const Text("exception"),
+                    );
+                  }
+
+                  ElevatedButton btn2;
+                  if (target.status == "제외") {
+                    btn2 = ElevatedButton(
+                      onPressed: () {},
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(Colors.green),
+                      ),
+                      child: const Text("포함"),
+                    );
+                  } else {
+                    btn2 = ElevatedButton(
+                      onPressed: () {},
+                      style: ButtonStyle(
+                        backgroundColor:
+                            WidgetStateProperty.all(Colors.grey[400]),
+                      ),
+                      child: const Text("제외"),
+                    );
+                  }
+
+                  if (payment.status == "취소됨") {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: ListTile(
+                        leading: const Icon(Icons.remove),
+                        title: Text(target.memberName),
+                        subtitle: Text(target.username),
+                        trailing: Text(
+                          target.status,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: statusColor,
+                          ),
+                        ),
+                      ),
+                    );
+                  } else {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: ExpansionTile(
+                        shape: Border.all(color: Colors.transparent),
+                        title: Text(target.memberName),
+                        subtitle: Text(target.username),
+                        trailing: Text(
+                          target.status,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: statusColor,
+                          ),
+                        ),
+                        controlAffinity: ListTileControlAffinity.leading,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [btn1, btn2],
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

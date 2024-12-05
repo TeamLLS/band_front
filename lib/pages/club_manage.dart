@@ -9,6 +9,8 @@ import 'package:provider/provider.dart';
 import '../cores/data_class.dart';
 import '../cores/repository.dart';
 
+//TODO: 아이콘 또는 이미지로 버튼 만들기
+
 class ClubManage extends StatefulWidget {
   const ClubManage({super.key});
 
@@ -36,41 +38,52 @@ class _ClubManageState extends State<ClubManage> {
     });
   }
 
-  void _editBtnListener() => context.push(RouterPath.clubEdit);
+  void _editBtnListener() {
+    context.push(RouterPath.clubEdit);
+  }
 
-  void _budgetManageBtnListener() => context.push(RouterPath.budgetManage);
+  void _budgetManageBtnListener() {
+    context.push(RouterPath.budgetManage);
+  }
 
   void _paymentManageBtnListener() {
     log("goto context.push(RouterPath.paymentManage);");
     context.push(RouterPath.paymentManage);
   }
 
+  void _statisticsBtnListener() {
+    context.push(RouterPath.statistics);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("모임 관리")),
-      body: Column(
-        children: [
-          ElevatedButton(
-            onPressed: () => _editBtnListener(),
-            child: const Text("모임 정보 수정하기"),
-          ),
-          ElevatedButton(
-            onPressed: () => _budgetManageBtnListener(),
-            child: const Text("예산 관리"),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              log("pressed 납부 내역 관리");
-              _paymentManageBtnListener();
-            },
-            child: const Text("납부 내역 관리"),
-          ),
-          ElevatedButton(
-            child: const Text("모임 해체"),
-            onPressed: () async => _deleteBtnListener(),
-          ),
-        ],
+      body: Center(
+        child: Column(
+          children: [
+            ElevatedButton(
+              onPressed: () => _editBtnListener(),
+              child: const Text("모임 정보 수정하기"),
+            ),
+            ElevatedButton(
+              onPressed: () => _budgetManageBtnListener(),
+              child: const Text("예산 관리"),
+            ),
+            ElevatedButton(
+              onPressed: () => _paymentManageBtnListener(),
+              child: const Text("납부 내역 관리"),
+            ),
+            ElevatedButton(
+              onPressed: () => _statisticsBtnListener(),
+              child: const Text("모임 통계 조회"),
+            ),
+            ElevatedButton(
+              child: const Text("모임 해체"),
+              onPressed: () async => _deleteBtnListener(),
+            ),
+          ],
+        ),
       ),
     );
   }

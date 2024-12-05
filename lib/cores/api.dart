@@ -558,6 +558,10 @@ class ActivityApi {
       "${_authInfoApi.url}/activity/$clubId/$activityId/cancel",
     );
     Map<String, String> header = {'username': _authInfoApi.username!};
+    log("===== in api =====");
+    log("clubId : $clubId");
+    log("activityId : $activityId");
+    log("==================");
 
     return await HttpInterface.requestPatchWithoutBody(url, header);
   }
@@ -568,7 +572,10 @@ class ActivityApi {
       "${_authInfoApi.url}/activity/$clubId/$activityId/close",
     );
     Map<String, String> header = {'username': _authInfoApi.username!};
-
+    log("===== in api =====");
+    log("clubId : $clubId");
+    log("activityId : $activityId");
+    log("==================");
     return await HttpInterface.requestPostWithoutBody(url, header);
   }
 
@@ -779,7 +786,29 @@ class BudgetApi {
   }
 
   //장부 취소
+  static Future<bool> cancelPayment(int clubId, int paymentId) async {
+    Uri url =
+        Uri.parse("${_authInfoApi.url}/paybook/$clubId/$paymentId/cancel");
+
+    Map<String, String> header = {'username': _authInfoApi.username!};
+    log("===== cancelPayment api =====");
+    log("clubId : $clubId");
+    log("paymentId : $paymentId");
+
+    return await HttpInterface.requestPatchWithoutBody(url, header);
+  }
+
   //장부 만료
+  static Future<bool> expirePayment(int clubId, int paymentId) async {
+    Uri url = Uri.parse("${_authInfoApi.url}/paybook/$clubId/$paymentId/close");
+
+    Map<String, String> header = {'username': _authInfoApi.username!};
+    log("===== expirePayment api =====");
+    log("clubId : $clubId");
+    log("paymentId : $paymentId");
+
+    return await HttpInterface.requestPatchWithoutBody(url, header);
+  }
 
   /// 납부 대상 상호작용
   //납부 대상 등록-전체 (디폴트로 장부 생성 시 동작)
@@ -788,6 +817,45 @@ class BudgetApi {
 
   /// 회원 납부 상황 변경
   //납부됨
+  static Future<bool> setPaid(int paymentId, int memberId) async {
+    Uri url =
+        Uri.parse("${_authInfoApi.url}/paymember/$paymentId/$memberId/pay");
+
+    Map<String, String> header = {'username': _authInfoApi.username!};
+    log("===== setPaid api =====");
+    log("clubId : $paymentId");
+    log("paymentId : $memberId");
+
+    return await HttpInterface.requestPatchWithoutBody(url, header);
+  }
+
   //미납됨
+  static Future<bool> setUnpaid(int paymentId, int memberId) async {
+    Uri url =
+        Uri.parse("${_authInfoApi.url}/paymember/$paymentId/$memberId/unpay");
+
+    Map<String, String> header = {'username': _authInfoApi.username!};
+    log("===== setUnpaid api =====");
+    log("clubId : $paymentId");
+    log("paymentId : $memberId");
+
+    return await HttpInterface.requestPatchWithoutBody(url, header);
+  }
+
   //연체 납부됨
+  static Future<bool> setLatepaid(int paymentId, int memberId) async {
+    Uri url = Uri.parse(
+        "${_authInfoApi.url}/paymember/$paymentId/$memberId/late-pay");
+
+    Map<String, String> header = {'username': _authInfoApi.username!};
+    Map<String, String> body = {};
+    // Map<String, String>body= {
+    // {납부 시간} (Instnat, ISO 8601)
+    // };
+    log("===== setLatepaid api =====");
+    log("clubId : $paymentId");
+    log("paymentId : $memberId");
+
+    return await HttpInterface.requestPatch(url, header, body);
+  }
 }

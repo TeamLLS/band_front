@@ -29,6 +29,12 @@ class _ClubDetailViewState extends State<ClubDetailView> {
     context.push(RouterPath.manage);
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _initClubDetail();
+  }
+
   Future<void> _initClubDetail() async {
     bool result = await context
         .read<ClubDetailRepo>()
@@ -38,12 +44,6 @@ class _ClubDetailViewState extends State<ClubDetailView> {
       return;
     }
     setState(() => isLoaded = true);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _initClubDetail();
   }
 
   @override

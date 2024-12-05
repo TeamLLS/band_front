@@ -10,11 +10,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 // pages
+import '../pages/activity_location.dart';
 import '../pages/activity_regist.dart';
 import '../pages/manage_edit.dart';
 import '../pages/login.dart';
 import '../pages/club_list.dart';
 import '../pages/club_detail.dart';
+import '../pages/manage_statistics.dart';
 import '../pages/profile.dart';
 import '../pages/club_members.dart';
 
@@ -36,7 +38,11 @@ class RouterPath {
   static const String paymentDetailManage =
       '/myClubList/clubDetail/manage/paymentManage/paymentDetailManage';
 
+  static const String statistics = '/myClubList/clubDetail/manage/statistics';
+
   static const String activityDetail = '/myClubList/clubDetail/activityDetail';
+  static const String activityLocation =
+      '/myClubList/clubDetail/activityDetail/activityLocation';
 
   static const String activityRegist = '/myClubList/clubDetail/activityRegist';
   static const String addressGet =
@@ -103,6 +109,10 @@ final GoRouter route = GoRouter(
                         ),
                       ],
                     ),
+                    GoRoute(
+                      path: 'statistics',
+                      builder: (context, state) => StatisticsView(),
+                    ),
                   ],
                 ),
                 GoRoute(
@@ -120,9 +130,15 @@ final GoRouter route = GoRouter(
                     final Map<String, dynamic>? argument =
                         state.extra as Map<String, dynamic>?;
                     int actId = argument?['actId'];
-                    int clubId = argument?['actId'];
+                    int clubId = argument?['clubId'];
                     return ActivityDetailView(actId: actId, clubId: clubId);
                   },
+                  routes: [
+                    GoRoute(
+                      path: 'activityLocation',
+                      builder: (context, state) => const ActivityLocationView(),
+                    ),
+                  ],
                 ),
                 GoRoute(
                   path: 'activityRegist',

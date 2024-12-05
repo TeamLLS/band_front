@@ -18,23 +18,23 @@ String formatToMDHM(DateTime dateTime) {
   return formatter.format(dateTime);
 }
 
-String formatToYMDHM(String isoDate) {
-  DateTime dateTime = DateTime.parse(isoDate);
-
+String formatToYMDHM(DateTime dateTime) {
   DateFormat formatter = DateFormat('yy.MM.dd HH:mm');
   return formatter.format(dateTime);
 }
 
-String formatToYMD(String isoDate) {
-  DateTime dateTime = DateTime.parse(isoDate);
+String formatStringToYMDHM(String date) {
+  DateTime dateTime = DateTime.parse(date);
+  DateFormat formatter = DateFormat('yy.MM.dd HH:mm');
+  return formatter.format(dateTime);
+}
 
+String formatToYMD(DateTime dateTime) {
   DateFormat formatter = DateFormat('yy.MM.dd');
   return formatter.format(dateTime);
 }
 
-String formatToYM(String isoDate) {
-  DateTime dateTime = DateTime.parse(isoDate);
-
+String formatToYM(DateTime dateTime) {
   DateFormat formatter = DateFormat('yy.MM');
   return formatter.format(dateTime);
 }
@@ -92,20 +92,34 @@ Widget inputOnelineTextUnit(TextEditingController ctl) {
       ),
     ),
   );
+}
 
-  // return TextField(
-  //   controller: ctl,
-  //   decoration: InputDecoration(
-  //     enabledBorder: OutlineInputBorder(
-  //       borderRadius: BorderRadius.circular(40.0),
-  //       borderSide: const BorderSide(color: Colors.grey, width: 0.8),
-  //     ),
-  //     focusedBorder: OutlineInputBorder(
-  //       borderRadius: BorderRadius.circular(40.0),
-  //       borderSide: const BorderSide(color: Colors.grey, width: 0.8),
-  //     ),
-  //   ),
-  // );
+Widget searchUnit({
+  required TextEditingController ctl,
+  required VoidCallback onSearchPressed,
+}) {
+  return Material(
+    elevation: 3.0,
+    borderRadius: BorderRadius.circular(20.0),
+    child: Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: ctl,
+            minLines: 1,
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+            ),
+          ),
+        ),
+        IconButton(
+          onPressed: onSearchPressed, // 파라미터로 전달된 함수 사용
+          icon: const Icon(Icons.search),
+        ),
+      ],
+    ),
+  );
 }
 
 Widget InputMultiTextUnit(TextEditingController ctl) {

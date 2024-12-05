@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:band_front/cores/api.dart';
+import 'package:band_front/cores/router.dart';
 import 'package:band_front/cores/widget_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -26,6 +27,7 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
 
   void _showSnackBar(String text) => showSnackBar(context, text);
 
+  //TODO: 다이얼로그 액션 시 현재 화면 리로드
   void _showActivityHandleView() {
     showDialog(
       context: context,
@@ -176,6 +178,9 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
   }
 
   Future<void> _initActivityDetailView() async {
+    log("===== init activity detail =====");
+    log("clubId : ${widget.clubId}");
+    log("actId : ${widget.actId}");
     bool ret = await context
         .read<ActivityDetailRepo>()
         .initActivityDetail(widget.actId, widget.clubId);
@@ -198,6 +203,11 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
         context.watch<ActivityDetailRepo>().participantsList;
     bool isAttended = context.watch<ActivityDetailRepo>().isAttended!;
     String myRole = context.watch<ClubDetailRepo>().role!;
+    String startTime = formatToMDHM(activity.startTime);
+    String endTime = formatToMDHM(activity.endTime);
+    String deadline = activity.deadline == null
+        ? ""
+        : "~ ${formatToMDHM(activity.deadline!)}";
 
     double parentWidth = MediaQuery.of(context).size.width;
 
@@ -267,7 +277,7 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
               bottom: 4,
               right: 8,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () => context.push(RouterPath.activityLocation),
                 style: ButtonStyle(
                   backgroundColor: WidgetStateProperty.all(Colors.green[200]),
                 ),
@@ -288,9 +298,9 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                       children: [
                         Text("장소  :  ${activity.location}"),
                         Text(
-                          "시간  :  ${formatToMDHM(activity.startTime)} ~ ${formatToMDHM(activity.endTime)}",
+                          "시간  :  $startTime ~ $endTime",
                         ),
-                        Text("모집 기간  :  ~ ${formatToMDHM(activity.deadline)}"),
+                        Text("모집 기간  :  $deadline"),
                         Text("현재 인원  :  ${activity.participantNum}"),
                         const Divider(),
                         desTextUnit(

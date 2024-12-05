@@ -115,6 +115,12 @@ class _BudgetManageViewState extends State<BudgetManageView> {
     }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _initBudgetManageView();
+  }
+
   Future<void> _initBudgetManageView() async {
     int clubId = context.read<ClubDetailRepo>().clubId!;
     bool result = await context.read<BudgetRepo>().initBudgetInfo(clubId);
@@ -127,12 +133,6 @@ class _BudgetManageViewState extends State<BudgetManageView> {
       isLoaded = true;
       _filteredDate = DateTime.now();
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _initBudgetManageView();
   }
 
   @override
@@ -171,7 +171,7 @@ class _BudgetManageViewState extends State<BudgetManageView> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("~ ${formatToYMD(_filteredDate.toString())}"),
+                    Text("~ ${formatToYMD(_filteredDate!)}"),
                     IconButton(
                       icon: const Icon(Icons.filter_list),
                       onPressed: () async => await _filterBtnListener(),
@@ -203,7 +203,7 @@ class _BudgetManageViewState extends State<BudgetManageView> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(entity.time),
+                        Text(formatStringToYMDHM(entity.time)),
                         Text(entity.username),
                       ],
                     ),

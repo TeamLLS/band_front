@@ -11,6 +11,7 @@
 
 // TODO: 위치 선택 추가, 등록 성공 시 리로딩 추가
 
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -22,6 +23,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:http/http.dart' as http;
 
 import '../cores/router.dart';
 import '../cores/widget_utils.dart';
@@ -236,25 +238,45 @@ class AddressGetView extends StatefulWidget {
 }
 
 class _AddressGetViewState extends State<AddressGetView> {
-  GoogleMapController? mapController;
+  GoogleMapController? mapCon;
   TextEditingController addressCon = TextEditingController();
-  LatLng? targetLocation;
+  LatLng? location;
+  String apikey = "AIzaSyBycfPyrH12BjWPPgLzx_FxsOwH3YGb2EE";
+  List<String> addressList = [];
+
+  Future<void> searchToGoogle(String queryValue) async {
+    var url = Uri.parse(
+        'https://maps.googleapis.com/maps/api/place/textsearch/json?query=$queryValue&key=$apikey&language=ko');
+    var response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      var result = json.decode(response.body);
+      List<dynamic> results = result['results'];
+
+      for (var place in results) {
+        String address = place['formatted_address'];
+        addressList.add(address);
+      }
+    } else {
+      log("Error: ${response.reasonPhrase}");
+    }
+  }
 
   Future<void> goBtnListener(String str) async {
     if (addressCon.text == "") return;
-    await _setAddressOnMap();
-    if (targetLocation != null && mapController != null) {
-      mapController!.animateCamera(
-        CameraUpdate.newLatLng(targetLocation!),
+    await _setLocation();
+    if (location != null && mapCon != null) {
+      mapCon!.animateCamera(
+        CameraUpdate.newLatLng(location!),
       );
     }
   }
 
-  Future<void> _setAddressOnMap() async {
+  Future<void> _setLocation() async {
     try {
       List<Location> locations = await locationFromAddress(addressCon.text);
       setState(() {
-        targetLocation = LatLng(locations[0].latitude, locations[0].longitude);
+        location = LatLng(locations[0].latitude, locations[0].longitude);
       });
     } catch (e) {
       log('Error converting address to coordinates: $e');
@@ -277,7 +299,7 @@ class _AddressGetViewState extends State<AddressGetView> {
     try {
       List<Location> locations = await locationFromAddress("경상북도 구미시 대학로 61");
       setState(() {
-        targetLocation = LatLng(locations[0].latitude, locations[0].longitude);
+        location = LatLng(locations[0].latitude, locations[0].longitude);
       });
     } catch (e) {
       log('Error converting address to coordinates: $e');
@@ -305,39 +327,35 @@ class _AddressGetViewState extends State<AddressGetView> {
       ),
       body: Stack(
         children: [
-          targetLocation == null
+          location == null
               ? const Center(child: CircularProgressIndicator())
               : GoogleMap(
                   onMapCreated: (GoogleMapController controller) {
-                    mapController = controller;
+                    mapCon = controller;
                   },
                   initialCameraPosition: CameraPosition(
-                    target: targetLocation!,
+                    target: location!,
                     zoom: 15.0,
                   ),
                   markers: {
                     Marker(
                       markerId: const MarkerId('targetLocation'),
-                      position: targetLocation!,
+                      position: location!,
                     ),
                   },
                 ),
           Container(
             padding: const EdgeInsets.all(8.0),
             width: parentWidth,
-            child: Row(
+            child: Column(
               children: [
-                Expanded(
-                  child: desUnit(
-                    child: inputOnelineTextUnit(addressCon),
+                desUnit(
+                  child: searchUnit(
+                    ctl: addressCon,
+                    onSearchPressed: () async {
+                      await searchToGoogle(addressCon.text);
+                    },
                   ),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () async => await goBtnListener(addressCon.text),
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all(Colors.green[400]),
-                  ),
-                  label: const Icon(Icons.arrow_forward),
                 ),
               ],
             ),
