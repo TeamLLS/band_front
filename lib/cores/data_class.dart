@@ -126,6 +126,7 @@ class ActivityEntity {
   final String? image;
   final String status;
   final int participantNum;
+  DateTime? time;
 
   ActivityEntity({
     required this.id,
@@ -133,6 +134,7 @@ class ActivityEntity {
     required this.image,
     required this.status,
     required this.participantNum,
+    required this.time,
   });
 
   factory ActivityEntity.fromMap(Map<String, dynamic> map) {
@@ -142,17 +144,8 @@ class ActivityEntity {
       image: map['image'],
       status: map['status'],
       participantNum: map['participantNum'] as int,
+      time: map['time'] == null ? null : DateTime.parse(map['time']),
     );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'image': image,
-      'status': status,
-      'participantNum': participantNum,
-    };
   }
 }
 

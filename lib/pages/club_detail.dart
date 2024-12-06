@@ -52,9 +52,23 @@ class _ClubDetailViewState extends State<ClubDetailView> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
+    double parentWidth = MediaQuery.of(context).size.width;
     Club club = context.watch<ClubDetailRepo>().club!;
     List<ActivityEntity> actList = context.watch<ClubDetailRepo>().actList;
     String role = context.watch<ClubDetailRepo>().role!;
+    Image image = club.image == null
+        ? Image.asset(
+            'assets/images/empty.png',
+            fit: BoxFit.cover,
+            height: parentWidth * 0.7,
+            width: parentWidth,
+          )
+        : Image.network(
+            club.image!,
+            fit: BoxFit.cover,
+            height: parentWidth * 0.7,
+            width: parentWidth,
+          );
 
     return Scaffold(
       key: _scaffoldKey,
@@ -80,173 +94,187 @@ class _ClubDetailViewState extends State<ClubDetailView> {
           ),
         ],
       ),
-      body: LayoutBuilder(builder: (context, constraints) {
-        double parentWidth = constraints.maxWidth;
-        Image image = club.image == null
-            ? Image.asset(
-                'assets/images/empty.png',
-                fit: BoxFit.cover,
-                height: parentWidth * 0.7,
-                width: parentWidth,
-              )
-            : Image.network(
-                club.image!,
-                fit: BoxFit.cover,
-                height: parentWidth * 0.7,
-                width: parentWidth,
-              );
-
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              image,
-              Padding(
-                padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
-                child: Column(children: [
-                  desUnit(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.contact_support),
-                            const VerticalDivider(),
-                            Text(club.contactInfo ?? "연락처가 없습니다"),
-                          ],
-                        ),
-                        const Divider(thickness: 0.5),
-                        desTextUnit(
-                          maxLine: 5,
-                          description: club.description ?? "모임 설명이 없습니다",
-                        ),
-                      ]),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-                    child: menuBarUnit(
-                      width: parentWidth,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.campaign),
-                            onPressed: () {},
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.people),
-                            onPressed: () => context.push(
-                              RouterPath.members,
-                              extra: {'clubId': widget.clubId},
-                            ),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.photo_album),
-                            onPressed: () {
-                              // 사진첩 기능
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.account_balance_wallet),
-                            onPressed: () => context.push(RouterPath.budget),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.event),
-                            onPressed: () {
-                              // 일정 관리 기능
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: Stack(
+      body: SingleChildScrollView(
+        child: Column(children: [
+          image,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
+            child: Column(children: [
+              desUnit(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Center(child: Text('${club.name}의 활동 목록')),
-                        Positioned(
-                          top: -15,
-                          right: 0,
-                          child: IconButton(
-                            icon: const Icon(Icons.create),
-                            onPressed: () =>
-                                context.push(RouterPath.activityRegist),
-                          ),
-                        ),
+                        const Icon(Icons.contact_support),
+                        const VerticalDivider(),
+                        Text(club.contactInfo ?? "연락처가 없습니다"),
                       ],
                     ),
-                  ),
-                  const Divider(color: Colors.black, thickness: 1),
-                  ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: actList.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-                        child: InkWell(
-                          onTap: () {
-                            context.push(
-                              RouterPath.activityDetail,
-                              extra: {
-                                'actId': actList[index].id,
-                                'clubId': club.clubId,
-                              },
-                            );
-                          },
-                          child: desUnit(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(actList[index].name),
-                                      Text(actList[index].status),
-                                    ],
-                                  ),
-                                  const Divider(thickness: 0.5),
-                                  const Text('simple description'),
-                                  const Row(
-                                    children: [
-                                      Icon(Icons.calendar_today),
-                                      VerticalDivider(),
-                                      Text('24.11.01 ~ 24.12.31'),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.people),
-                                      const VerticalDivider(),
-                                      Text("${actList[index].participantNum}"),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(Icons.phone),
-                                      VerticalDivider(),
-                                      Text('010-1234-5678'),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  )
-                ]),
+                    const Divider(thickness: 0.5),
+                    desTextUnit(
+                      maxLine: 5,
+                      description: club.description ?? "모임 설명이 없습니다",
+                    ),
+                  ]),
+                ),
               ),
-            ],
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                child: menuBarUnit(
+                  width: parentWidth,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.campaign),
+                        onPressed: () {},
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.people),
+                        onPressed: () => context.push(
+                          RouterPath.members,
+                          extra: {'clubId': widget.clubId},
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.photo_album),
+                        onPressed: () {
+                          // 사진첩 기능
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.account_balance_wallet),
+                        onPressed: () => context.push(RouterPath.budget),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.event),
+                        onPressed: () {
+                          // 일정 관리 기능
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: Stack(
+                  children: [
+                    Center(child: Text('${club.name}의 활동 목록')),
+                    Positioned(
+                      top: -15,
+                      right: 0,
+                      child: IconButton(
+                        icon: const Icon(Icons.create),
+                        onPressed: () =>
+                            context.push(RouterPath.activityRegist),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(color: Colors.black, thickness: 1),
+              ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: actList.length,
+                itemBuilder: (context, index) {
+                  ActivityEntity actEntity = actList[index];
+                  Image actEntityImage = actEntity.image == null
+                      ? Image.asset(
+                          "assets/images/empty.png",
+                          height: parentWidth * 0.6,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.network(
+                          actEntity.image!,
+                          height: parentWidth * 0.6,
+                          fit: BoxFit.cover,
+                        );
+
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                    child: InkWell(
+                      child: desUnit(
+                        child: LayoutBuilder(builder: (context, constraints) {
+                          final double desWidth = constraints.maxWidth;
+
+                          return Stack(
+                            children: [
+                              Center(child: actEntityImage),
+                              Positioned(
+                                bottom: 0,
+                                left: 0,
+                                width: desWidth,
+                                child: Container(
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border(
+                                      top: BorderSide(
+                                        color: Colors.grey,
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(actEntity.name),
+                                            Text(actEntity.status),
+                                          ],
+                                        ),
+                                        const Divider(thickness: 0.5),
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.calendar_today),
+                                            const VerticalDivider(),
+                                            Text(
+                                              formatToYMDHM(actEntity.time!),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.people),
+                                            const VerticalDivider(),
+                                            Text("${actEntity.participantNum}"),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        }),
+                      ),
+                      onTap: () {
+                        context.push(
+                          RouterPath.activityDetail,
+                          extra: {
+                            'actId': actList[index].id,
+                            'clubId': club.clubId,
+                          },
+                        );
+                      },
+                    ),
+                  );
+                },
+              )
+            ]),
           ),
-        );
-      }),
+        ]),
+      ),
       endDrawer: const DrawerView(),
     );
   }

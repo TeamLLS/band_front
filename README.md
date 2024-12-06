@@ -41,6 +41,13 @@ body: {
 }
 바디 있는거맞아여?
 
+- 활동 목록 조회
+연락처는 안오나여
+
+double parentWidth = MediaQuery.of(context).size.width;
+
+
+
 12/5
 - 활동 조회
 장소랑 설명 바껴서 와여

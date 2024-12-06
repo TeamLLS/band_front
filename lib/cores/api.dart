@@ -859,3 +859,17 @@ class BudgetApi {
     return await HttpInterface.requestPatch(url, header, body);
   }
 }
+
+class StatisticsApi {
+  static final AuthInfoApi _authInfoApi = AuthInfoApi();
+
+// 회원수 변화 조회
+// 모임 내 회원들의 순위 조회
+
+// 활동수 변화 조회
+// 예산 변화 조회
+// 참가율 변화 조회
+// 납부율 변화 조회
+
+// 개인 회원 점수 조회
+}
