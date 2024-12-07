@@ -13,6 +13,8 @@ import '../cores/data_class.dart';
 import '../cores/api.dart';
 import '../cores/widget_utils.dart';
 
+//regist -> list 디테일 검증 완료.
+
 class ClubRegist extends StatefulWidget {
   const ClubRegist({super.key});
 

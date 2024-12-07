@@ -753,7 +753,6 @@ class BudgetApi {
   }
 
   //장부 생성, amount = 회비
-  //TODO:오류
   static Future<dynamic> registPayment(
     int clubId,
     int amount,
@@ -812,7 +811,18 @@ class BudgetApi {
 
   /// 납부 대상 상호작용
   //납부 대상 등록-전체 (디폴트로 장부 생성 시 동작)
-  //납부 대상 등록-선택
+  static Future<bool> selectAllMember(int clubId, int paymentId) async {
+    Uri url = Uri.parse("${_authInfoApi.url}/paymember/$clubId/$paymentId/all");
+
+    Map<String, String> header = {'username': _authInfoApi.username!};
+    log("===== selectAllMember api =====");
+    log("clubId : $clubId");
+    log("paymentId : $paymentId");
+
+    return await HttpInterface.requestPostWithoutBody(url, header);
+  }
+
+  //납부 대상 등록-선택 - 필요없는듯.
   //특정 회원 납부 대상 제외
 
   /// 회원 납부 상황 변경
@@ -863,13 +873,84 @@ class BudgetApi {
 class StatisticsApi {
   static final AuthInfoApi _authInfoApi = AuthInfoApi();
 
-// 회원수 변화 조회
-// 모임 내 회원들의 순위 조회
+  // 회원수 변화 조회
+  static Future<dynamic> getMemberStatistics(int clubId, DateTime? time) async {
+    Uri url;
+    if (time != null) {
+      log("time null in api");
+      url = Uri.parse("${_authInfoApi.url}/data/club/$clubId/member");
+    } else {
+      String timeParam = DateTime.utc(
+        DateTime.now().year,
+        DateTime.now().month - 15, // 6개월 전
+        DateTime.now().day,
+        DateTime.now().hour,
+        DateTime.now().minute,
+        DateTime.now().second,
+      ).toIso8601String();
+
+      url = Uri.parse(
+        "${_authInfoApi.url}/data/club/$clubId/member?fromTime=$timeParam",
+      );
+    }
+
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    dynamic data = await HttpInterface.requestGet(url, header);
+    if (data == null) {
+      log("err from getMemberStatistics");
+      return;
+    }
+
+    log("===== getMemberStatistics in api =====");
+    log("$data");
+
+    return data;
+  }
 
 // 활동수 변화 조회
+  static Future<dynamic> getActivityStatistics(
+    int clubId,
+    DateTime? time,
+  ) async {
+    Uri url;
+    if (time != null) {
+      log("time null in api");
+      url = Uri.parse("${_authInfoApi.url}/data/club/$clubId/activity");
+    } else {
+      String timeParam = DateTime.utc(
+        DateTime.now().year,
+        DateTime.now().month - 15, // 6개월 전
+        DateTime.now().day,
+        DateTime.now().hour,
+        DateTime.now().minute,
+        DateTime.now().second,
+      ).toIso8601String();
+
+      url = Uri.parse(
+        "${_authInfoApi.url}/data/club/$clubId/activity?fromTime=$timeParam",
+      );
+    }
+
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    dynamic data = await HttpInterface.requestGet(url, header);
+    if (data == null) {
+      log("err from getMemberStatistics");
+      return;
+    }
+
+    log("===== getActivityStatistics in api =====");
+    log("$data");
+
+    return data;
+  }
+
 // 예산 변화 조회
 // 참가율 변화 조회
 // 납부율 변화 조회
+
+// 모임 내 회원들의 순위 조회
 
 // 개인 회원 점수 조회
 }

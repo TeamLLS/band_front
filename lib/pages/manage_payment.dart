@@ -35,7 +35,7 @@ class _PaymentManageViewState extends State<PaymentManageView> {
 
   void _showSnackBar(String text) => showSnackBar(context, text);
 
-  Future<void> _writeBtnHandler() async {
+  Future<void> writeBtnListener() async {
     final desCon = TextEditingController();
     final amountCon = TextEditingController();
     final nameCon = TextEditingController();
@@ -79,18 +79,10 @@ class _PaymentManageViewState extends State<PaymentManageView> {
                 int amount = int.tryParse(amountCon.text) ?? 0;
                 if (amount == 0) {
                   context.pop();
-                } else {
-                  //TODO: 생성 후 모든 회원 등록까지 수행할 것.
-                  await context
-                      .read<PaymentListRepo>()
-                      .registPayment(
-                        amount,
-                        name,
-                        description,
-                        DateTime.now().toUtc(),
-                      )
-                      .then((_) => context.pop());
+                  return;
                 }
+
+                await writeBtnHandler(amount, name, description);
               },
               child: const Text('등록'),
             ),
@@ -98,6 +90,32 @@ class _PaymentManageViewState extends State<PaymentManageView> {
         );
       },
     );
+  }
+
+  Future<void> writeBtnHandler(
+    int amount,
+    String name,
+    String description,
+  ) async {
+    //TODO: 생성 후 모든 회원 등록까지 수행할 것.
+    // payment list reloading은 잘 되는데 서버에서 받아오는게 너무이름
+    DateTime time = DateTime.now().toUtc();
+
+    // 1. 장부 등록
+    bool ret = await context
+        .read<PaymentListRepo>()
+        .registPayment(amount, name, description, time);
+    if (ret == false) return;
+
+    // 2. 납부대상 전체로 선택
+
+    // 3. 리로딩(위에서
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initPaymentManageView();
   }
 
   Future<void> _initPaymentManageView() async {
@@ -116,12 +134,6 @@ class _PaymentManageViewState extends State<PaymentManageView> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _initPaymentManageView();
-  }
-
-  @override
   Widget build(BuildContext context) {
     if (isLoaded == false) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -134,7 +146,7 @@ class _PaymentManageViewState extends State<PaymentManageView> {
         title: const Text("납부 내역 관리"),
         actions: [
           IconButton(
-            onPressed: () async => await _writeBtnHandler(),
+            onPressed: () async => await writeBtnListener(),
             icon: const Icon(Icons.create),
           ),
         ],

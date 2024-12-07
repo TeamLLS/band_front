@@ -29,9 +29,17 @@ api 수정사항 들어오면 할 것
 그랲
 (추가된다면)게시판
 앨범 -> 내 활동
+double parentWidth = MediaQuery.of(context).size.width;
+
+
 
 # 회의 때 말할 것
-- 회원 연체 납부
+12/7
+
+
+12/6
+1. 회원 연체 납부
+api 기재 내역
 PATCH /paymember/{장부 Id}/{회원 ID}/late-pay
 header: {  
   Authorization: Bearer ${accessToken value},
@@ -41,10 +49,49 @@ body: {
 }
 바디 있는거맞아여?
 
-- 활동 목록 조회
-연락처는 안오나여
 
-double parentWidth = MediaQuery.of(context).size.width;
+2. 장부 생성, 납부대상 등록 - 전체
+장부 생성 시 기본적으로 모든 멤버를 납부대상으로 등록하고 제외할 멤버를 따로 상호작용을 통해 제외시키는게 사용자 입장에서 편할거같은데 가능한가여? 안되면 장부 생성 시 응답으로 장부 id 반환해주심 제가할게여
+
+
+3. 회원수 변화 조회
+time이 Null일 때 500 오류, time을 줬을 때는 정상 동작합니다.
+  static Future<dynamic> getMemberStatistics(int clubId, DateTime? time) async {
+    Uri url;
+    if (time == null) {
+      log("time null in api");
+      url = Uri.parse("${_authInfoApi.url}/data/club/$clubId/member");
+    } else {
+      String timeParam = time.toUtc().toIso8601String();
+      url = Uri.parse(
+        "${_authInfoApi.url}/data/club/$clubId/member?fromTime=$timeParam",
+      );
+    }
+
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    dynamic data = await HttpInterface.requestGet(url, header);
+    if (data == null) {
+      log("err from getMemberStatistics");
+      return;
+    }
+
+    log("===== getMemberStatistics in api =====");
+    log("$data");
+
+    return data;
+  }
+
+4.활동수 변화 조회
+trend와 actCloseCount랑 다른 점이 없는거같아서 걍 Count 필드들로 그래프 구성했어여
+
+5. 데이터 서버가 조금 아픈거같아여;;
+잘 뜨는데 가끔씩 연결이 안됨
+[log] 503 failed
+[log] body : {"message":"Service Unavailable"}
+
+
+
 
 
 
@@ -121,6 +168,9 @@ image 필드에는 null을 넣어 보내도 되는가?
 
 
 # issueing
+- 그래프 축의 숫자가 계속 바뀔텐데, 간격은 어느정도로?
+
+12/ 4
 회비 장부에 담당자, 모금 기간, 종료 기간 각 회원 별 입금 날짜 기입 완료
 납부 상태 추가 및 미납자 정보 api 대기 중
 

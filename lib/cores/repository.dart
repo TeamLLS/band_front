@@ -432,7 +432,7 @@ class PaymentListRepo with ChangeNotifier {
   }
 
   Future<bool> getPaymentList() async {
-    log("===== payment list =====");
+    log("===== getPaymentList in repo =====");
     var data = await BudgetApi.getPaymentList(clubId!, pn);
     if (data == null) {
       log("getPaymentList fail");
