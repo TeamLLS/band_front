@@ -123,7 +123,7 @@ class _ClubListViewState extends State<ClubListView> {
                               const VerticalDivider(),
                               const Icon(Icons.contact_support),
                               const VerticalDivider(),
-                              Text(testClubs[index].contactInfo ?? "없음"),
+                              Text("없음"),
                             ]),
                           ],
                         ),

@@ -50,6 +50,7 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                       await context.read<ClubDetailRepo>().reloadClubDetail();
                       _showSnackBar("활동 마감되었습니다");
                       context.pop();
+                      context.pop();
                     }
                   });
                 },
@@ -71,6 +72,7 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                     } else {
                       await context.read<ClubDetailRepo>().reloadClubDetail();
                       _showSnackBar("활동 등록을 취소하였습니다.");
+                      context.pop();
                       context.pop();
                     }
                   });

@@ -6,7 +6,8 @@ import 'dart:developer';
 class HttpInterface {
   //this is return data after json decode
   //
-  static Future<dynamic> requestGet(Uri url, Map<String, String> header) async {
+  static Future<dynamic> requestGetLegacy(
+      Uri url, Map<String, String> header) async {
     //1. try http request
     http.Response? response = await HttpMethod.tryGet(url, header);
     if (response == null) {
@@ -19,6 +20,10 @@ class HttpInterface {
     if (json == null) {
       log("err from handling response");
       return null;
+    }
+
+    if (json == "") {
+      return "";
     }
 
     //3. json decoding

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:band_front/cores/api.dart';
 import 'package:band_front/cores/repository.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -29,6 +30,9 @@ class _ClubEditViewState extends State<ClubEditView> {
   ClubStatus? _clubStatus; //for radio button
   final TextEditingController _nameCon = TextEditingController();
   final TextEditingController _desCon = TextEditingController();
+  final TextEditingController _contactCon = TextEditingController();
+
+  void _showSnackBar(String text) => showSnackBar(context, text);
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -42,6 +46,7 @@ class _ClubEditViewState extends State<ClubEditView> {
   Future<void> _changeBtnListener() async {
     String? namParam = _nameCon.text == "" ? null : _nameCon.text;
     String? desParam = _desCon.text == "" ? null : _desCon.text;
+    String? contactParam = _contactCon.text == "" ? null : _contactCon.text;
     String? statusParam;
     if (_clubStatus == ClubStatus.ACTIVE) {
       statusParam = "ACTIVE";
@@ -51,14 +56,31 @@ class _ClubEditViewState extends State<ClubEditView> {
       statusParam = "RECRUITING";
     }
 
-    bool result = await ClubApi.changeClubDetail(
-      club.clubId,
-      namParam,
-      desParam,
-      statusParam,
-      _image,
-    );
-    log("$result");
+    bool ret = await context.read<ClubDetailRepo>().editClubDetail(
+          club.clubId,
+          namParam,
+          desParam,
+          statusParam,
+          _image,
+          contactParam,
+        );
+
+    _changeBtnHandler(ret);
+  }
+
+  void _changeBtnHandler(bool ret) {
+    if (ret == false) {
+      _showSnackBar("변경 실패...");
+      return;
+    }
+    _showSnackBar("성공적으로 수정되었습니다.");
+    context.pop();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initClubEdit();
   }
 
   void _initClubEdit() {
@@ -72,22 +94,6 @@ class _ClubEditViewState extends State<ClubEditView> {
     } else if (club.status == "모집중") {
       _clubStatus = ClubStatus.RECRUITING;
     }
-  }
-
-  // clubId: 클럽 ID, (Long) -> get from before page
-  // name: 모임 이름, (String) V
-  // nameChanged: 이름 변경 여부, (Boolean, true or false)
-  // description: 모임 설명, (String) V
-  // descriptionChanged: 설명 변경 경부, (Boolean, true or false)
-  // image: 모임 이미지, (MulitPartFile) V
-  // imageChanged: 이미지 변경 여부, (Boolean, true or false)
-  // status: 클럽 상태 (ACTIVE or RECRUITING or TERMINATED) V
-  // statusChanged: 상태 변경 여부 (Boolean, true or false)
-
-  @override
-  void initState() {
-    super.initState();
-    _initClubEdit();
   }
 
   @override
@@ -120,6 +126,14 @@ class _ClubEditViewState extends State<ClubEditView> {
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
             child: inputTextUnit(_nameCon),
+          ),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(0, 16, 0, 16),
+            child: Text("연락처를 알려주세요"),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+            child: inputTextUnit(_contactCon),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),

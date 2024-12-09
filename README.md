@@ -1,7 +1,137 @@
 # band_front
 
 
+# api 테스트 목록
+1. user server
+- 내 프로필 조회 v
+
+- 상대 프로필 조회 v
+
+- 프로필 변경
+이미지 포함 변경 v
+이미지 없이 변경 x -> 우선순위 낮음
+변경 후 리로딩 v
+
+2. club server
+- 클럽 생성
+이미지 포함 등록 v
+이미지 제외 등록 v
+리로딩 v
+
+- 클럽 정보 변경 v
+리로딩 v, 
+* 클럽 리스트도 리로딩 필요. 스크롤 로직 개선할 때 같이 ㄱㄱ
+
+- 클럽 정보 조회 v
+
+- 클럽 해체	v
+리로딩 v
+* 팝업 띄우기
+
+- 내 클럽 리스트 조회 v
+* 스크롤 로직 개선
+
+- 회원 등록	v
+리로딩 v
+* 팝업으로 입력받기 & 오류처리 추가
+
+- 클럽 회원 조회 v
+
+- 회원 권한 변경 v
+리로딩 v
+
+- 회원 탈퇴
+* ui 생성 필요
+
+- 회원 강퇴 v
+리로딩 v
+
+3. activity server
+- 활동 생성 v
+이미지 포함 등록 v
+이미지 제외 등록 x -> 수정 필요(우선순위 낮음)
+리로딩 v
+
+- 활동 목록 조회 v
+* 활동목록 연락처추가 << 예정, 등록할때 연락처까지 기재(nullalbe)
+
+- 활동 조회 v
+* 회원 테두리 바꾸기 (우선순위 낮음)
+* 위치정보 표시
+
+- 활동 취소 v
+리로딩 v
+
+- 활동 종료	v
+리로딩 v
+
+- 활동 참가	v
+참여자 리로딩 v
+
+- 활동 불참	v
+참여자 리로딩 v
+
+- 활동 추가참가	
+- 활동 추가불참	
+
+- 참가자 조회	v
+
+- 참가 활동 조회
+
+
+4. budget server
+--- 리스트 요소 업 시 수행
+- 예산 조회, 
+필터링 점검
+쉼표, 원표시 앞으로 v
+
+예산 갱신	
+
+예산 기록 조회
+
+
+- 장부 생성	
+* 마감일 지정
+리로딩 후 팝 v
+
+- 장부 취소	v
+리로딩 v
+
+- 장부 만료	v
+
+장부 목록 조회 v
+
+- 장부 조회	
+생성 후 모든 회원 등록 v
+
+납부 대상 등록-전체
+납부 대상 등록-선택
+회원 납부	
+회원 미납	
+회원 연체 납부
+납부 대상 제외
+납부 대상 목록 조회
+내 장부 목록 조회
+
+
+5. data server
+회원수 변화 조회
+활동수 변화 조회
+예산 변화 조회	
+참가율 변화 조회
+납부율 변화 조회
+회원 순위 조회	
+회원 점수 조회	
+
+
 # memeo
+12/9
+
+클럽정보변경 연락처 < 잇음
+
+════════ Exception caught by image resource service ════════════════════════════
+HTTP request failed, statusCode: 403, https://d310q11a7rdsb8.cloudfront.net/null
+════════════════════════════════════════════════════════════════════════════════
 
 우선순위 정하자
 1. 지도 검색 화면 구현 -> 장소 리스트까진 받아왔다.
@@ -34,8 +164,12 @@ double parentWidth = MediaQuery.of(context).size.width;
 
 
 # 회의 때 말할 것
-12/7
+12/9
+1. 예산 기록 조회, 
+리스트 2개씩만 오나요 아직?
 
+2. 참가율 변화 조회, 납부율 변화 조회, 회원 점수 조회
+개인 통계인가염
 
 12/6
 1. 회원 연체 납부
@@ -217,6 +351,70 @@ status 추가 : 입금액이 회비에 못미치면 ex) 진행 중
 금액
 
 # 발생한 오류
+12/9
+3. 저번에 말했던 클럽 정보 변경 오류 상세
+3-1. argument 출력 및 오류 로그
+[log] ===== changeClubDetail in api =====
+[log] clubId : 2
+[log] name : ㄴ
+[log] description : ㄴ
+[log] status : ACTIVE
+[log] image : exist
+[log] ============ Upload failed, response is ============
+[log] {"timestamp":"2024-12-09T03:37:13.946+09:00","status":500,"error":"Internal Server Error","path":"/club"}
+[log] false
+
+3-2. 상황 설명
+모든 파라미터에 값은 주어져 있음.
+운영중, 운영종료, 모집중 모두 실패
+
+3-3. 코드 상세
+  static Future<bool> changeClubDetail(
+    int clubId,
+    String? name,
+    String? description,
+    String? status,
+    XFile? image,
+  ) async {
+    Uri url = Uri.parse("${_authInfoApi.url}/club");
+    var request = http.MultipartRequest('PATCH', url);
+
+    //insert header
+    request.headers['username'] = _authInfoApi.username!;
+
+    //insert body
+    if (image != null) {
+      var file = await http.MultipartFile.fromPath('image', image.path);
+      request.files.add(file);
+      request.fields['imageChanged'] = "true";
+    } else {
+      request.fields['imageChanged'] = "false";
+    }
+    if (name != null) {
+      request.fields['name'] = name;
+      request.fields['nameChanged'] = "true";
+    } else {
+      request.fields['nameChanged'] = "false";
+    }
+    if (description != null) {
+      request.fields['description'] = description;
+      request.fields['descriptionChanged'] = "true";
+    } else {
+      request.fields['descriptionChanged'] = "false";
+    }
+    if (status != null) {
+      request.fields['status'] = status;
+      request.fields['statusChanged'] = "true";
+    } else {
+      request.fields['statusChanged'] = "false";
+    }
+
+    return await HttpInterface.requestMultipart(request);
+  }
+
+
+
+
 1. 클럽 정보 변경 api
 연락처도 변경해야되지않을까?
 

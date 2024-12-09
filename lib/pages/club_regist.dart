@@ -40,15 +40,10 @@ class _ClubRegistState extends State<ClubRegist> {
   }
 
   Future<void> _createClub() async {
-    if (_image == null) {
-      _showSnackBar("이미지를 선택해주세요");
-      return;
-    }
-
     bool result = await ClubApi.createClub(
       nameCon.text,
       descriptCon.text,
-      _image!,
+      _image,
       contactCon.text,
     );
 

@@ -67,7 +67,7 @@ class LogInApi {
     Uri url = Uri.parse("${_authInfoApi.url}/user/authorize_test");
     Map<String, String> header = {'accessToken': accessToken};
 
-    dynamic data = await HttpInterface.requestGet(url, header);
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
     if (data == null) {
       log("err from getMyProfile");
       return;
@@ -147,7 +147,7 @@ class ProfileApi {
     };
     log("[[[ profile downloaded ]]]");
 
-    dynamic data = await HttpInterface.requestGet(url, header);
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
     if (data == null) {
       log("err from getMyProfile");
       return null;
@@ -161,7 +161,7 @@ class ProfileApi {
     Uri url = Uri.parse("${_authInfoApi.url}/user/profile/$userName");
     Map<String, String> header = {'username': _authInfoApi.username!};
 
-    dynamic data = await HttpInterface.requestGet(url, header);
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
     if (data == null) {
       log("err from getUserProfile");
       return null;
@@ -295,7 +295,7 @@ class ClubApi {
   static Future<bool> createClub(
     String name,
     String description,
-    XFile image,
+    XFile? image,
     String contactInfo,
   ) async {
     Uri url = Uri.parse("${_authInfoApi.url}/club");
@@ -305,8 +305,10 @@ class ClubApi {
 
     request.headers['username'] = _authInfoApi.username!;
 
-    var file = await http.MultipartFile.fromPath('image', image.path);
-    request.files.add(file);
+    if (image != null) {
+      var file = await http.MultipartFile.fromPath('image', image.path);
+      request.files.add(file);
+    }
     request.fields['name'] = name;
     request.fields['description'] = description;
     request.fields['contactInfo'] = contactInfo;
@@ -320,7 +322,7 @@ class ClubApi {
     Uri url = Uri.parse("${_authInfoApi.url}/member/club/list?pageNo=$pn");
     Map<String, String> header = {'username': _authInfoApi.username!};
 
-    dynamic data = await HttpInterface.requestGet(url, header);
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
     if (data == null) {
       log("err from getMyClubList");
       return;
@@ -334,7 +336,7 @@ class ClubApi {
     Uri url = Uri.parse("${_authInfoApi.url}/club/$clubId");
     Map<String, String> header = {'username': _authInfoApi.username!};
 
-    dynamic data = await HttpInterface.requestGet(url, header);
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
     if (data == null) {
       log("err from getMyClubList");
       return;
@@ -350,7 +352,20 @@ class ClubApi {
     String? description,
     String? status,
     XFile? image,
+    String? contactInfo,
   ) async {
+    log("===== changeClubDetail in api =====");
+    log("clubId : $clubId");
+    log("name : $name");
+    log("description : $description");
+    log("status : $status");
+    log("contactInfo : $contactInfo");
+    if (image == null) {
+      log("image : null");
+    } else {
+      log("image : exist");
+    }
+
     Uri url = Uri.parse("${_authInfoApi.url}/club");
     var request = http.MultipartRequest('PATCH', url);
 
@@ -358,6 +373,7 @@ class ClubApi {
     request.headers['username'] = _authInfoApi.username!;
 
     //insert body
+    request.fields['clubId'] = clubId.toString();
     if (image != null) {
       var file = await http.MultipartFile.fromPath('image', image.path);
       request.files.add(file);
@@ -383,6 +399,12 @@ class ClubApi {
     } else {
       request.fields['statusChanged'] = "false";
     }
+    if (contactInfo != null) {
+      request.fields['contactInfo'] = contactInfo;
+      request.fields['contactInfoChanged'] = "true";
+    } else {
+      request.fields['contactInfoChanged'] = "false";
+    }
 
     return await HttpInterface.requestMultipart(request);
   }
@@ -392,7 +414,7 @@ class ClubApi {
     Uri url = Uri.parse("${_authInfoApi.url}/member/$clubId/list?pageNo=$pn");
     Map<String, String> header = {'username': _authInfoApi.username!};
 
-    dynamic data = await HttpInterface.requestGet(url, header);
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
     if (data == null) {
       log("err from getClubMemberList");
       return;
@@ -467,7 +489,7 @@ class ActivityApi {
     Uri url = Uri.parse("${_authInfoApi.url}/activity/$clubId/list?pageNo=$pn");
     Map<String, String> header = {'username': _authInfoApi.username!};
 
-    dynamic data = await HttpInterface.requestGet(url, header);
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
     if (data == null) {
       log("err from getActivityList");
       return;
@@ -481,7 +503,7 @@ class ActivityApi {
     Uri url = Uri.parse("${_authInfoApi.url}/activity/$actId");
     Map<String, String> header = {'username': _authInfoApi.username!};
 
-    dynamic data = await HttpInterface.requestGet(url, header);
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
     if (data == null) {
       log("err from getActivityDetail");
       return;
@@ -498,7 +520,7 @@ class ActivityApi {
       "${_authInfoApi.url}/participant/$actId/list?pageNo=$pn",
     );
     Map<String, String> header = {'username': _authInfoApi.username!};
-    dynamic data = await HttpInterface.requestGet(url, header);
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
 
     if (data == null) {
       log("err from getActivityDetail");
@@ -630,7 +652,7 @@ class BudgetApi {
     }
     Map<String, String> header = {'username': _authInfoApi.username!};
 
-    dynamic data = await HttpInterface.requestGet(url, header);
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
     if (data == null) {
       log("err from getBudgetAmount");
       return;
@@ -656,11 +678,14 @@ class BudgetApi {
     }
     Map<String, String> header = {'username': _authInfoApi.username!};
 
-    dynamic data = await HttpInterface.requestGet(url, header);
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
     if (data == null) {
       log("err from getBudgetRecord");
       return;
     }
+
+    log("===== get budget record in repo =====");
+    log("$data");
 
     return data;
   }
@@ -670,7 +695,7 @@ class BudgetApi {
     Uri url = Uri.parse("${_authInfoApi.url}/paybook/$clubId/list?pageNo=$pn");
     Map<String, String> header = {'username': _authInfoApi.username!};
 
-    dynamic data = await HttpInterface.requestGet(url, header);
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
     if (data == null) {
       log("err from getBudgetRecord");
       return;
@@ -684,7 +709,7 @@ class BudgetApi {
     Uri url = Uri.parse("${_authInfoApi.url}/paybook/$payId");
     Map<String, String> header = {'username': _authInfoApi.username!};
 
-    dynamic data = await HttpInterface.requestGet(url, header);
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
     if (data == null) {
       log("err from getPayment");
       return;
@@ -700,7 +725,7 @@ class BudgetApi {
     );
     Map<String, String> header = {'username': _authInfoApi.username!};
 
-    dynamic data = await HttpInterface.requestGet(url, header);
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
     if (data == null) {
       log("err from getPaymentTargets");
       return;
@@ -716,7 +741,7 @@ class BudgetApi {
     );
     Map<String, String> header = {'username': _authInfoApi.username!};
 
-    dynamic data = await HttpInterface.requestGet(url, header);
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
     if (data == null) {
       log("err from getMyPayments");
       return;
@@ -896,7 +921,7 @@ class StatisticsApi {
 
     Map<String, String> header = {'username': _authInfoApi.username!};
 
-    dynamic data = await HttpInterface.requestGet(url, header);
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
     if (data == null) {
       log("err from getMemberStatistics");
       return;
@@ -908,7 +933,7 @@ class StatisticsApi {
     return data;
   }
 
-// 활동수 변화 조회
+  // 활동수 변화 조회
   static Future<dynamic> getActivityStatistics(
     int clubId,
     DateTime? time,
@@ -934,7 +959,7 @@ class StatisticsApi {
 
     Map<String, String> header = {'username': _authInfoApi.username!};
 
-    dynamic data = await HttpInterface.requestGet(url, header);
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
     if (data == null) {
       log("err from getMemberStatistics");
       return;
@@ -946,11 +971,148 @@ class StatisticsApi {
     return data;
   }
 
-// 예산 변화 조회
-// 참가율 변화 조회
-// 납부율 변화 조회
+  // 예산 변화 조회
+  static Future<dynamic> getBudgetStatistics(
+    int clubId,
+    DateTime? time,
+  ) async {
+    Uri url;
+    if (time == null) {
+      url = Uri.parse("${_authInfoApi.url}/data/club/$clubId/budget");
+    } else {
+      String timeParam = DateTime.utc(
+        DateTime.now().year,
+        DateTime.now().month - 15, // 6개월 전
+        DateTime.now().day,
+        DateTime.now().hour,
+        DateTime.now().minute,
+        DateTime.now().second,
+      ).toIso8601String();
 
-// 모임 내 회원들의 순위 조회
+      url = Uri.parse(
+        "${_authInfoApi.url}/data/club/$clubId/budget?fromTime=$timeParam",
+      );
+    }
 
-// 개인 회원 점수 조회
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
+    if (data == null) {
+      log("err from getBudgetStatistics");
+      return;
+    }
+
+    log("===== getBudgetStatistics in api =====");
+    log("$data");
+
+    return data;
+  }
+
+  // 모임 내 회원들의 순위 조회
+  static Future<dynamic> getRankStatistics(int clubId) async {
+    Uri url = Uri.parse("${_authInfoApi.url}/data/member/$clubId/rank");
+
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
+    if (data == null) {
+      log("err from getRankStatistics");
+      return;
+    }
+
+    log("===== getRankStatistics in api =====");
+    log("$data");
+
+    return data;
+  }
+
+  // 개인 회원 점수 조회
+  static Future<dynamic> getScoreStatistics(int clubId, int memberId) async {
+    Uri url =
+        Uri.parse("${_authInfoApi.url}/data/member/$clubId/$memberId/score");
+
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
+    if (data == null) {
+      log("err from getScoreStatistics");
+      return;
+    }
+
+    return data;
+  }
+
+  // 참가율 변화 조회
+  static Future<dynamic> getParticipationRateStatistics(
+    int clubId,
+    int memberId,
+    DateTime? time,
+  ) async {
+    Uri url;
+    if (time == null) {
+      url = Uri.parse(
+        "${_authInfoApi.url}/data/member/$clubId/$memberId/participant",
+      );
+    } else {
+      String timeParam = DateTime.utc(
+        DateTime.now().year,
+        DateTime.now().month - 15, // 6개월 전
+        DateTime.now().day,
+        DateTime.now().hour,
+        DateTime.now().minute,
+        DateTime.now().second,
+      ).toIso8601String();
+
+      url = Uri.parse(
+        "${_authInfoApi.url}/data/member/$clubId/$memberId/participant?fromTime=$timeParam",
+      );
+    }
+
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
+    if (data == null) {
+      log("err from getParticipationRateStatistics");
+      return;
+    }
+
+    return data;
+  }
+
+  // 납부율 변화 조회
+  static Future<dynamic> getPaymentRateStatistics(
+    int clubId,
+    int memberId,
+    DateTime? time,
+  ) async {
+    Uri url;
+    if (time == null) {
+      url = Uri.parse(
+        "${_authInfoApi.url}/data/member/$clubId/$memberId/payMember",
+      );
+    } else {
+      String timeParam = DateTime.utc(
+        DateTime.now().year,
+        DateTime.now().month - 15, // 6개월 전
+        DateTime.now().day,
+        DateTime.now().hour,
+        DateTime.now().minute,
+        DateTime.now().second,
+      ).toIso8601String();
+
+      url = Uri.parse(
+        "${_authInfoApi.url}/data/member/$clubId/$memberId/payMember?fromTime=$timeParam",
+      );
+    }
+
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
+    if (data == null) {
+      log("err from getPaymentRateStatistics");
+      return;
+    }
+
+    return data;
+  }
 }

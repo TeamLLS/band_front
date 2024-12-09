@@ -182,7 +182,9 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                 itemCount: actList.length,
                 itemBuilder: (context, index) {
                   ActivityEntity actEntity = actList[index];
-                  Image actEntityImage = actEntity.image == null
+                  Image actEntityImage = actEntity.image == null ||
+                          actEntity.image ==
+                              "https://d310q11a7rdsb8.cloudfront.net/null"
                       ? Image.asset(
                           "assets/images/empty.png",
                           height: parentWidth * 0.6,

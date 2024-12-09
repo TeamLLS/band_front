@@ -176,7 +176,6 @@ class ClubDetailRepo with ChangeNotifier {
         return false;
       }
     });
-    notifyListeners();
     return true;
   }
 
@@ -192,6 +191,31 @@ class ClubDetailRepo with ChangeNotifier {
       return false;
     }
     club = Club.fromMap(data);
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> editClubDetail(
+    int clubId,
+    String? name,
+    String? description,
+    String? status,
+    XFile? image,
+    String? contact,
+  ) async {
+    bool ret = await ClubApi.changeClubDetail(
+      clubId,
+      name,
+      description,
+      status,
+      image,
+      contact,
+    );
+    if (ret == false) return false;
+
+    Future.delayed(const Duration(seconds: 1));
+    ret = await reloadClubDetail();
+    if (ret == false) return false;
     notifyListeners();
     return true;
   }
@@ -212,18 +236,6 @@ class ClubDetailRepo with ChangeNotifier {
     return true;
   }
 
-  Future<void> getMemberList() async {
-    _clearMember();
-    var data = await ClubApi.getClubMemberList(clubId!, pnMem);
-    var list = data['list'];
-    for (Map<String, dynamic> element in list) {
-      members.add(Member.fromMap(element));
-    }
-    pnMem++;
-    notifyListeners();
-    return;
-  }
-
   Future<bool> registActivity(
       String name,
       String des,
@@ -236,10 +248,23 @@ class ClubDetailRepo with ChangeNotifier {
         clubId!, name, des, image, location, startTime, endTime, deadline);
     if (ret == false) return false;
 
+    Future.delayed(const Duration(seconds: 1));
     ret = await reloadClubDetail();
     if (ret == false) return false;
     notifyListeners();
     return true;
+  }
+
+  Future<void> getMemberList() async {
+    _clearMember();
+    var data = await ClubApi.getClubMemberList(clubId!, pnMem);
+    var list = data['list'];
+    for (Map<String, dynamic> element in list) {
+      members.add(Member.fromMap(element));
+    }
+    pnMem++;
+    notifyListeners();
+    return;
   }
 
   void setBuffer(String str) {
@@ -319,7 +344,11 @@ class BudgetRepo with ChangeNotifier {
       return false;
     }
 
-    budget = data['amount'];
+    if (data == "") {
+      budget = 0;
+    } else {
+      budget = data['amount'];
+    }
     return true;
   }
 
@@ -406,7 +435,7 @@ class PaymentListRepo with ChangeNotifier {
     pn = 0;
   }
 
-  Future<bool> initPaymentInfo(int clubId) async {
+  Future<bool> initPaymentListInfo(int clubId) async {
     _clear();
     this.clubId = clubId;
     bool ret = await getPaymentList();
@@ -419,8 +448,9 @@ class PaymentListRepo with ChangeNotifier {
     return true;
   }
 
-  Future<bool> reloadPaymentInfo() async {
+  Future<bool> reloadPaymentListInfo() async {
     _clearForReload();
+    Future.delayed(const Duration(seconds: 1));
     bool ret = await getPaymentList();
     if (ret == false) {
       log("init reloadPaymentInfo fail");
@@ -454,7 +484,8 @@ class PaymentListRepo with ChangeNotifier {
     DateTime dateTime,
   ) async {
     await BudgetApi.registPayment(clubId!, amount, name, description, dateTime);
-    await reloadPaymentInfo();
+    Future.delayed(const Duration(seconds: 1));
+    await reloadPaymentListInfo();
     notifyListeners();
     return true;
   }
@@ -492,6 +523,10 @@ class PaymentDetailRepo with ChangeNotifier {
       return false;
     }
 
+    if (paymentTargets.isEmpty) {
+      await _isTargetEmpty();
+    }
+
     notifyListeners();
     return true;
   }
@@ -522,7 +557,6 @@ class PaymentDetailRepo with ChangeNotifier {
       PaymentTargetEntity temp = PaymentTargetEntity.fromMap(element);
       paymentTargets.add(temp);
     }
-    pn++;
     return true;
   }
 
@@ -538,6 +572,16 @@ class PaymentDetailRepo with ChangeNotifier {
     log("clubId : $clubId");
     log("paymentId : $paymentId");
     return await BudgetApi.expirePayment(clubId!, paymentId!);
+  }
+
+  Future<bool> _isTargetEmpty() async {
+    bool ret = await BudgetApi.selectAllMember(clubId!, paymentId!);
+    if (ret == false) return false;
+
+    ret = await getPaymentTargets();
+    if (ret == false) return false;
+
+    return true;
   }
 }
 

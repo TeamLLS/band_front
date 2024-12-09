@@ -32,6 +32,7 @@ class PaymentManageView extends StatefulWidget {
 
 class _PaymentManageViewState extends State<PaymentManageView> {
   bool isLoaded = false;
+  DateTime? time;
 
   void _showSnackBar(String text) => showSnackBar(context, text);
 
@@ -97,19 +98,23 @@ class _PaymentManageViewState extends State<PaymentManageView> {
     String name,
     String description,
   ) async {
-    //TODO: 생성 후 모든 회원 등록까지 수행할 것.
-    // payment list reloading은 잘 되는데 서버에서 받아오는게 너무이름
-    DateTime time = DateTime.now().toUtc();
+    // if (time == null) {
+    //   _showSnackBar("마감일을 지정해 주세요");
+    //   return;
+    // }
+    time = DateTime.now().toUtc();
 
-    // 1. 장부 등록
-    bool ret = await context
+    await context
         .read<PaymentListRepo>()
-        .registPayment(amount, name, description, time);
-    if (ret == false) return;
-
-    // 2. 납부대상 전체로 선택
-
-    // 3. 리로딩(위에서
+        .registPayment(amount, name, description, time!)
+        .then((ret) {
+      if (ret == false) {
+        _showSnackBar("something went wrong...");
+        return;
+      }
+      _showSnackBar("장부가 등록되었습니다.");
+      context.pop();
+    });
   }
 
   @override
@@ -120,7 +125,8 @@ class _PaymentManageViewState extends State<PaymentManageView> {
 
   Future<void> _initPaymentManageView() async {
     int clubId = context.read<ClubDetailRepo>().clubId!;
-    bool result = await context.read<PaymentListRepo>().initPaymentInfo(clubId);
+    bool result =
+        await context.read<PaymentListRepo>().initPaymentListInfo(clubId);
     if (result == false) {
       _showSnackBar("장부 목록 불러오기 실패..");
       return;
@@ -178,7 +184,7 @@ class _PaymentManageViewState extends State<PaymentManageView> {
               },
               child: desUnit(
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -189,16 +195,17 @@ class _PaymentManageViewState extends State<PaymentManageView> {
                             payment.name,
                             style: const TextStyle(fontSize: 18),
                           ),
-                          Text("~ $deadline"),
+                          Text(
+                            "회비  :  ${payment.amount}",
+                          ),
+                          Text(
+                            "마감일  :  $deadline",
+                          ),
                         ],
                       ),
                       Text(
                         payment.status,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: stateColor,
-                        ),
+                        style: TextStyle(fontSize: 18, color: stateColor),
                       ),
                     ],
                   ),
@@ -250,7 +257,7 @@ class _PaymentDetailManageViewState extends State<PaymentDetailManageView> {
 
   Future<void> closeBtnHandler() async {
     //TODO: 리로딩은 잘 됐는데 서버에 반영될 동안 요청했을 때 적용 전 데이터를 받네.
-    await context.read<PaymentListRepo>().reloadPaymentInfo().then((ret) {
+    await context.read<PaymentListRepo>().reloadPaymentListInfo().then((ret) {
       if (ret == false) {
         _showSnackBar("something went wrong...");
         return;
@@ -272,7 +279,7 @@ class _PaymentDetailManageViewState extends State<PaymentDetailManageView> {
 
   Future<void> expireBtnHandler() async {
     //TODO: 리로딩은 잘 됐는데 서버에 반영될 동안 요청했을 때 적용 전 데이터를 받네.
-    await context.read<PaymentListRepo>().reloadPaymentInfo().then((ret) {
+    await context.read<PaymentListRepo>().reloadPaymentListInfo().then((ret) {
       if (ret == false) {
         _showSnackBar("something went wrong...");
         return;

@@ -193,12 +193,14 @@ Widget desUnit({required Widget child}) {
 }
 
 Widget budgetUnit({required int amount, required double parentWidth}) {
+  final formattedAmount = NumberFormat.decimalPattern().format(amount);
+
   return desUnit(
     child: SizedBox(
       height: parentWidth * 0.3,
       child: Center(
         child: Text(
-          "$amount  ₩",
+          "₩  $formattedAmount",
           style: const TextStyle(
             fontSize: 30,
             fontWeight: FontWeight.bold,

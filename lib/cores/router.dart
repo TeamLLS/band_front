@@ -19,6 +19,7 @@ import '../pages/club_detail.dart';
 import '../pages/manage_statistics.dart';
 import '../pages/profile.dart';
 import '../pages/club_members.dart';
+import '../pages/statistics_personal.dart';
 
 class RouterPath {
   static const String myClubList = "/myClubList";
@@ -39,6 +40,8 @@ class RouterPath {
       '/myClubList/clubDetail/manage/paymentManage/paymentDetailManage';
 
   static const String statistics = '/myClubList/clubDetail/manage/statistics';
+  static const String personalStatistics =
+      '/myClubList/clubDetail/manage/statistics/personalStatistics';
 
   static const String activityDetail = '/myClubList/clubDetail/activityDetail';
   static const String activityLocation =
@@ -112,6 +115,21 @@ final GoRouter route = GoRouter(
                     GoRoute(
                       path: 'statistics',
                       builder: (context, state) => StatisticsView(),
+                      routes: [
+                        GoRoute(
+                          path: 'personalStatistics',
+                          builder: (context, state) {
+                            final Map<String, dynamic>? argument =
+                                state.extra as Map<String, dynamic>?;
+                            int clubId = argument?['clubId'];
+                            int memberId = argument?['memberId'];
+                            return PersonalStatisticsView(
+                              clubId: clubId,
+                              memberId: memberId,
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),

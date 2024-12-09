@@ -210,7 +210,8 @@ class _PaymentViewState extends State<PaymentView> {
 
   Future<void> _initPaymentView() async {
     int clubId = context.read<ClubDetailRepo>().clubId!;
-    bool result = await context.read<PaymentListRepo>().initPaymentInfo(clubId);
+    bool result =
+        await context.read<PaymentListRepo>().initPaymentListInfo(clubId);
     if (result == false) {
       _showSnackBar("장부 목록 불러오기 실패..");
       return;

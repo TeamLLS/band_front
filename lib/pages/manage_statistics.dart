@@ -4,8 +4,11 @@ import 'dart:developer';
 import 'package:band_front/cores/api.dart';
 import 'package:band_front/cores/repository.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
+
+import '../cores/router.dart';
 
 class StatisticsView extends StatefulWidget {
   const StatisticsView({super.key});
@@ -15,22 +18,20 @@ class StatisticsView extends StatefulWidget {
 }
 
 class _StatisticsViewState extends State<StatisticsView> {
-  String selectedValue = "활동";
+  String selectedValue = "예산 변화";
 
   // Body 위젯을 결정하는 메소드
   Widget getBody(String selectedValue) {
     int clubId = context.read<ClubDetailRepo>().clubId!;
     switch (selectedValue) {
-      case '회원':
+      case '회원 변화':
         return MemberStatistics(clubId: clubId);
-      case '활동':
+      case '활동량':
         return ActivityStatistics(clubId: clubId);
-      case '예산':
+      case '예산 변화':
         return BudgetStatistics(clubId: clubId);
-      case '참가율':
-        return ParticipationStatistics(clubId: clubId);
-      case '납부율':
-        return PaymentStatistics(clubId: clubId);
+      case '회원 통계':
+        return RankStatistics(clubId: clubId);
       default:
         return const Center(child: Text("Unknown"));
     }
@@ -46,7 +47,7 @@ class _StatisticsViewState extends State<StatisticsView> {
             padding: const EdgeInsets.only(right: 16),
             child: DropdownButton<String>(
               value: selectedValue,
-              items: ['회원', '활동', '예산', '참가율', '납부율']
+              items: ['회원 변화', '활동량', '예산 변화', '회원 통계']
                   .map(
                     (str) => DropdownMenuItem<String>(
                       value: str,
@@ -155,8 +156,6 @@ class MemberStatistics extends StatelessWidget {
                 LineChartData(
                   gridData: FlGridData(
                     show: true,
-                    horizontalInterval: 1, // y축 간격을 1로 설정
-                    verticalInterval: 1, // x축 간격을 1로 설정
                     drawHorizontalLine: true,
                     getDrawingHorizontalLine: (value) {
                       if (value == 0) {
@@ -290,6 +289,7 @@ class MemberStatistics extends StatelessWidget {
                 ),
               ),
             ),
+            const Text("month"),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -394,67 +394,6 @@ class ActivityStatistics extends StatelessWidget {
                   child: const Text("조회 날짜 선택"),
                 ),
               ),
-              // const Text(
-              //   "활동 증감 추이",
-              //   style: TextStyle(
-              //     fontSize: 18,
-              //     fontWeight: FontWeight.bold,
-              //   ),
-              // ),
-              // // Line chart
-              // Container(
-              //   padding: const EdgeInsets.fromLTRB(16, 0, 32, 0),
-              //   height: parentWidth * 0.8,
-              //   child: LineChart(
-              //     LineChartData(
-              //       gridData: FlGridData(
-              //         show: true,
-              //         horizontalInterval: 1,
-              //         verticalInterval: 1,
-              //         drawHorizontalLine: true,
-              //       ),
-              //       titlesData: FlTitlesData(
-              //         leftTitles: const AxisTitles(
-              //           sideTitles: SideTitles(
-              //             showTitles: true,
-              //             interval: 1,
-              //           ),
-              //         ),
-              //         rightTitles: const AxisTitles(
-              //           sideTitles: SideTitles(showTitles: false),
-              //         ),
-              //         topTitles: const AxisTitles(
-              //           sideTitles: SideTitles(showTitles: false),
-              //         ),
-              //         bottomTitles: AxisTitles(
-              //           sideTitles: SideTitles(
-              //             showTitles: true,
-              //             interval: 1,
-              //             getTitlesWidget: (value, meta) {
-              //               int month = dataList[value.toInt()]['month'];
-              //               return Text("$month");
-              //             },
-              //           ),
-              //         ),
-              //       ),
-              //       minY: 0,
-              //       maxY: maxY + 2, // maxY 값 사용
-              //       lineBarsData: [
-              //         LineChartBarData(
-              //           spots: dataList.asMap().entries.map((entry) {
-              //             int index = entry.key;
-              //             var data = entry.value;
-              //             double xValue = index.toDouble();
-              //             return FlSpot(xValue, data['trend'].toDouble());
-              //           }).toList(),
-              //           isCurved: true,
-              //           color: Colors.blue,
-              //         ),
-              //       ],
-              //     ),
-              //   ),
-              // ),
-              // const SizedBox(height: 32),
               const Text(
                 "활동 완료 / 취소 추이",
                 style: TextStyle(
@@ -511,7 +450,7 @@ class ActivityStatistics extends StatelessWidget {
                   ),
                 ),
               ),
-              // Legend (color meaning text)
+              const Text("month"),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -547,35 +486,354 @@ class ActivityStatistics extends StatelessWidget {
 class BudgetStatistics extends StatelessWidget {
   BudgetStatistics({super.key, required this.clubId});
   int clubId;
+  List<dynamic> dataList = [];
+
+  ///{clubId: 1, year: 2024, month: 11, trend: 10000, income: 60000, expense: -50000},
+  ///{clubId: 1, year: 2024, month: 10, trend: -30000, income: 190000, expense: -220000},
+  ///{clubId: 1, year: 2024, month: 9, trend: 10000, income: 50000, expense: -40000},
+  ///{clubId: 1, year: 2024, month: 7, trend: -30000, income: 120000, expense: -150000},
+  ///{clubId: 1, year: 2024, month: 6, trend: -10000, income: 100000, expense: -110000}
+
+  Future<void> getData() async {
+    var data = await StatisticsApi.getBudgetStatistics(clubId, null);
+    log("== local data ==");
+    log("$dataList");
+
+    dataList = data['list'];
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text("$clubId"),
+    double parentWidth = MediaQuery.of(context).size.width;
+
+    return FutureBuilder(
+      future: getData(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // 데이터 로딩 중일 때 로딩 스피너 표시
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          // 에러가 발생한 경우 에러 메시지 표시
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+
+        double maxY = dataList
+            .map((entry) => entry['trend'] as int)
+            .reduce((a, b) => a.abs() > b.abs() ? a : b)
+            .abs()
+            .toDouble();
+        int interval = ((maxY / 5).ceil()); // 간격을 정수로 계산 (5등분)
+        int upperBound = interval * 5; // 최대값을 간격에 맞춰 정수로 설정
+
+        double barmaxY = dataList
+            .map((entry) => [
+                  entry['income']!,
+                  -entry['expense']!,
+                ])
+            .expand((e) => e) // 모든 값들을 평탄화하여 한 리스트로 만듦
+            .reduce((a, b) => a > b ? a : b)
+            .toDouble();
+        int barInterval = ((barmaxY / 5).ceil()); // 간격을 정수로 계산 (5등분)
+        int barUpperBound = barInterval * 5; // 최대값을 간격에 맞춰 정수로 설정
+
+        return SingleChildScrollView(
+          child: Column(children: [
+            Container(
+              width: parentWidth,
+              padding: const EdgeInsets.all(16),
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.all(Colors.green[300]),
+                ),
+                child: const Text("조회 날짜 선택"),
+              ),
+            ),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(left: 16),
+                  child: Text(
+                    "총 예산 변화 추이",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Text("단위 : 만 원", style: TextStyle(fontSize: 12)),
+              ],
+            ),
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 0, 32, 0),
+              height: parentWidth * 0.8,
+              child: LineChart(
+                LineChartData(
+                  gridData: FlGridData(
+                    show: true,
+                    drawHorizontalLine: true,
+                    getDrawingHorizontalLine: (value) {
+                      if (value == 0) {
+                        // y=0 위치에 진한 구분선
+                        return const FlLine(
+                          color: Colors.black,
+                          strokeWidth: 2,
+                        );
+                      } else {
+                        return const FlLine(
+                          color: Colors.grey,
+                          strokeWidth: 1,
+                          dashArray: [5, 5],
+                        );
+                      }
+                    },
+                  ),
+                  titlesData: FlTitlesData(
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: interval.toDouble(),
+                        reservedSize: 40,
+                        getTitlesWidget: (value, meta) {
+                          return Text("${(value / 10000).toInt()}");
+                        },
+                      ),
+                    ),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: 1,
+                        reservedSize: 30,
+                        getTitlesWidget: (value, meta) {
+                          int month = dataList[value.toInt()]['month'];
+                          return Text("$month");
+                        },
+                      ),
+                    ),
+                  ),
+                  minY: -upperBound.toDouble(),
+                  maxY: upperBound.toDouble(),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: dataList.asMap().entries.map((entry) {
+                        int index = entry.key; // 인덱스를 x값으로 설정
+                        var data = entry.value; // entry.value는 Map 형태입니다
+
+                        double xValue = index.toDouble(); // 인덱스를 x값으로 설정
+                        return FlSpot(
+                            xValue, data['trend']!.toDouble()); // trend 값은 y값
+                      }).toList(),
+                      isCurved: true,
+                      color: Colors.blue,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const Text("month"),
+            const SizedBox(height: 32),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(left: 16),
+                  child: Text(
+                    "수입 / 지출 변화",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Text("단위 : 만 원", style: TextStyle(fontSize: 12)),
+              ],
+            ),
+            Container(
+              height: parentWidth * 0.8,
+              padding: const EdgeInsets.fromLTRB(16, 8, 32, 0),
+              child: BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.spaceAround,
+                  titlesData: FlTitlesData(
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: barInterval.toDouble(),
+                        reservedSize: 40,
+                        getTitlesWidget: (value, meta) {
+                          return Text("${(value / 10000).toInt()}");
+                        },
+                      ),
+                    ),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: 1,
+                        reservedSize: 30,
+                        getTitlesWidget: (value, meta) {
+                          int month = dataList[value.toInt()]['month'];
+                          return Text("$month");
+                        },
+                      ),
+                    ),
+                  ),
+                  maxY: barUpperBound.toDouble(), // maxY에 설정할 값을 구함
+                  barGroups: dataList.asMap().entries.map((entry) {
+                    int index = entry.key; // 인덱스를 x값으로 설정
+                    var data = entry.value; // entry.value는 Map 형태입니다
+
+                    // 각 항목에 대해 BarChartRodData 생성
+                    return BarChartGroupData(
+                      x: index, // x축 값 (index)
+                      barRods: [
+                        BarChartRodData(
+                          toY: data['income']!.toDouble(),
+                          color: Colors.blue,
+                          width: 5,
+                        ),
+                        BarChartRodData(
+                          toY: -data['expense']!.toDouble(),
+                          color: Colors.red,
+                          width: 5,
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+            const Text("month"),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 20,
+                  height: 20,
+                  color: Colors.blue,
+                ),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  child: Text("수입"),
+                ),
+                Container(
+                  width: 20,
+                  height: 20,
+                  color: Colors.red,
+                ),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  child: Text("지출"),
+                ),
+              ],
+            ),
+            const SizedBox(height: 64),
+          ]),
+        );
+      },
     );
   }
 }
 
-class ParticipationStatistics extends StatelessWidget {
-  ParticipationStatistics({super.key, required this.clubId});
+class RankStatistics extends StatelessWidget {
+  RankStatistics({super.key, required this.clubId});
   int clubId;
+  List<dynamic> members = [];
 
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text("$clubId"),
-    );
+  Icon _getRoleIcon(String role) {
+    switch (role) {
+      case '회장':
+        return const Icon(Icons.stars, color: Colors.yellow);
+      case '관리자':
+        return const Icon(Icons.build, color: Colors.blue);
+      case '일반':
+        return const Icon(Icons.person, color: Colors.green);
+      default:
+        return const Icon(Icons.help, color: Colors.red);
+    }
   }
-}
 
-class PaymentStatistics extends StatelessWidget {
-  PaymentStatistics({super.key, required this.clubId});
-  int clubId;
+  ///{clubId: 1, memberId: 2, username: Dummy_userB, memberName: 임윤빈, role: 회장, point: 19},
+  ///{clubId: 1, memberId: 3, username: Dummy_userC, memberName: 권미르, role: 일반, point: 15},
+  ///{clubId: 1, memberId: 4, username: Dummy_userD, memberName: 최은, role: 일반, point: 11},
+  ///{clubId: 1, memberId: 1, username: Dummy_userA, memberName: 허연준, role: 관리자, point: 6},
+  ///{clubId: 1, memberId: 5, username: Dummy_userF, memberName: 하도준, role: 일반, point: 2}
+
+  Future<void> getData() async {
+    var data = await StatisticsApi.getRankStatistics(clubId);
+    members = data['list'];
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text("$clubId"),
-    );
+    return FutureBuilder(
+        future: getData(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // 데이터 로딩 중일 때 로딩 스피너 표시
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            // 에러가 발생한 경우 에러 메시지 표시
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          return Column(
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  "회원 순위 및 개인 통계 조회",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+                  itemCount: members.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Card(
+                        elevation: 5.0, // 그림자 효과
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(40.0),
+                        ),
+                        child: ListTile(
+                          leading: _getRoleIcon(members[index]['role']),
+                          title: Text(members[index]['role']),
+                          subtitle: Text(
+                              '${members[index]['memberName']}  |  ${members[index]['username']}'),
+                          trailing: Text(members[index]['point'].toString()),
+                          onTap: () {
+                            context.push(
+                              RouterPath.personalStatistics,
+                              extra: {
+                                'clubId': members[index]['clubId'],
+                                'memberId': members[index]['memberId'],
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        });
   }
 }
