@@ -847,7 +847,8 @@ class BudgetApi {
     return await HttpInterface.requestPostWithoutBody(url, header);
   }
 
-  //납부 대상 등록-선택 - 필요없는듯.
+  //납부 대상 등록-선택
+  //static Future<bool> selectMember(int clubId, )
   //특정 회원 납부 대상 제외
 
   /// 회원 납부 상황 변경
@@ -1019,9 +1020,6 @@ class StatisticsApi {
       log("err from getRankStatistics");
       return;
     }
-
-    log("===== getRankStatistics in api =====");
-    log("$data");
 
     return data;
   }

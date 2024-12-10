@@ -18,7 +18,7 @@ class StatisticsView extends StatefulWidget {
 }
 
 class _StatisticsViewState extends State<StatisticsView> {
-  String selectedValue = "예산 변화";
+  String selectedValue = "회원 변화";
 
   // Body 위젯을 결정하는 메소드
   Widget getBody(String selectedValue) {
@@ -496,9 +496,6 @@ class BudgetStatistics extends StatelessWidget {
 
   Future<void> getData() async {
     var data = await StatisticsApi.getBudgetStatistics(clubId, null);
-    log("== local data ==");
-    log("$dataList");
-
     dataList = data['list'];
   }
 
