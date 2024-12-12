@@ -848,21 +848,68 @@ class BudgetApi {
   }
 
   //납부 대상 등록-선택
-  //static Future<bool> selectMember(int clubId, )
+  static Future<bool> selectMember(
+    int clubId,
+    int paymentId,
+    int memberId,
+  ) async {
+    Uri url = Uri.parse("${_authInfoApi.url}/paymember/list");
+    Map<String, String> header = {'username': _authInfoApi.username!};
+    Map<String, dynamic> body = {
+      'clubId': clubId,
+      'payBookId': paymentId,
+      'list': [memberId],
+    };
+
+    log("===== selectMember api =====");
+    log("clubId : $clubId");
+    log("paymentId : $paymentId");
+    log("memberId : $paymentId");
+    return await HttpInterface.requestPost(url, header, body);
+  }
+
   //특정 회원 납부 대상 제외
+  static Future<bool> excludeMember(int paymentId, int memberId) async {
+    Uri url = Uri.parse(
+        "${_authInfoApi.url}/paymember/${paymentId}/${memberId}/exclude");
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    return await HttpInterface.requestPatchWithoutBody(url, header);
+  }
 
   /// 회원 납부 상황 변경
   //납부됨
   static Future<bool> setPaid(int paymentId, int memberId) async {
     Uri url =
         Uri.parse("${_authInfoApi.url}/paymember/$paymentId/$memberId/pay");
+    Map<String, String> header = {
+      "Content-Type": "application/json", // << 기입 필요
+      'username': _authInfoApi.username!,
+    };
+    // String 객체를 위한 작은 따옴표
+    // json형식 문자열 인식을 위해 작은 따옴표 안에 큰 따옴표
+    String body = '"${DateTime.now().toUtc().toIso8601String()}"';
 
-    Map<String, String> header = {'username': _authInfoApi.username!};
-    log("===== setPaid api =====");
-    log("clubId : $paymentId");
-    log("paymentId : $memberId");
+    log("======== setPaid api ========");
+    log("paymentId : $paymentId");
+    log("memberId : $memberId");
+    log("header : $header");
+    log("body : $body");
 
-    return await HttpInterface.requestPatchWithoutBody(url, header);
+    try {
+      final response = await http.patch(url, headers: header, body: body);
+
+      if (response.statusCode == 200) {
+        log('Success: ${response.body}');
+        return true;
+      } else {
+        log('Failed: ${response.statusCode} - ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      log('Error: $e');
+      return false;
+    }
   }
 
   //미납됨
@@ -883,16 +930,34 @@ class BudgetApi {
     Uri url = Uri.parse(
         "${_authInfoApi.url}/paymember/$paymentId/$memberId/late-pay");
 
-    Map<String, String> header = {'username': _authInfoApi.username!};
-    Map<String, String> body = {};
-    // Map<String, String>body= {
-    // {납부 시간} (Instnat, ISO 8601)
-    // };
-    log("===== setLatepaid api =====");
-    log("clubId : $paymentId");
-    log("paymentId : $memberId");
+    Map<String, String> header = {
+      "Content-Type": "application/json", // << 기입 필요
+      'username': _authInfoApi.username!,
+    };
+    // String 객체를 위한 작은 따옴표
+    // json형식 문자열 인식을 위해 작은 따옴표 안에 큰 따옴표
+    String body = '"${DateTime.now().toUtc().toIso8601String()}"';
 
-    return await HttpInterface.requestPatch(url, header, body);
+    log("======== setLatepaid api ========");
+    log("paymentId : $paymentId");
+    log("memberId : $memberId");
+    log("header : $header");
+    log("body : $body");
+
+    try {
+      final response = await http.patch(url, headers: header, body: body);
+
+      if (response.statusCode == 200) {
+        log('Success: ${response.body}');
+        return true;
+      } else {
+        log('Failed: ${response.statusCode} - ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      log('Error: $e');
+      return false;
+    }
   }
 }
 

@@ -256,7 +256,6 @@ class _PaymentDetailManageViewState extends State<PaymentDetailManageView> {
   }
 
   Future<void> closeBtnHandler() async {
-    //TODO: 리로딩은 잘 됐는데 서버에 반영될 동안 요청했을 때 적용 전 데이터를 받네.
     await context.read<PaymentListRepo>().reloadPaymentListInfo().then((ret) {
       if (ret == false) {
         _showSnackBar("something went wrong...");
@@ -278,7 +277,6 @@ class _PaymentDetailManageViewState extends State<PaymentDetailManageView> {
   }
 
   Future<void> expireBtnHandler() async {
-    //TODO: 리로딩은 잘 됐는데 서버에 반영될 동안 요청했을 때 적용 전 데이터를 받네.
     await context.read<PaymentListRepo>().reloadPaymentListInfo().then((ret) {
       if (ret == false) {
         _showSnackBar("something went wrong...");
@@ -287,6 +285,46 @@ class _PaymentDetailManageViewState extends State<PaymentDetailManageView> {
       _showSnackBar("만료 처리되었습니다.");
       context.pop();
     });
+  }
+
+  Future<void> paidBtnListener(int memberId) async {
+    bool ret = await context.read<PaymentDetailRepo>().setPaid(memberId);
+    if (ret == false) {
+      _showSnackBar("something went wrong...");
+      return;
+    }
+    _showSnackBar("납부 처리되었습니다");
+    return;
+  }
+
+  Future<void> unpaidBtnListener(int memberId) async {
+    bool ret = await context.read<PaymentDetailRepo>().setUnPaid(memberId);
+    if (ret == false) {
+      _showSnackBar("something went wrong...");
+      return;
+    }
+    _showSnackBar("미납 처리되었습니다.");
+    return;
+  }
+
+  Future<void> latePaidBtnListener(int memberId) async {
+    bool ret = await context.read<PaymentDetailRepo>().setLatePaid(memberId);
+    if (ret == false) {
+      _showSnackBar("something went wrong...");
+      return;
+    }
+    _showSnackBar("납부 처리되었습니다.");
+    return;
+  }
+
+  Future<void> excludeBtnListener(int memberId) async {
+    bool ret = await context.read<PaymentDetailRepo>().excludeMember(memberId);
+    if (ret == false) {
+      _showSnackBar("something went wrong...");
+      return;
+    }
+    _showSnackBar("납부 대상에서 제외되었습니다.");
+    return;
   }
 
   @override
@@ -454,49 +492,54 @@ class _PaymentDetailManageViewState extends State<PaymentDetailManageView> {
                   }
 
                   ElevatedButton btn1;
-                  if (target.status == "제외") {
-                    btn1 = ElevatedButton(
-                      onPressed: () {},
-                      style: ButtonStyle(
-                        backgroundColor:
-                            WidgetStateProperty.all(Colors.grey[400]),
-                      ),
-                      child: const Text(" - "),
-                    );
-                  } else if (payment.status == "모금종료" &&
-                      target.status == "미납") {
-                    btn1 = ElevatedButton(
-                      onPressed: () {},
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all(Colors.orange),
-                      ),
-                      child: const Text("연체 납부됨"),
-                    );
-                  } else if (payment.status == "모금종료" &&
-                      target.status != "미납") {
-                    btn1 = ElevatedButton(
-                      onPressed: () {},
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all(Colors.red),
-                      ),
-                      child: const Text("미납"),
-                    );
-                  } else if (payment.status == "모금중" && target.status == "미납") {
-                    btn1 = ElevatedButton(
-                      onPressed: () {},
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all(Colors.green),
-                      ),
-                      child: const Text("납부됨"),
-                    );
-                  } else if (payment.status == "모금중" && target.status != "미납") {
-                    btn1 = ElevatedButton(
-                      onPressed: () {},
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all(Colors.red),
-                      ),
-                      child: const Text("미납"),
-                    );
+                  if (payment.status == "모금중") {
+                    if (target.status == "미납") {
+                      btn1 = ElevatedButton(
+                        onPressed: () async {
+                          await paidBtnListener(target.memberId);
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all(
+                            Colors.green,
+                          ),
+                        ),
+                        child: const Text("납부됨"),
+                      );
+                    } else {
+                      //납부, 연체납부, 제외(제외는 안뜸 목록에)의 경우
+                      btn1 = ElevatedButton(
+                        onPressed: () async {
+                          await unpaidBtnListener(target.memberId);
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all(Colors.red),
+                        ),
+                        child: const Text("미납"),
+                      );
+                    }
+                  } else if (payment.status == "모금종료") {
+                    if (target.status == "미납") {
+                      btn1 = ElevatedButton(
+                        onPressed: () async {
+                          await latePaidBtnListener(target.memberId);
+                        },
+                        style: ButtonStyle(
+                          backgroundColor:
+                              WidgetStateProperty.all(Colors.orange),
+                        ),
+                        child: const Text("연체 납부"),
+                      );
+                    } else {
+                      btn1 = ElevatedButton(
+                        onPressed: () async {
+                          await unpaidBtnListener(target.memberId);
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all(Colors.red),
+                        ),
+                        child: const Text("미납"),
+                      );
+                    }
                   } else {
                     btn1 = ElevatedButton(
                       onPressed: () {},
@@ -518,7 +561,8 @@ class _PaymentDetailManageViewState extends State<PaymentDetailManageView> {
                     );
                   } else {
                     btn2 = ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async =>
+                          await excludeBtnListener(target.memberId),
                       style: ButtonStyle(
                         backgroundColor:
                             WidgetStateProperty.all(Colors.grey[400]),

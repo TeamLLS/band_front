@@ -1,74 +1,62 @@
 # band_front
 
 
+개인같은 경우 타임라인
+마지막 활동 일자를 날짜로 써놓으면 눈에 안들어온다
+시간대로
+
+
 # api 테스트 목록
-1. user server
-- 내 프로필 조회 v
-
-- 상대 프로필 조회 v
-
-- 프로필 변경
+-- user server
+1. 내 프로필 조회 v
+2. 상대 프로필 조회 v
+3. 프로필 변경
 이미지 포함 변경 v
 이미지 없이 변경 x -> 우선순위 낮음
 변경 후 리로딩 v
 
-2. club server
-- 클럽 생성
+-- club server
+1. 클럽 생성
 이미지 포함 등록 v
 이미지 제외 등록 v
 리로딩 v
-
-- 클럽 정보 변경 v
-리로딩 v, 
-* 클럽 리스트도 리로딩 필요. 스크롤 로직 개선할 때 같이 ㄱㄱ
-
-- 클럽 정보 조회 v
-
-- 클럽 해체	v
+2. 클럽 정보 변경 v
 리로딩 v
-* 팝업 띄우기
-
-- 내 클럽 리스트 조회 v
-* 스크롤 로직 개선
-
-- 회원 등록	v
+3. 클럽 정보 조회 v
+4. 클럽 해체	v
 리로딩 v
-* 팝업으로 입력받기 & 오류처리 추가
-
-- 클럽 회원 조회 v
-
-- 회원 권한 변경 v
+팝업 띄우기 v
+5. 내 클럽 리스트 조회 v
+* 스크롤 로직 개선 -> 우선순위 낮음
+6. 회원 등록	v
 리로딩 v
-
-- 회원 탈퇴
+팝업으로 입력받기 v
+7. 클럽 회원 조회 v
+8. 회원 권한 변경 v
+리로딩 v
+9. 회원 탈퇴
 * ui 생성 필요
-
-- 회원 강퇴 v
+10. 회원 강퇴 v
 리로딩 v
 
-3. activity server
-- 활동 생성 v
+-- activity server
+1. 활동 생성 v
 이미지 포함 등록 v
 이미지 제외 등록 x -> 수정 필요(우선순위 낮음)
 리로딩 v
-
-- 활동 목록 조회 v
+2. 활동 목록 조회 v
 * 활동목록 연락처추가 << 예정, 등록할때 연락처까지 기재(nullalbe)
 
-- 활동 조회 v
+3. 활동 조회 v
 * 회원 테두리 바꾸기 (우선순위 낮음)
 * 위치정보 표시
-
-- 활동 취소 v
+4. 활동 취소 v
 리로딩 v
-
-- 활동 종료	v
+5. 활동 종료 v
 리로딩 v
-
-- 활동 참가	v
+6. 활동 참가	v
 참여자 리로딩 v
-
-- 활동 불참	v
+7. 활동 불참	v
 참여자 리로딩 v
 
 - 활동 추가참가	
@@ -98,20 +86,27 @@
 리로딩 v
 
 - 장부 만료	v
+리로딩 x
 
 장부 목록 조회 v
 
 - 장부 조회	
 생성 후 모든 회원 등록 v
 
-납부 대상 등록-전체 v
+- 납부 대상 등록-전체 v
 
-납부 대상 등록-선택 
+- 납부 대상 등록-선택 
 
-회원 납부	
-회원 미납	
-회원 연체 납부
-납부 대상 제외
+- 회원 납부	v
+리로딩 v
+
+- 회원 미납	v
+리로딩 v
+
+- 회원 연체 납부
+
+- 납부 대상 제외 v
+리로딩 v
 
 - 납부 대상 목록 조회 v
 
@@ -131,6 +126,10 @@
 
 
 # memeo
+12/ 12
+회원 납부 상태가 "연체 납부"인 경우에 "회원 미납" api로 납부 상태 변경 시도 시 200은 오나 납부 상태가 미납으로 변경되지 않음.
+
+
 12/9
 
 클럽정보변경 연락처 < 잇음
@@ -167,6 +166,42 @@ double parentWidth = MediaQuery.of(context).size.width;
 
 
 # 회의 때 말할 것
+12/11
+1. 회원 납부
+1-1. 오류 로그
+[log] ===== setPaid api =====
+[log] paymentId : 34
+[log] memberId : 11
+[log] body : {time: 2024-12-10T20:31:13.282460Z}
+[log] 415 failed
+[log] body : {"timestamp":"2024-12-11T05:31:13.545+09:00","status":415,"error":"Unsupported Media Type","path":"/paymember/34/11/pay"}
+
+1-2. 코드
+  static Future<bool> setPaid(int paymentId, int memberId) async {
+    Uri url =
+        Uri.parse("${_authInfoApi.url}/paymember/$paymentId/$memberId/pay");
+    Map<String, String> header = {'username': _authInfoApi.username!};
+    Map<String, dynamic> body = {
+      'time': DateTime.now().toUtc().toIso8601String(),
+    };
+
+    log("===== setPaid api =====");
+    log("paymentId : $paymentId");
+    log("memberId : $memberId");
+    log("body : $body");
+
+    return await HttpInterface.requestPatch(url, header, body);
+  }
+
+1-3. content type json 포함 시
+[log] ===== setPaid api =====
+[log] paymentId : 34
+[log] memberId : 11
+[log] body : {time: 2024-12-10T20:34:30.501682Z}
+[log] 400 failed
+[log] body : {"timestamp":"2024-12-11T05:34:30.945+09:00","status":400,"error":"Bad Request","path":"/paymember/34/11/pay"}
+
+
 12/9
 1. 예산 기록 조회, 
 리스트 2개씩만 오나요 아직?
@@ -305,6 +340,11 @@ image 필드에는 null을 넣어 보내도 되는가?
 
 
 # issueing
+12/11
+- 구축된 api 점검 및 피드백 적용 진행 중
+- 통계 화면 구축 완료
+
+
 - 그래프 축의 숫자가 계속 바뀔텐데, 간격은 어느정도로?
 
 12/ 4

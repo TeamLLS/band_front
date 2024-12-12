@@ -74,10 +74,6 @@ class MemberStatistics extends StatelessWidget {
   int clubId;
   List<dynamic> dataList = [];
 
-  // data : _Map<String, dynamic> {list : [ {~~~}, {~~} ](dynamic)}
-  // data['list'] : List<dynamic> [ {~~~}, {~~} ]
-  // data['list'][0] : Map<String, dynamic> {~~~}
-
   Future<void> getData() async {
     var data = await StatisticsApi.getMemberStatistics(clubId, null);
     log("== local data ==");
@@ -85,14 +81,6 @@ class MemberStatistics extends StatelessWidget {
 
     dataList = data['list'];
   }
-
-  ///year: 2024, ~ 2023
-  ///month: 11,
-  ///trend: 0, -> 증감 후 회원 변화 수
-  ///memberRegisterCount: 6,
-  ///memberLeftCount: 5,
-  ///memberBanCount: 1
-  ///}
 
   @override
   Widget build(BuildContext context) {
@@ -215,6 +203,29 @@ class MemberStatistics extends StatelessWidget {
                       color: Colors.blue,
                     ),
                   ],
+                  // lineTouchData: LineTouchData(
+                  //   touchTooltipData: LineTouchTooltipData(
+                  //     getTooltipItems: (List<LineBarSpot> touchedSpots) {
+                  //       return touchedSpots.map((spot) {
+                  //         // 터치된 값에 대한 텍스트 반환
+                  //         String customText;
+                  //         if (spot.x == 0) {
+                  //           customText = "Start Point";
+                  //         } else if (spot.x == 1) {
+                  //           customText = "Middle Point";
+                  //         } else if (spot.x == 2) {
+                  //           customText = "Low Point";
+                  //         } else {
+                  //           customText = "Peak Point";
+                  //         }
+                  //         return LineTooltipItem(
+                  //           customText,
+                  //           const TextStyle(color: Colors.white),
+                  //         );
+                  //       }).toList();
+                  //     },
+                  //   ),
+                  // ),
                 ),
               ),
             ),

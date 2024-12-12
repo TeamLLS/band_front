@@ -64,17 +64,22 @@ class _ClubEditViewState extends State<ClubEditView> {
           _image,
           contactParam,
         );
-
-    _changeBtnHandler(ret);
-  }
-
-  void _changeBtnHandler(bool ret) {
     if (ret == false) {
       _showSnackBar("변경 실패...");
       return;
     }
-    _showSnackBar("성공적으로 수정되었습니다.");
-    context.pop();
+    await _changeBtnHandler();
+  }
+
+  Future<void> _changeBtnHandler() async {
+    await context.read<ClubListRepo>().reloadClubList().then((ret) {
+      if (ret == false) {
+        _showSnackBar("변경 실패...");
+        return;
+      }
+      _showSnackBar("성공적으로 수정되었습니다.");
+      context.pop();
+    });
   }
 
   @override

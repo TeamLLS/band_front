@@ -398,6 +398,7 @@ class PaymentTargetEntity {
   final String memberName;
   final DateTime? paidAt;
   final String status;
+  //PAID("납부"), UNPAID("미납"), LATE_PAID("연체 납부"), EXCLUDED("제외");
 
   PaymentTargetEntity({
     required this.id,

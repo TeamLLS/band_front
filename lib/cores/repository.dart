@@ -285,23 +285,17 @@ class ClubListRepo with ChangeNotifier {
 
   Future<bool> initClubList() async {
     _clear();
-    var data = await ClubApi.getMyClubList(pn);
-    var list = data['list'];
-    for (Map<String, dynamic> element in list) {
-      ClubEntity temp = ClubEntity.fromMap(element);
-      if (temp.clubStatus != "운영종료") {
-        clubs.add(temp);
-      }
-    }
-    pn++;
-    notifyListeners();
-    return true;
+    return await getMyClubList();
   }
 
-  Future<bool> getMoreClubList() async {
+  Future<bool> reloadClubList() async {
+    _clear();
+    return await getMyClubList();
+  }
+
+  Future<bool> getMyClubList() async {
     var data = await ClubApi.getMyClubList(pn);
     var list = data['list'];
-    log("$data");
     for (Map<String, dynamic> element in list) {
       ClubEntity temp = ClubEntity.fromMap(element);
       if (temp.clubStatus != "운영종료") {
@@ -506,6 +500,12 @@ class PaymentDetailRepo with ChangeNotifier {
     pn = 0;
   }
 
+  void _clearForReload() {
+    payment = null;
+    paymentTargets.clear();
+    pn = 0;
+  }
+
   Future<bool> initPaymentDetail(int clubId, int paymentId) async {
     _clear();
     this.clubId = clubId;
@@ -568,10 +568,65 @@ class PaymentDetailRepo with ChangeNotifier {
   }
 
   Future<bool> expirePayment() async {
-    log("===== expirePayment in repo =====");
-    log("clubId : $clubId");
-    log("paymentId : $paymentId");
-    return await BudgetApi.expirePayment(clubId!, paymentId!);
+    bool ret = await BudgetApi.expirePayment(clubId!, paymentId!);
+    if (ret == false) return false;
+
+    await Future.delayed(const Duration(seconds: 1));
+    ret = await reloadPaymentDetail();
+    if (ret == false) return false;
+    return true;
+  }
+
+  Future<bool> reloadPaymentDetail() async {
+    _clearForReload();
+    bool ret = await getPayment();
+    if (ret == false) return false;
+
+    ret = await getPaymentTargets();
+    if (ret == false) return false;
+
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> setPaid(int memberId) async {
+    bool ret = await BudgetApi.setPaid(paymentId!, memberId);
+    if (ret == false) return false;
+
+    await Future.delayed(const Duration(seconds: 1));
+    ret = await reloadPaymentDetail();
+    if (ret == false) return false;
+    return true;
+  }
+
+  Future<bool> setUnPaid(int memberId) async {
+    bool ret = await BudgetApi.setUnpaid(paymentId!, memberId);
+    if (ret == false) return false;
+
+    await Future.delayed(const Duration(seconds: 1));
+    ret = await reloadPaymentDetail();
+    if (ret == false) return false;
+    return true;
+  }
+
+  Future<bool> setLatePaid(int memberId) async {
+    bool ret = await BudgetApi.setLatepaid(paymentId!, memberId);
+    if (ret == false) return false;
+
+    await Future.delayed(const Duration(seconds: 1));
+    ret = await reloadPaymentDetail();
+    if (ret == false) return false;
+    return true;
+  }
+
+  Future<bool> excludeMember(int memberId) async {
+    bool ret = await BudgetApi.excludeMember(paymentId!, memberId);
+    if (ret == false) return false;
+
+    await Future.delayed(const Duration(seconds: 1));
+    ret = await reloadPaymentDetail();
+    if (ret == false) return false;
+    return true;
   }
 
   Future<bool> _isTargetEmpty() async {

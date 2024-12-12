@@ -39,30 +39,73 @@ class _ClubMemberListViewState extends State<ClubMemberListView> {
     context.push(RouterPath.userProfile);
   }
 
-  Future<void> _inviteBtnListener() async {
-    int clubId = context.read<ClubDetailRepo>().clubId!;
-    var data = await ClubApi.registMember(clubId, "Dummy_userD");
+  Future<void> showInviteDialog() async {
+    TextEditingController idCon = TextEditingController();
 
-    await _inviteBtnHandler(data);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("회원 등록하기"),
+          content: TextField(
+            controller: idCon,
+            decoration: const InputDecoration(
+              labelText: "회원 ID",
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => context.pop(),
+              child: const Text("닫기"),
+            ),
+            TextButton(
+              onPressed: () async => await _inviteBtnListener(idCon.text),
+              child: const Text("등록하기"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
-  Future<void> _inviteBtnHandler(dynamic data) async {
+  Future<void> _inviteBtnListener(String id) async {
+    if (id == "") return;
+    int clubId = context.read<ClubDetailRepo>().clubId!;
+    var data = await ClubApi.registMember(clubId, id);
     if (data == null) {
       _showSnackBar("등록 실패..");
       return;
     }
-    await context.read<ClubDetailRepo>().getMemberList();
-    _showSnackBar("등록 성공!");
+
+    await _inviteBtnHandler();
   }
 
-  Future<void> _initClubMemberListView() async {
-    await context.read<ClubDetailRepo>().getMemberList();
+  Future<void> _inviteBtnHandler() async {
+    await context.read<ClubDetailRepo>().getMemberList().then((_) {
+      _showSnackBar("등록 성공!");
+      context.pop();
+    });
   }
 
   @override
   void initState() {
     super.initState();
     _initClubMemberListView();
+  }
+
+  Future<void> _initClubMemberListView() async {
+    await context.read<ClubDetailRepo>().getMemberList();
+  }
+
+  Future<void> _inviteDummy() async {
+    int clubId = context.read<ClubDetailRepo>().clubId!;
+    var data = await ClubApi.registMember(clubId, "Dummy_userD");
+    if (data == null) {
+      _showSnackBar("등록 실패..");
+      return;
+    }
+    await _inviteBtnHandler();
   }
 
   @override
@@ -74,7 +117,7 @@ class _ClubMemberListViewState extends State<ClubMemberListView> {
         title: const Text("회원 목록"),
         actions: [
           ElevatedButton.icon(
-            onPressed: () async => await _inviteBtnListener(),
+            onPressed: () async => await showInviteDialog(),
             label: const Icon(Icons.person_add),
             style: ButtonStyle(
               backgroundColor: WidgetStateProperty.all(Colors.yellow),
@@ -110,6 +153,11 @@ class _ClubMemberListViewState extends State<ClubMemberListView> {
               ),
             ),
           );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          _inviteDummy();
         },
       ),
     );

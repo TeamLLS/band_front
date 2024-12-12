@@ -21,6 +21,28 @@ class ClubManage extends StatefulWidget {
 class _ClubManageState extends State<ClubManage> {
   void _showSnackBar(String text) => showSnackBar(context, text);
 
+  Future<void> showDeleteDialog() async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("모임 해체하기"),
+          content: const Text("정말로 해체하시겠습니까?\n돌이킬 수 없으니 잘 생각해주세요."),
+          actions: [
+            TextButton(
+              onPressed: () => context.pop(),
+              child: const Text("닫기"),
+            ),
+            TextButton(
+              onPressed: () async => await _deleteBtnListener(),
+              child: const Text("해체"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<dynamic> _deleteBtnListener() async {
     int clubId = context.read<ClubDetailRepo>().clubId!;
     bool result = await ClubApi.deleteMyClub(clubId);
@@ -80,7 +102,7 @@ class _ClubManageState extends State<ClubManage> {
             ),
             ElevatedButton(
               child: const Text("모임 해체"),
-              onPressed: () async => _deleteBtnListener(),
+              onPressed: () async => showDeleteDialog(),
             ),
           ],
         ),
