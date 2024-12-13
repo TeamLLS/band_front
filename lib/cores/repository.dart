@@ -248,7 +248,7 @@ class ClubDetailRepo with ChangeNotifier {
         clubId!, name, des, image, location, startTime, endTime, deadline);
     if (ret == false) return false;
 
-    Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 1));
     ret = await reloadClubDetail();
     if (ret == false) return false;
     notifyListeners();
@@ -407,6 +407,7 @@ class BudgetRepo with ChangeNotifier {
 
   Future<bool> writeExpense(int amount, String description) async {
     await BudgetApi.writeExpense(clubId!, amount, description);
+    await Future.delayed(const Duration(seconds: 1));
     await reloadBudgetInfo(null);
     notifyListeners();
     return true;
@@ -681,6 +682,7 @@ class ActivityDetailRepo with ChangeNotifier {
 
   Future<bool> _reloadActivityDetail() async {
     _clearForReload();
+    await Future.delayed(const Duration(seconds: 1));
 
     bool ret = await getActivityDetail();
     if (ret == false) return false;
@@ -717,7 +719,7 @@ class ActivityDetailRepo with ChangeNotifier {
     }
   }
 
-  Future<bool> attendto() async {
+  Future<bool> attendTo() async {
     if (clubId == null || actId == null) return false;
 
     bool ret = await ActivityApi.attendActivity(clubId!, actId!);
@@ -734,6 +736,32 @@ class ActivityDetailRepo with ChangeNotifier {
     if (clubId == null || actId == null) return false;
 
     bool ret = await ActivityApi.withdrawActivity(clubId!, actId!);
+    if (ret == false) return false;
+
+    ret = await _reloadActivityDetail();
+    if (ret == false) return false;
+
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> attendLateTo(String id) async {
+    if (clubId == null || actId == null) return false;
+
+    bool ret = await ActivityApi.attendLateActivity(clubId!, actId!, id);
+    if (ret == false) return false;
+
+    ret = await _reloadActivityDetail();
+    if (ret == false) return false;
+
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> withdrawLateFrom(String id) async {
+    if (clubId == null || actId == null) return false;
+
+    bool ret = await ActivityApi.withdrawLateActivity(clubId!, actId!, id);
     if (ret == false) return false;
 
     ret = await _reloadActivityDetail();
@@ -775,6 +803,147 @@ class ActivityDetailRepo with ChangeNotifier {
     if (ret == false) return false;
 
     notifyListeners();
+    return true;
+  }
+}
+
+class BoardRepo with ChangeNotifier {
+  int? clubId;
+  List<BoardPostEntity> postList = [];
+  int pn = 0;
+
+  void clear() {
+    clubId = null;
+    postList.clear();
+    pn = 0;
+  }
+
+  void clearForReload() {
+    postList.clear();
+    pn = 0;
+  }
+
+  Future<bool> initPostList(int clubId) async {
+    clear();
+    this.clubId = clubId;
+
+    bool ret = await getPostList();
+    if (ret == false) return false;
+    return true;
+  }
+
+  Future<bool> reloadPostList() async {
+    clearForReload();
+
+    await Future.delayed(const Duration(seconds: 1));
+    bool ret = await getPostList();
+    if (ret == false) return false;
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> getPostList() async {
+    var data = await BoardApi.getPostList(clubId!, pn);
+    if (data == null) {
+      log("getPostList fail");
+      return false;
+    }
+
+    var list = data['list'];
+    for (Map<String, dynamic> element in list) {
+      BoardPostEntity temp = BoardPostEntity.fromMap(element);
+      postList.add(temp);
+    }
+    return true;
+  }
+
+  Future<bool> writePost(String title, String content, XFile? image) async {
+    bool ret = await BoardApi.writePost(clubId!, title, content, image);
+    if (ret == false) return false;
+
+    ret = await reloadPostList();
+    if (ret == false) return false;
+    notifyListeners();
+    return true;
+  }
+}
+
+class BoardPostDetailRepo with ChangeNotifier {
+  int? clubId;
+  int? postId;
+  BoardPost? postDetail;
+  List<BoardComment> comments = [];
+
+  void clear() {
+    clubId = null;
+    postId = null;
+    postDetail = null;
+    comments.clear();
+  }
+
+  void clearForReload() {
+    postDetail = null;
+    comments.clear();
+  }
+
+  Future<bool> initPostDetail(int clubId, int postId) async {
+    clear();
+    this.clubId = clubId;
+    this.postId = postId;
+
+    bool ret = await _getPostDetail();
+    if (ret == false) return false;
+
+    ret = await _getComments();
+    if (ret == false) return false;
+    return true;
+  }
+
+  Future<bool> reloadPostDetail() async {
+    clearForReload();
+
+    await Future.delayed(const Duration(seconds: 1));
+
+    bool ret = await _getPostDetail();
+    if (ret == false) return false;
+
+    ret = await _getComments();
+    if (ret == false) return false;
+    notifyListeners();
+    return true;
+  }
+
+  Future<bool> _getPostDetail() async {
+    try {
+      var data = await BoardApi.getPostDetail(postId!);
+      log("$data");
+      postDetail = BoardPost.fromMap(data);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> _getComments() async {
+    try {
+      var data = await BoardApi.getComments(postId!);
+      var list = data['list'];
+      for (dynamic element in list) {
+        comments.add(BoardComment.fromMap(element));
+      }
+      log("$data");
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> writeComment(int? baseId, String content) async {
+    bool ret = await BoardApi.writeComment(clubId!, postId!, baseId, content);
+    if (ret == false) return false;
+
+    ret = await reloadPostDetail();
+    if (ret == false) return false;
     return true;
   }
 }

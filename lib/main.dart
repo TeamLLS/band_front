@@ -34,6 +34,8 @@ class BandApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ClubDetailRepo()),
         ChangeNotifierProvider(create: (_) => ClubListRepo()),
         ChangeNotifierProvider(create: (_) => ActivityDetailRepo()),
+        ChangeNotifierProvider(create: (_) => BoardRepo()),
+        ChangeNotifierProvider(create: (_) => BoardPostDetailRepo()),
       ],
       child: MaterialApp.router(
         routerConfig: route,

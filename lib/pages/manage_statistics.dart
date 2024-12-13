@@ -69,17 +69,38 @@ class _StatisticsViewState extends State<StatisticsView> {
   }
 }
 
-class MemberStatistics extends StatelessWidget {
+class MemberStatistics extends StatefulWidget {
   MemberStatistics({super.key, required this.clubId});
   int clubId;
+
+  @override
+  State<MemberStatistics> createState() => _MemberStatisticsState();
+}
+
+class _MemberStatisticsState extends State<MemberStatistics> {
   List<dynamic> dataList = [];
+  DateTime? date;
+
+  Future<void> _selectDate() async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: date ?? DateTime.now(),
+      firstDate: DateTime(2000), // 선택 가능한 시작 날짜
+      lastDate: DateTime(2100), // 선택 가능한 마지막 날짜
+    );
+    if (pickedDate != null && pickedDate != date) {
+      setState(() {
+        date = pickedDate;
+      });
+    }
+  }
 
   Future<void> getData() async {
-    var data = await StatisticsApi.getMemberStatistics(clubId, null);
+    var data = await StatisticsApi.getMemberStatistics(widget.clubId, date);
     log("== local data ==");
     log("$dataList");
 
-    dataList = data['list'];
+    dataList = List.from(data['list'].reversed);
   }
 
   @override
@@ -95,6 +116,10 @@ class MemberStatistics extends StatelessWidget {
         } else if (snapshot.hasError) {
           // 에러가 발생한 경우 에러 메시지 표시
           return Center(child: Text('Error: ${snapshot.error}'));
+        }
+
+        if (dataList.isEmpty) {
+          return const Center(child: Text("조회된 데이터가 없습니다."));
         }
 
         double maxY = dataList
@@ -123,7 +148,7 @@ class MemberStatistics extends StatelessWidget {
               width: parentWidth,
               padding: const EdgeInsets.all(16),
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () async => _selectDate(),
                 style: ButtonStyle(
                   backgroundColor: WidgetStateProperty.all(Colors.green[300]),
                 ),
@@ -203,29 +228,6 @@ class MemberStatistics extends StatelessWidget {
                       color: Colors.blue,
                     ),
                   ],
-                  // lineTouchData: LineTouchData(
-                  //   touchTooltipData: LineTouchTooltipData(
-                  //     getTooltipItems: (List<LineBarSpot> touchedSpots) {
-                  //       return touchedSpots.map((spot) {
-                  //         // 터치된 값에 대한 텍스트 반환
-                  //         String customText;
-                  //         if (spot.x == 0) {
-                  //           customText = "Start Point";
-                  //         } else if (spot.x == 1) {
-                  //           customText = "Middle Point";
-                  //         } else if (spot.x == 2) {
-                  //           customText = "Low Point";
-                  //         } else {
-                  //           customText = "Peak Point";
-                  //         }
-                  //         return LineTooltipItem(
-                  //           customText,
-                  //           const TextStyle(color: Colors.white),
-                  //         );
-                  //       }).toList();
-                  //     },
-                  //   ),
-                  // ),
                 ),
               ),
             ),
@@ -353,31 +355,54 @@ class MemberStatistics extends StatelessWidget {
 //{clubId: 1, year: 2023, month: 12, trend: 4, actCloseCount: 4, actCancelCount: 0},
 //{clubId: 1, year: 2023, month: 11, trend: 3, actCloseCount: 3, actCancelCount: 1}]}
 
-class ActivityStatistics extends StatelessWidget {
+class ActivityStatistics extends StatefulWidget {
   ActivityStatistics({super.key, required this.clubId});
   int clubId;
+
+  @override
+  State<ActivityStatistics> createState() => _ActivityStatisticsState();
+}
+
+class _ActivityStatisticsState extends State<ActivityStatistics> {
   List<dynamic> dataList = [];
+  DateTime? date;
+
+  Future<void> _selectDate() async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: date ?? DateTime.now(),
+      firstDate: DateTime(2000), // 선택 가능한 시작 날짜
+      lastDate: DateTime(2100), // 선택 가능한 마지막 날짜
+    );
+    if (pickedDate != null && pickedDate != date) {
+      setState(() {
+        date = pickedDate;
+      });
+    }
+  }
 
   // getData()에서 바로 데이터를 반환하도록 수정
-  Future<List<dynamic>> getData() async {
-    var data = await StatisticsApi.getActivityStatistics(clubId, null);
-    return data['list']; // null인 경우 빈 리스트 반환
+  Future<void> getData() async {
+    var data = await StatisticsApi.getActivityStatistics(widget.clubId, date);
+    dataList = List.from(data['list'].reversed);
   }
 
   @override
   Widget build(BuildContext context) {
     double parentWidth = MediaQuery.of(context).size.width;
 
-    return FutureBuilder<List<dynamic>>(
+    return FutureBuilder(
       future: getData(), // List<dynamic> 타입으로 변경
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError || snapshot.data == null) {
+        } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         }
 
-        dataList = snapshot.data!; // snapshot.data를 사용
+        if (dataList.isEmpty) {
+          return const Center(child: Text("조회된 데이터가 없습니다."));
+        }
 
         log("== local data ==");
         log("$dataList");
@@ -398,7 +423,7 @@ class ActivityStatistics extends StatelessWidget {
                 width: parentWidth,
                 padding: const EdgeInsets.all(16),
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () async => await _selectDate(),
                   style: ButtonStyle(
                     backgroundColor: WidgetStateProperty.all(Colors.green[300]),
                   ),
@@ -494,10 +519,31 @@ class ActivityStatistics extends StatelessWidget {
   }
 }
 
-class BudgetStatistics extends StatelessWidget {
+class BudgetStatistics extends StatefulWidget {
   BudgetStatistics({super.key, required this.clubId});
   int clubId;
+
+  @override
+  State<BudgetStatistics> createState() => _BudgetStatisticsState();
+}
+
+class _BudgetStatisticsState extends State<BudgetStatistics> {
   List<dynamic> dataList = [];
+  DateTime? date;
+
+  Future<void> _selectDate() async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: date ?? DateTime.now(),
+      firstDate: DateTime(2000), // 선택 가능한 시작 날짜
+      lastDate: DateTime(2100), // 선택 가능한 마지막 날짜
+    );
+    if (pickedDate != null && pickedDate != date) {
+      setState(() {
+        date = pickedDate;
+      });
+    }
+  }
 
   ///{clubId: 1, year: 2024, month: 11, trend: 10000, income: 60000, expense: -50000},
   ///{clubId: 1, year: 2024, month: 10, trend: -30000, income: 190000, expense: -220000},
@@ -506,8 +552,8 @@ class BudgetStatistics extends StatelessWidget {
   ///{clubId: 1, year: 2024, month: 6, trend: -10000, income: 100000, expense: -110000}
 
   Future<void> getData() async {
-    var data = await StatisticsApi.getBudgetStatistics(clubId, null);
-    dataList = data['list'];
+    var data = await StatisticsApi.getBudgetStatistics(widget.clubId, date);
+    dataList = List.from(data['list'].reversed);
   }
 
   @override
@@ -523,6 +569,10 @@ class BudgetStatistics extends StatelessWidget {
         } else if (snapshot.hasError) {
           // 에러가 발생한 경우 에러 메시지 표시
           return Center(child: Text('Error: ${snapshot.error}'));
+        }
+
+        if (dataList.isEmpty) {
+          return const Center(child: Text("조회된 데이터가 없습니다."));
         }
 
         double maxY = dataList
@@ -550,7 +600,7 @@ class BudgetStatistics extends StatelessWidget {
               width: parentWidth,
               padding: const EdgeInsets.all(16),
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () async => await _selectDate(),
                 style: ButtonStyle(
                   backgroundColor: WidgetStateProperty.all(Colors.green[300]),
                 ),
@@ -796,6 +846,10 @@ class RankStatistics extends StatelessWidget {
           } else if (snapshot.hasError) {
             // 에러가 발생한 경우 에러 메시지 표시
             return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          if (members.isEmpty) {
+            return const Center(child: Text("조회된 데이터가 없습니다."));
           }
 
           return Column(

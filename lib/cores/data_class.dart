@@ -434,43 +434,127 @@ class PaymentTargetEntity {
   }
 }
 
-//////////////////////////test//////////////////////////////////////////////////
+class BoardPostEntity {
+  final int id; // 게시글 ID
+  final int clubId; // 클럽 ID
+  final String createdBy; // 작성자 username
+  final String memberName; // 작성자 이름
+  final DateTime createdAt; // 작성 시간
+  final String title; // 제목
+  final String? image; // 이미지 URL
 
-List<Member> testMembers = List.generate(5, (index) {
-  return Member(
-    memberId: index,
-    clubId: index,
-    username: 'member$index',
-    roleName: "role",
-    status: "status",
-    name: 'Member $index',
-    gender: index % 2 == 0 ? 'male' : 'female',
-    age: 11,
-    roleRank: 3,
-  );
-});
+  BoardPostEntity({
+    required this.id,
+    required this.clubId,
+    required this.createdBy,
+    required this.memberName,
+    required this.createdAt,
+    required this.title,
+    required this.image,
+  });
 
-List<Club> testClubs = List.generate(10, (index) {
-  return Club(
-    clubId: index,
-    name: 'club $index',
-    image: null,
-    description:
-        'Description for club $index. sdlakfadjsfkldsafjhdsalfhdsajklfhdsakffsdjkhfdsakjlhfdsalkjfhdsajklfhsadkljfhsadjklfhdsakljfhdsakjlfhdasjklfhdsakljfhasdfkljhadsfkjsafhsdkajlfhasdkjlfhdsakljfhasdklfhasdlkjfhasdfklashfjklasdfhalsdkjfhakjlfhasdkjfhasdlkjfhsadkljfhasdklfhasdkljfhaskjlfhasdfkjlashfkljasfhaslfkhsfjklhasfkjlasdhfklasdjh',
-    contactInfo: 'club$index@example.com',
-    status: "sss",
-    memberNum: 10 + index * 5,
-  );
-});
+  // JSON 데이터를 객체로 변환하는 팩토리 메서드
+  factory BoardPostEntity.fromMap(Map<String, dynamic> map) {
+    return BoardPostEntity(
+      id: map['id'] as int,
+      clubId: map['clubId'] as int,
+      createdBy: map['createdBy'],
+      memberName: map['memberName'],
+      createdAt: DateTime.parse(map['createdAt']),
+      title: map['title'],
+      image: map['image'],
+    );
+  }
 
-User testUser = User(
-  userId: 1,
-  username: 'testUser1',
-  email: 'testuser1@example.com',
-  phNum: '010-1234-5678',
-  image: null,
-  name: 'Test User',
-  gender: 'male',
-  description:
-      'This is a test user for testing purposes.nfhkjsadfhasdkjlfhdasjlkfdashjlkfasdhjlkfsdhajk',
-);
+  // 객체를 JSON으로 변환
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'clubId': clubId,
+      'createdBy': createdBy,
+      'memberName': memberName,
+      'createdAt': createdAt.toIso8601String(),
+      'title': title,
+      'image': image,
+    };
+  }
+}
+
+class BoardPost {
+  final int id; // 게시글 ID    X
+  final int clubId; // 클럽 ID  X
+  final String createdBy; // 작성자 username
+  final int memberId; // 작성자 ID X
+  final String memberName; // 작성자 이름
+  final DateTime createdAt; // 작성 시간
+  final String title; // 제목
+  final String content; // 내용
+  final String? image; // 이미지 URL
+
+  // 생성자
+  BoardPost({
+    required this.id,
+    required this.clubId,
+    required this.createdBy,
+    required this.memberId,
+    required this.memberName,
+    required this.createdAt,
+    required this.title,
+    required this.content,
+    required this.image,
+  });
+
+  // JSON 데이터를 객체로 변환하는 팩토리 메서드
+  factory BoardPost.fromMap(Map<String, dynamic> map) {
+    return BoardPost(
+      id: map['id'] as int,
+      clubId: map['clubId'] as int,
+      createdBy: map['createdBy'],
+      memberId: map['memberId'] as int,
+      memberName: map['memberName'],
+      createdAt: DateTime.parse(map['createdAt']),
+      title: map['title'],
+      content: map['content'],
+      image: map['image'],
+    );
+  }
+}
+
+class BoardComment {
+  final int id; // 댓글 ID  x
+  final int postId; // 게시글 ID  x
+  final String createdBy; // 작성자 username
+  final int memberId; // 작성자 ID  x
+  final String memberName; // 작성자 이름
+  final DateTime createdAt; // 작성 시간
+  final String content; // 내용
+  final List<BoardComment> comments; // 답글 리스트
+
+  // 생성자
+  BoardComment({
+    required this.id,
+    required this.postId,
+    required this.createdBy,
+    required this.memberId,
+    required this.memberName,
+    required this.createdAt,
+    required this.content,
+    required this.comments,
+  });
+
+  // JSON 데이터를 객체로 변환하는 팩토리 메서드
+  factory BoardComment.fromMap(Map<String, dynamic> map) {
+    return BoardComment(
+      id: map['id'] as int,
+      postId: map['postId'] as int,
+      createdBy: map['createdBy'],
+      memberId: map['memberId'] as int,
+      memberName: map['memberName'],
+      createdAt: DateTime.parse(map['createdAt']),
+      content: map['content'],
+      comments: (map['comments'] as List<dynamic>)
+          .map((comment) => BoardComment.fromMap(comment))
+          .toList(),
+    );
+  }
+}

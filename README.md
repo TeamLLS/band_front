@@ -46,9 +46,7 @@
 리로딩 v
 2. 활동 목록 조회 v
 * 활동목록 연락처추가 << 예정, 등록할때 연락처까지 기재(nullalbe)
-
 3. 활동 조회 v
-* 회원 테두리 바꾸기 (우선순위 낮음)
 * 위치정보 표시
 4. 활동 취소 v
 리로딩 v
@@ -58,62 +56,42 @@
 참여자 리로딩 v
 7. 활동 불참	v
 참여자 리로딩 v
+8. 활동 추가참가 v
+리로딩 v
+9. 활동 추가불참 v
+리로딩 v
+10. 참가자 조회	v
+11. 참가 활동 조회 x
 
-- 활동 추가참가	
-- 활동 추가불참	
-
-- 참가자 조회	v
-
-- 참가 활동 조회
-
-
-4. budget server
---- 리스트 요소 업 시 수행
-- 예산 조회, 
-필터링 점검
+-- budget server
+1. 예산 조회 v
+필터링 v
 쉼표, 원표시 앞으로 v
-
-예산 갱신	
-
-예산 기록 조회
-
-
-- 장부 생성	
-* 마감일 지정
-리로딩 후 팝 v
-
-- 장부 취소	v
+2. 예산 갱신 v
+3. 예산 기록 조회 v
+4. 장부 생성 v
+마감일 지정
+5. 리로딩 후 팝 v
+7. 장부 취소	v
 리로딩 v
-
-- 장부 만료	v
+8. 장부 만료	v
 리로딩 x
-
-장부 목록 조회 v
-
-- 장부 조회	
+9. 장부 목록 조회 v
+10. 장부 조회	
 생성 후 모든 회원 등록 v
-
-- 납부 대상 등록-전체 v
-
-- 납부 대상 등록-선택 
-
-- 회원 납부	v
+11. 납부 대상 등록-전체 v
+12. 납부 대상 등록-선택 
+13. 회원 납부	v
 리로딩 v
-
-- 회원 미납	v
+14. 회원 미납	v
 리로딩 v
-
-- 회원 연체 납부
-
-- 납부 대상 제외 v
+15. 회원 연체 납부 v
+16. 납부 대상 제외 v
 리로딩 v
+17. 납부 대상 목록 조회 v
+18. 내 장부 목록 조회 v
 
-- 납부 대상 목록 조회 v
-
-- 내 장부 목록 조회 v
-
-
-5. data server
+-- data server
 회원수 변화 조회
 활동수 변화 조회
 예산 변화 조회	
@@ -121,40 +99,13 @@
 납부율 변화 조회
 회원 순위 조회	
 회원 점수 조회	
-* 예외 처리
-* 날짜 처리
+예외 처리 v
+날짜 처리 V
+* 옵션 처리
 
 
 # memeo
-12/ 12
-회원 납부 상태가 "연체 납부"인 경우에 "회원 미납" api로 납부 상태 변경 시도 시 200은 오나 납부 상태가 미납으로 변경되지 않음.
 
-
-12/9
-
-클럽정보변경 연락처 < 잇음
-
-
-우선순위 정하자
-1. 지도 검색 화면 구현 -> 장소 리스트까진 받아왔다.
-2. 클라우드 보고서 작성(발표자료?)
-
-api 수정사항 들어오면 할 것
-내일까지 안되면 걍 따로 함수만든다.
-1. 리스트 갯수 조정 : 스크롤 로딩 구현
-2. 리스트 갯수 조정 : 활동 종료 등의 동작 다시 점검
-- 점검 목록
-내 클럽 리스트 조회
-클럽 회원 조회
-활동 목록 조회
-참가자 조회
-참가 활동 조회
-예산 기록 조회
-장부 목록 조회
-납부 대상 목록 조회
-3. 장부에 미납자 기재
-4. 활동 조회
-5. 데이터 화면 구축
 
 # 자고일어나서 하기
 장부 인터렉션 기능 완성
@@ -166,6 +117,52 @@ double parentWidth = MediaQuery.of(context).size.width;
 
 
 # 회의 때 말할 것
+12/13
+1. 회원 납부 상태가 "연체 납부"인 경우에 "회원 미납" api로 납부 상태 변경 시도 시 200은 오나 납부 상태가 미납으로 변경되지 않음.
+
+2. 활동 추가참가 api 오류
+2-1. 오류 로그
+[log] [[[ profile downloaded ]]]
+[log] logged in with kakao_3778335311
+[log] ===== current club id =====
+[log] 38
+[log] ===========================
+[log] ===== current activity id =====
+[log] 133
+[log] ===============================
+[log] ===== argument check in api =====
+[log] clubId : 38
+[log] activityId : 133
+[log] username : Dummy_userB
+[log] username in header : kakao_3778335311
+[log] 404 failed
+[log] body : {"clubId":38,"error":"NOT_MEMBER_EXCEPTION","message":"회원 아님","username":null}
+[log] err from handling response
+
+2-2. 오류 코드
+  static Future<bool> attendLateActivity(
+    int clubId,
+    int activityId,
+    String id,
+  ) async {
+    log("===== argument check in api =====");
+    log("clubId : $clubId");
+    log("activityId : $activityId");
+    log("username : $id");
+    log("username in header : ${_authInfoApi.username}");
+    Uri url = Uri.parse(
+      "${_authInfoApi.url}/activity/$clubId/$activityId/attend/additional?tartget=$id",
+    );
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    dynamic ret = await HttpInterface.requestPostWithoutBody(url, header);
+    if (ret == null) return false;
+    return true;
+  }
+
+
+
+
 12/11
 1. 회원 납부
 1-1. 오류 로그

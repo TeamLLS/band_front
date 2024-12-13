@@ -112,28 +112,28 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                 children: [
                   const Text("참가자 추가 등록"),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      await attendLateBtnListener(lateAttend.text);
+                    },
                     icon: const Icon(Icons.check, color: Colors.green),
                   ),
                 ],
               ),
-              desUnit(
-                child: inputOnelineTextUnit(lateAttend),
-              ),
+              desUnit(child: inputOnelineTextUnit(lateAttend)),
               const SizedBox(height: 32),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text("불참 참가자 등록"),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      await withdrawLateBtnListener(lateWithdraw.text);
+                    },
                     icon: const Icon(Icons.check, color: Colors.red),
                   ),
                 ],
               ),
-              desUnit(
-                child: inputOnelineTextUnit(lateAttend),
-              ),
+              desUnit(child: inputOnelineTextUnit(lateWithdraw)),
             ],
           ),
           actions: <Widget>[
@@ -147,25 +147,49 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
     );
   }
 
-  Future<void> appliBtnHandler(String status, bool isAttended) async {
+  Future<void> attendLateBtnListener(String id) async {
+    if (id == "") return;
+    await context.read<ActivityDetailRepo>().attendLateTo(id).then((ret) {
+      if (ret == false) {
+        _showSnackBar("등록 실패..");
+        return;
+      }
+      _showSnackBar("등록 성공");
+      context.pop();
+    });
+  }
+
+  Future<void> withdrawLateBtnListener(String id) async {
+    if (id == "") return;
+    await context.read<ActivityDetailRepo>().withdrawLateFrom(id).then((ret) {
+      if (ret == false) {
+        _showSnackBar("something went wrong..");
+        return;
+      }
+      _showSnackBar("불참 처리되었습니다.");
+      context.pop();
+    });
+  }
+
+  Future<void> appliBtnListener(String status, bool isAttended) async {
     if (status != "모집중") return;
 
     if (isAttended == false) {
-      await _attend();
+      await _attendHandler();
     } else {
-      await _withdraw();
+      await _withdrawHandler();
     }
   }
 
-  Future<void> _attend() async {
-    bool ret = await context.read<ActivityDetailRepo>().attendto();
+  Future<void> _attendHandler() async {
+    bool ret = await context.read<ActivityDetailRepo>().attendTo();
 
     if (ret == false) _showSnackBar("신청 불가..");
     _showSnackBar("참가 신청되었습니다!");
     return;
   }
 
-  Future<void> _withdraw() async {
+  Future<void> _withdrawHandler() async {
     bool ret = await context.read<ActivityDetailRepo>().withdrawFrom();
 
     if (ret == false) _showSnackBar("오류...");
@@ -180,9 +204,6 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
   }
 
   Future<void> _initActivityDetailView() async {
-    log("===== init activity detail =====");
-    log("clubId : ${widget.clubId}");
-    log("actId : ${widget.actId}");
     bool ret = await context
         .read<ActivityDetailRepo>()
         .initActivityDetail(widget.actId, widget.clubId);
@@ -191,7 +212,12 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
       _showSnackBar("활동 상세 정보를 불러오지 못했습니다...");
       return;
     }
-    setState(() => isLoaded = true);
+    setState(() {
+      log("===== current activity id =====");
+      log("${widget.actId}");
+      log("===============================");
+      isLoaded = true;
+    });
   }
 
   @override
@@ -326,10 +352,16 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                 itemBuilder: (context, index) {
                   return Padding(
                     padding: const EdgeInsets.only(top: 8),
-                    child: ListTile(
-                      leading: const Icon(Icons.person),
-                      title: Text(participants[index].memberName),
-                      subtitle: Text(participants[index].username),
+                    child: Card(
+                      elevation: 5.0, // 그림자 효과
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(40.0),
+                      ),
+                      child: ListTile(
+                        leading: const Icon(Icons.person),
+                        title: Text(participants[index].memberName),
+                        subtitle: Text(participants[index].username),
+                      ),
                     ),
                   );
                 },
@@ -342,7 +374,7 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
         padding: const EdgeInsets.fromLTRB(32, 0, 32, 16),
         child: ElevatedButton(
           onPressed: () async {
-            await appliBtnHandler(activity.status, isAttended);
+            await appliBtnListener(activity.status, isAttended);
           },
           style: ButtonStyle(
             backgroundColor: WidgetStateProperty.all(appliColor),

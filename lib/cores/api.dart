@@ -245,7 +245,7 @@ class ProfileApi {
       log("${response.statusCode}");
       Uint8List bytes = await response.stream.toBytes();
       String responseBody = utf8.decode(bytes);
-      log("${responseBody}");
+      log("$responseBody");
     }
   }
 
@@ -624,17 +624,41 @@ class ActivityApi {
   }
 
   // 활동 추가참가
-  // static Future<bool> attendActivitylate(int clubId, int activityId) async {
-  //   Uri url = Uri.parse(
-  //     "${_authInfoApi.url}/activity/$clubId/$activityId/attend",
-  //   );
-  //   Map<String, String> header = {'username': _authInfoApi.username!};
-  //
-  //   await HttpInterface.requestPostWithoutBody(url, header);
-  //   return true;
-  // }
+  static Future<bool> attendLateActivity(
+    int clubId,
+    int activityId,
+    String id,
+  ) async {
+    log("===== argument check in api =====");
+    log("clubId : $clubId");
+    log("activityId : $activityId");
+    log("username : $id");
+    log("username in header : ${_authInfoApi.username!}");
+    Uri url = Uri.parse(
+      "${_authInfoApi.url}/activity/$clubId/$activityId/attend/additional?target=$id",
+    );
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    dynamic ret = await HttpInterface.requestPostWithoutBody(url, header);
+    if (ret == null) return false;
+    return true;
+  }
 
   // 활동 추가불참
+  static Future<bool> withdrawLateActivity(
+    int clubId,
+    int activityId,
+    String id,
+  ) async {
+    Uri url = Uri.parse(
+      "${_authInfoApi.url}/activity/$clubId/$activityId/not-attend/additional?target=$id",
+    );
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    dynamic ret = await HttpInterface.requestPostWithoutBody(url, header);
+    if (ret == null) return false;
+    return true;
+  }
 }
 
 class BudgetApi {
@@ -870,8 +894,8 @@ class BudgetApi {
 
   //특정 회원 납부 대상 제외
   static Future<bool> excludeMember(int paymentId, int memberId) async {
-    Uri url = Uri.parse(
-        "${_authInfoApi.url}/paymember/${paymentId}/${memberId}/exclude");
+    Uri url =
+        Uri.parse("${_authInfoApi.url}/paymember/$paymentId/$memberId/exclude");
     Map<String, String> header = {'username': _authInfoApi.username!};
 
     return await HttpInterface.requestPatchWithoutBody(url, header);
@@ -967,19 +991,10 @@ class StatisticsApi {
   // 회원수 변화 조회
   static Future<dynamic> getMemberStatistics(int clubId, DateTime? time) async {
     Uri url;
-    if (time != null) {
-      log("time null in api");
+    if (time == null) {
       url = Uri.parse("${_authInfoApi.url}/data/club/$clubId/member");
     } else {
-      String timeParam = DateTime.utc(
-        DateTime.now().year,
-        DateTime.now().month - 15, // 6개월 전
-        DateTime.now().day,
-        DateTime.now().hour,
-        DateTime.now().minute,
-        DateTime.now().second,
-      ).toIso8601String();
-
+      String timeParam = time.toUtc().toIso8601String();
       url = Uri.parse(
         "${_authInfoApi.url}/data/club/$clubId/member?fromTime=$timeParam",
       );
@@ -1005,19 +1020,10 @@ class StatisticsApi {
     DateTime? time,
   ) async {
     Uri url;
-    if (time != null) {
-      log("time null in api");
+    if (time == null) {
       url = Uri.parse("${_authInfoApi.url}/data/club/$clubId/activity");
     } else {
-      String timeParam = DateTime.utc(
-        DateTime.now().year,
-        DateTime.now().month - 15, // 6개월 전
-        DateTime.now().day,
-        DateTime.now().hour,
-        DateTime.now().minute,
-        DateTime.now().second,
-      ).toIso8601String();
-
+      String timeParam = time.toUtc().toIso8601String();
       url = Uri.parse(
         "${_authInfoApi.url}/data/club/$clubId/activity?fromTime=$timeParam",
       );
@@ -1046,14 +1052,7 @@ class StatisticsApi {
     if (time == null) {
       url = Uri.parse("${_authInfoApi.url}/data/club/$clubId/budget");
     } else {
-      String timeParam = DateTime.utc(
-        DateTime.now().year,
-        DateTime.now().month - 15, // 6개월 전
-        DateTime.now().day,
-        DateTime.now().hour,
-        DateTime.now().minute,
-        DateTime.now().second,
-      ).toIso8601String();
+      String timeParam = time.toUtc().toIso8601String();
 
       url = Uri.parse(
         "${_authInfoApi.url}/data/club/$clubId/budget?fromTime=$timeParam",
@@ -1117,15 +1116,7 @@ class StatisticsApi {
         "${_authInfoApi.url}/data/member/$clubId/$memberId/participant",
       );
     } else {
-      String timeParam = DateTime.utc(
-        DateTime.now().year,
-        DateTime.now().month - 15, // 6개월 전
-        DateTime.now().day,
-        DateTime.now().hour,
-        DateTime.now().minute,
-        DateTime.now().second,
-      ).toIso8601String();
-
+      String timeParam = time.toUtc().toIso8601String();
       url = Uri.parse(
         "${_authInfoApi.url}/data/member/$clubId/$memberId/participant?fromTime=$timeParam",
       );
@@ -1154,14 +1145,7 @@ class StatisticsApi {
         "${_authInfoApi.url}/data/member/$clubId/$memberId/payMember",
       );
     } else {
-      String timeParam = DateTime.utc(
-        DateTime.now().year,
-        DateTime.now().month - 15, // 6개월 전
-        DateTime.now().day,
-        DateTime.now().hour,
-        DateTime.now().minute,
-        DateTime.now().second,
-      ).toIso8601String();
+      String timeParam = time.toUtc().toIso8601String();
 
       url = Uri.parse(
         "${_authInfoApi.url}/data/member/$clubId/$memberId/payMember?fromTime=$timeParam",
@@ -1173,6 +1157,128 @@ class StatisticsApi {
     dynamic data = await HttpInterface.requestGetLegacy(url, header);
     if (data == null) {
       log("err from getPaymentRateStatistics");
+      return;
+    }
+
+    return data;
+  }
+}
+
+class BoardApi {
+  static final AuthInfoApi _authInfoApi = AuthInfoApi();
+
+  // 게시글 작성
+  static Future<bool> writePost(
+    int clubId,
+    String title,
+    String content,
+    XFile? image,
+  ) async {
+    log("==== writePost argument =====");
+    log("club Id : $clubId");
+    log("title : $title");
+    log("content : $content");
+
+    Uri url = Uri.parse("${_authInfoApi.url}/board/post");
+
+    // 요청 객체 생성
+    var request = http.MultipartRequest('POST', url);
+
+    // write header
+    request.headers['username'] = _authInfoApi.username!;
+
+    // import image
+    if (image != null) {
+      var file = await http.MultipartFile.fromPath('image', image.path);
+      request.files.add(file);
+    }
+
+    request.fields['clubId'] = clubId.toString();
+    request.fields['title'] = title;
+    request.fields['content'] = content;
+
+    // 요청 전송
+    return await HttpInterface.requestMultipart(request);
+  }
+
+  // 게시글 수정
+  // 게시글 삭제
+  // 댓글 작성
+  static Future<bool> writeComment(
+    int clubId,
+    int postId,
+    int? baseId,
+    String content,
+  ) async {
+    log("==== writePost argument =====");
+    log("club Id : $clubId");
+    log("postId : $postId");
+    log("baseId : $baseId");
+    log("content : $content");
+
+    Uri url = Uri.parse("${_authInfoApi.url}/board/comment");
+    Map<String, String> header = {
+      "Content-Type": "application/json",
+      'username': _authInfoApi.username!,
+    };
+    Map<String, dynamic> body;
+    if (baseId == null) {
+      body = {
+        'clubId': clubId,
+        'postId': postId,
+        'content': content,
+      };
+    } else {
+      body = {
+        'clubId': clubId,
+        'postId': postId,
+        'baseId': baseId,
+        'content': content,
+      };
+    }
+
+    await HttpInterface.requestPost(url, header, body);
+    return true;
+  }
+
+  // 댓글 수정
+  // 댓글 삭제
+  // 게시글 리스트 조회
+  static Future<dynamic> getPostList(int clubId, int pn) async {
+    Uri url = Uri.parse("${_authInfoApi.url}/board/$clubId/list?pageNo=$pn");
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
+    if (data == null) {
+      log("err from getPostList");
+      return;
+    }
+
+    return data;
+  }
+
+  // 게시글 조회
+  static Future<dynamic> getPostDetail(int postId) async {
+    Uri url = Uri.parse("${_authInfoApi.url}/board/$postId");
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
+    if (data == null) {
+      log("err from getPostDetail");
+      return;
+    }
+
+    return data;
+  }
+
+  // 댓글 조회
+  static Future<dynamic> getComments(int postId) async {
+    Uri url = Uri.parse("${_authInfoApi.url}/board/$postId/comments");
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    dynamic data = await HttpInterface.requestGetLegacy(url, header);
+    if (data == null) {
+      log("err from getPostDetail");
       return;
     }
 

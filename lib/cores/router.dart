@@ -1,7 +1,10 @@
 //dependencies
 import 'package:band_front/pages/activity_detail.dart';
+import 'package:band_front/pages/board_detail.dart';
+import 'package:band_front/pages/board_regist.dart';
 import 'package:band_front/pages/club_budget.dart';
 import 'package:band_front/pages/club_manage.dart';
+import 'package:band_front/pages/club_board.dart';
 import 'package:band_front/pages/club_regist.dart';
 import 'package:band_front/pages/manage_budget.dart';
 import 'package:band_front/pages/manage_payment.dart';
@@ -28,6 +31,10 @@ class RouterPath {
 
   static const String clubDetailPage = '/myClubList/clubDetail';
   static const String members = '/myClubList/clubDetail/members';
+
+  static const String clubBoard = '/myClubList/clubDetail/board';
+  static const String boardRegist = '/myClubList/clubDetail/board/regist';
+  static const String postDetail = '/myClubList/clubDetail/board/postDetail';
 
   static const String manage = '/myClubList/clubDetail/manage';
 
@@ -179,6 +186,25 @@ final GoRouter route = GoRouter(
                             state.extra as Map<String, dynamic>?;
                         var data = argument?['paymentId'];
                         return PaymentDetailView(paymentId: data);
+                      },
+                    ),
+                  ],
+                ),
+                GoRoute(
+                  path: 'board',
+                  builder: (context, state) => ClubBoardView(),
+                  routes: [
+                    GoRoute(
+                      path: 'regist',
+                      builder: (context, state) => BoardRegistView(),
+                    ),
+                    GoRoute(
+                      path: 'postDetail',
+                      builder: (context, state) {
+                        final Map<String, dynamic>? argument =
+                            state.extra as Map<String, dynamic>?;
+                        var data = argument?['postId'];
+                        return PostDetailView(postId: data);
                       },
                     ),
                   ],

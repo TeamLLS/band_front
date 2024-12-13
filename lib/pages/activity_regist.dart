@@ -81,7 +81,7 @@ class _ActivityRegistViewState extends State<ActivityRegistView> {
     }
   }
 
-  Future<void> regist() async {
+  Future<void> registBtnListener() async {
     if (_image == null ||
         startTime == null ||
         endTime == null ||
@@ -93,10 +93,10 @@ class _ActivityRegistViewState extends State<ActivityRegistView> {
 
     bool ret = await context.read<ClubDetailRepo>().registActivity(nameCon.text,
         desCon.text, _image!, location!, startTime!, endTime!, deadline!);
-    registHandler(ret);
+    registBtnHandler(ret);
   }
 
-  void registHandler(bool ret) {
+  void registBtnHandler(bool ret) {
     if (ret == false) {
       _showSnackBar("등록 실패..");
       return;
@@ -215,7 +215,7 @@ class _ActivityRegistViewState extends State<ActivityRegistView> {
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
             child: ElevatedButton(
-              onPressed: () async => await regist(),
+              onPressed: () async => await registBtnListener(),
               style: ButtonStyle(
                 backgroundColor: WidgetStateProperty.all(
                   const Color(0xFF87CEEB),

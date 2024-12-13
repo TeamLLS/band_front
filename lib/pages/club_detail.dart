@@ -43,7 +43,12 @@ class _ClubDetailViewState extends State<ClubDetailView> {
       log("init clubDetail failed");
       return;
     }
-    setState(() => isLoaded = true);
+    setState(() {
+      log("===== current club id =====");
+      log("${widget.clubId}");
+      log("===========================");
+      isLoaded = true;
+    });
   }
 
   @override
@@ -56,7 +61,8 @@ class _ClubDetailViewState extends State<ClubDetailView> {
     Club club = context.watch<ClubDetailRepo>().club!;
     List<ActivityEntity> actList = context.watch<ClubDetailRepo>().actList;
     String role = context.watch<ClubDetailRepo>().role!;
-    Image image = club.image == null
+    Image image = club.image == null ||
+            club.image == "https://d310q11a7rdsb8.cloudfront.net/null"
         ? Image.asset(
             'assets/images/empty.png',
             fit: BoxFit.cover,
@@ -129,7 +135,7 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.campaign),
-                        onPressed: () {},
+                        onPressed: () => context.push(RouterPath.clubBoard),
                       ),
                       IconButton(
                         icon: const Icon(Icons.people),
@@ -139,10 +145,8 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.photo_album),
-                        onPressed: () {
-                          // 사진첩 기능
-                        },
+                        icon: const Icon(Icons.bar_chart),
+                        onPressed: () => context.push(RouterPath.statistics),
                       ),
                       IconButton(
                         icon: const Icon(Icons.account_balance_wallet),
