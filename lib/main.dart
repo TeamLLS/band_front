@@ -40,6 +40,14 @@ class BandApp extends StatelessWidget {
       child: MaterialApp.router(
         routerConfig: route,
         debugShowCheckedModeBanner: false,
+        builder: (context, child) {
+          return GestureDetector(
+            onTap: () {
+              FocusManager.instance.primaryFocus?.unfocus(); // 키보드 해제
+            },
+            child: child,
+          );
+        },
         theme: ThemeData(
           colorScheme: const ColorScheme(
             //라이트모드, 다크모드

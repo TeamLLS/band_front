@@ -55,7 +55,7 @@ class _MyProfileViewState extends State<MyProfileView> {
     double parentWidth = MediaQuery.of(context).size.width;
     Image image = _me!.image == null
         ? Image.asset(
-            'assets/images/test1.png',
+            'assets/images/empty.png',
             fit: BoxFit.cover,
             height: parentWidth * 0.7,
             width: parentWidth,
@@ -135,14 +135,13 @@ class _MyProfileViewState extends State<MyProfileView> {
                 Container(
                   padding: const EdgeInsets.only(top: 8),
                   width: parentWidth,
-                  child: ElevatedButton(
+                  child: elevatedBtnUnit(
                     onPressed: () => context.push(RouterPath.myProfileEdit),
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all(Colors.orange),
-                    ),
-                    child: const Text("프로필 변경하기"),
+                    borderColor: Colors.orange,
+                    text: "프로필 변경하기",
                   ),
                 ),
+                const SizedBox(height: 32),
               ]),
             ),
           ],
@@ -248,7 +247,7 @@ class _MyProfileEditViewState extends State<MyProfileEditView> {
                 child: SizedBox(
                   height: parentWidth * 0.5,
                   child: _image == null
-                      ? Icon(Icons.photo_album, size: parentWidth * 0.2)
+                      ? Image.asset('assets/images/empty.png')
                       : Image.file(File(_image!.path)),
                 ),
               ),
@@ -272,19 +271,16 @@ class _MyProfileEditViewState extends State<MyProfileEditView> {
               Container(
                 padding: const EdgeInsets.only(top: 16),
                 width: parentWidth,
-                child: ElevatedButton(
+                child: elevatedBtnUnit(
                   onPressed: () async {
                     await changeMyProfile();
                     //await ProfileApi.test(_image!);
                   },
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all(
-                      const Color(0xFF87CEEB),
-                    ),
-                  ),
-                  child: const Text("완료"),
+                  borderColor: Colors.blue,
+                  text: "완료",
                 ),
               ),
+              const SizedBox(height: 32),
             ],
           ),
         ),

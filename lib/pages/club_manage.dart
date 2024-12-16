@@ -74,11 +74,88 @@ class _ClubManageState extends State<ClubManage> {
   }
 
   void _statisticsBtnListener() {
-    context.push(RouterPath.statistics);
+    context.push(RouterPath.userStatistics);
+  }
+
+  Widget _buildButton({
+    required String text,
+    required IconData icon,
+    required VoidCallback onPressed,
+    bool isDanger = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+      child: ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white, // 흰색 또는 밝은 회색
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          elevation: 1,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: isDanger ? Colors.red : Colors.black,
+              width: isDanger ? 2 : 1,
+            ),
+          ),
+        ),
+        icon: Icon(
+          icon,
+          color: isDanger ? Colors.black : Colors.grey[700],
+        ),
+        label: Text(
+          text,
+          style: TextStyle(
+            fontSize: 16.0,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey[900],
+          ),
+        ),
+        onPressed: onPressed,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("모임 관리")),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildButton(
+              text: "모임 정보 수정하기",
+              icon: Icons.edit,
+              onPressed: _editBtnListener,
+            ),
+            _buildButton(
+              text: "예산 관리",
+              icon: Icons.account_balance_wallet_outlined,
+              onPressed: _budgetManageBtnListener,
+            ),
+            _buildButton(
+              text: "납부 내역 관리",
+              icon: Icons.receipt_long,
+              onPressed: _paymentManageBtnListener,
+            ),
+            _buildButton(
+              text: "회원 관리",
+              icon: Icons.people_outline,
+              onPressed: _statisticsBtnListener,
+            ),
+            const SizedBox(height: 32),
+            _buildButton(
+              text: "모임 해체",
+              icon: Icons.delete_outline,
+              onPressed: () => showDeleteDialog(),
+              isDanger: true,
+            ),
+          ],
+        ),
+      ),
+    );
+
     return Scaffold(
       appBar: AppBar(title: const Text("모임 관리")),
       body: Center(
@@ -98,7 +175,7 @@ class _ClubManageState extends State<ClubManage> {
             ),
             ElevatedButton(
               onPressed: () => _statisticsBtnListener(),
-              child: const Text("모임 통계 조회"),
+              child: const Text("회원 관리"),
             ),
             ElevatedButton(
               child: const Text("모임 해체"),

@@ -37,7 +37,7 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ElevatedButton(
+              elevatedBtnUnit(
                 onPressed: () async {
                   await context
                       .read<ActivityDetailRepo>()
@@ -54,13 +54,11 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                     }
                   });
                 },
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(Colors.orange),
-                ),
-                child: const Text("모임 마감하기"),
+                borderColor: Colors.orange,
+                text: "   모임 마감하기   ",
               ),
               const SizedBox(height: 32),
-              ElevatedButton(
+              elevatedBtnUnit(
                 onPressed: () async {
                   await context
                       .read<ActivityDetailRepo>()
@@ -77,10 +75,8 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                     }
                   });
                 },
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(Colors.red),
-                ),
-                child: const Text("모임 취소하기"),
+                borderColor: Colors.red,
+                text: "   모임 취소하기    ",
               ),
             ],
           ),
@@ -372,14 +368,12 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.fromLTRB(32, 0, 32, 16),
-        child: ElevatedButton(
+        child: elevatedBtnUnit(
+          text: appliText,
+          borderColor: appliColor,
           onPressed: () async {
             await appliBtnListener(activity.status, isAttended);
           },
-          style: ButtonStyle(
-            backgroundColor: WidgetStateProperty.all(appliColor),
-          ),
-          child: Text(appliText),
         ),
       ),
     );

@@ -244,13 +244,11 @@ class _UserProfileViewState extends State<UserProfileView> {
                 ? const SizedBox.shrink()
                 : Container(
                     width: parentWidth,
-                    padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
-                    child: ElevatedButton(
+                    padding: const EdgeInsets.fromLTRB(32, 0, 32, 32),
+                    child: elevatedBtnUnit(
                       onPressed: () async => await _changeRoleBtnListener(),
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all(Colors.orange),
-                      ),
-                      child: const Text("권한 부여"),
+                      borderColor: Colors.orange,
+                      text: "권한 부여",
                     ),
                   ),
           ],

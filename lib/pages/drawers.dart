@@ -35,21 +35,20 @@ class DrawerView extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: EdgeInsets.only(top: 16),
+                padding: const EdgeInsets.only(top: 16),
                 width: parentWidth,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  child: Text('app setting'),
-                ),
+                child: elevatedBtnUnit(
+                    onPressed: () {},
+                    text: '어플리케이션 설정',
+                    borderColor: Colors.grey),
               ),
+              const SizedBox(height: 32),
               SizedBox(
                 width: parentWidth,
-                child: ElevatedButton(
+                child: elevatedBtnUnit(
                   onPressed: () {},
-                  child: Text('log out'),
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all(Color(0xFFFF4040)),
-                  ),
+                  text: '로그아웃',
+                  borderColor: Colors.red,
                 ),
               ),
             ],

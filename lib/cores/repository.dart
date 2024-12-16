@@ -11,6 +11,7 @@ import 'data_class.dart';
 
 class MyRepo with ChangeNotifier {
   User? me;
+  String? username;
 
   Future<bool> getMyInfo() async {
     //if test user, early return
@@ -33,6 +34,7 @@ class MyRepo with ChangeNotifier {
     if (me == null) {
       return false;
     }
+    username = me!.username;
 
     LogInApi.setUserName(me!.username);
     return true;
@@ -41,6 +43,10 @@ class MyRepo with ChangeNotifier {
   Future<bool> changeMyInfo(
       XFile? image, String? email, String? phNum, String? description) async {
     return await ProfileApi.changeMyInfo(email, phNum, description, image);
+  }
+
+  void setDummy(String username) {
+    this.username = username;
   }
 }
 
@@ -916,6 +922,7 @@ class BoardPostDetailRepo with ChangeNotifier {
   Future<bool> _getPostDetail() async {
     try {
       var data = await BoardApi.getPostDetail(postId!);
+      log("===== post detail info =====");
       log("$data");
       postDetail = BoardPost.fromMap(data);
       return true;
@@ -931,6 +938,7 @@ class BoardPostDetailRepo with ChangeNotifier {
       for (dynamic element in list) {
         comments.add(BoardComment.fromMap(element));
       }
+      log("===== comments info =====");
       log("$data");
       return true;
     } catch (e) {
@@ -940,10 +948,15 @@ class BoardPostDetailRepo with ChangeNotifier {
 
   Future<bool> writeComment(int? baseId, String content) async {
     bool ret = await BoardApi.writeComment(clubId!, postId!, baseId, content);
+    log("$ret");
     if (ret == false) return false;
 
     ret = await reloadPostDetail();
     if (ret == false) return false;
     return true;
+  }
+
+  Future<bool> deletePost() async {
+    return await BoardApi.deletePost(clubId!, postId!);
   }
 }

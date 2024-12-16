@@ -158,12 +158,10 @@ class _ActivityRegistViewState extends State<ActivityRegistView> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
-            child: ElevatedButton(
+            child: elevatedBtnUnit(
               onPressed: () => context.push(RouterPath.addressGet),
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all(Colors.green[300]),
-              ),
-              child: Text(location == null ? "..." : location!),
+              borderColor: Colors.green[300]!,
+              text: location == null ? "..." : location!,
             ),
           ),
           const Padding(
@@ -173,23 +171,23 @@ class _ActivityRegistViewState extends State<ActivityRegistView> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-            child: ElevatedButton(
+            child: elevatedBtnUnit(
               onPressed: () async {
                 final pickedDateTime = await _pickDateTime();
                 setState(() => startTime = pickedDateTime);
               },
-              child: Text("$start  부터"),
+              text: "$start  부터",
             ),
           ),
           Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-            child: ElevatedButton(
+            child: elevatedBtnUnit(
               onPressed: () async {
                 final pickedDateTime = await _pickDateTime();
                 setState(() => endTime = pickedDateTime);
               },
-              child: Text("$end  까지"),
+              text: "$end  까지",
             ),
           ),
           const Padding(
@@ -199,12 +197,12 @@ class _ActivityRegistViewState extends State<ActivityRegistView> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-            child: ElevatedButton(
+            child: elevatedBtnUnit(
               onPressed: () async {
                 final pickedDateTime = await _pickDateTime();
                 setState(() => deadline = pickedDateTime);
               },
-              child: Text("$dead  까지"),
+              text: "$dead  까지",
             ),
           ),
           const Padding(
@@ -213,15 +211,11 @@ class _ActivityRegistViewState extends State<ActivityRegistView> {
           ),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-            child: ElevatedButton(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+            child: elevatedBtnUnit(
               onPressed: () async => await registBtnListener(),
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all(
-                  const Color(0xFF87CEEB),
-                ),
-              ),
-              child: const Text("등록하기"),
+              borderColor: Colors.blue,
+              text: "등록하기",
             ),
           ),
         ]),
@@ -238,36 +232,98 @@ class AddressGetView extends StatefulWidget {
 }
 
 class _AddressGetViewState extends State<AddressGetView> {
+  String apikey = "AIzaSyBycfPyrH12BjWPPgLzx_FxsOwH3YGb2EE";
   GoogleMapController? mapCon;
   TextEditingController addressCon = TextEditingController();
-  LatLng? location;
-  String apikey = "AIzaSyBycfPyrH12BjWPPgLzx_FxsOwH3YGb2EE";
-  List<String> addressList = [];
+  LatLng? currentLocation;
+  List<String> searchResultList = [];
 
-  Future<void> searchToGoogle(String queryValue) async {
+  void checkBtnListener() async {
+    if (addressCon.text == "") return;
+    context.read<ClubDetailRepo>().setBuffer(addressCon.text);
+    context.pop();
+  }
+
+  Future<void> searchBtnListener(String text) async {
+    //구글 검색을 통해 검색 기록 저장
+    await _searchToGoogle(text);
+    // 검색 기록을 showBottomModalSheet로 출력
+    _showLocationModal();
+    // bottom sheet에서 선택된 주소로 이동
+  }
+
+  Future<void> _searchToGoogle(String queryValue) async {
     var url = Uri.parse(
         'https://maps.googleapis.com/maps/api/place/textsearch/json?query=$queryValue&key=$apikey&language=ko');
     var response = await http.get(url);
 
-    if (response.statusCode == 200) {
-      var result = json.decode(response.body);
-      List<dynamic> results = result['results'];
+    if (response.statusCode != 200) {
+      _showSnackBar("검색 실패..");
+      return;
+    }
 
-      for (var place in results) {
-        String address = place['formatted_address'];
-        addressList.add(address);
-      }
-    } else {
-      log("Error: ${response.reasonPhrase}");
+    var result = json.decode(response.body);
+    List<dynamic> results = result['results'];
+
+    searchResultList.clear();
+    for (var place in results) {
+      String address = place['formatted_address'];
+      searchResultList.add(address);
     }
   }
 
-  Future<void> goBtnListener(String str) async {
-    if (addressCon.text == "") return;
-    await _setLocation();
-    if (location != null && mapCon != null) {
+  void _showLocationModal() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return ListView.builder(
+          itemCount: searchResultList.length,
+          itemBuilder: (context, index) {
+            String address = searchResultList[index];
+            return ListTile(
+              title: Text(address),
+              onTap: () async {
+                // 주소를 선택했을 때 카메라 이동
+                addressCon.text = address;
+                Navigator.pop(context); // 모달 닫기
+                await _moveCamera(address);
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _moveCamera(String address) async {
+    if (address.isEmpty) return;
+
+    // Google Geocoding API를 사용해 주소로 좌표 검색
+    var url = Uri.parse(
+        'https://maps.googleapis.com/maps/api/geocode/json?address=$address&key=$apikey');
+    var response = await http.get(url);
+
+    if (response.statusCode != 200) {
+      _showSnackBar("위치 검색 실패..");
+      return;
+    }
+
+    var result = json.decode(response.body);
+    if (result['results'].isEmpty) {
+      _showSnackBar("해당 주소의 위치를 찾을 수 없습니다.");
+      return;
+    }
+
+    var location = result['results'][0]['geometry']['location'];
+    double lat = location['lat'];
+    double lng = location['lng'];
+
+    currentLocation = LatLng(lat, lng);
+
+    // 지도 카메라 이동
+    if (currentLocation != null && mapCon != null) {
       mapCon!.animateCamera(
-        CameraUpdate.newLatLng(location!),
+        CameraUpdate.newLatLng(currentLocation!),
       );
     }
   }
@@ -276,17 +332,11 @@ class _AddressGetViewState extends State<AddressGetView> {
     try {
       List<Location> locations = await locationFromAddress(addressCon.text);
       setState(() {
-        location = LatLng(locations[0].latitude, locations[0].longitude);
+        currentLocation = LatLng(locations[0].latitude, locations[0].longitude);
       });
     } catch (e) {
       log('Error converting address to coordinates: $e');
     }
-  }
-
-  void setBtnListener() async {
-    if (addressCon.text == "") return;
-    context.read<ClubDetailRepo>().setBuffer(addressCon.text);
-    context.pop();
   }
 
   @override
@@ -299,12 +349,14 @@ class _AddressGetViewState extends State<AddressGetView> {
     try {
       List<Location> locations = await locationFromAddress("경상북도 구미시 대학로 61");
       setState(() {
-        location = LatLng(locations[0].latitude, locations[0].longitude);
+        currentLocation = LatLng(locations[0].latitude, locations[0].longitude);
       });
     } catch (e) {
       log('Error converting address to coordinates: $e');
     }
   }
+
+  void _showSnackBar(String text) => showSnackBar(context, text);
 
   @override
   Widget build(BuildContext context) {
@@ -316,7 +368,7 @@ class _AddressGetViewState extends State<AddressGetView> {
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: ElevatedButton.icon(
-              onPressed: () => setBtnListener(),
+              onPressed: () => checkBtnListener(),
               style: ButtonStyle(
                 backgroundColor: WidgetStateProperty.all(Colors.blue[300]),
               ),
@@ -327,20 +379,20 @@ class _AddressGetViewState extends State<AddressGetView> {
       ),
       body: Stack(
         children: [
-          location == null
+          currentLocation == null
               ? const Center(child: CircularProgressIndicator())
               : GoogleMap(
                   onMapCreated: (GoogleMapController controller) {
                     mapCon = controller;
                   },
                   initialCameraPosition: CameraPosition(
-                    target: location!,
+                    target: currentLocation!,
                     zoom: 15.0,
                   ),
                   markers: {
                     Marker(
                       markerId: const MarkerId('targetLocation'),
-                      position: location!,
+                      position: currentLocation!,
                     ),
                   },
                 ),
@@ -353,7 +405,7 @@ class _AddressGetViewState extends State<AddressGetView> {
                   child: searchUnit(
                     ctl: addressCon,
                     onSearchPressed: () async {
-                      await searchToGoogle(addressCon.text);
+                      await searchBtnListener(addressCon.text);
                     },
                   ),
                 ),

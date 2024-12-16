@@ -1074,8 +1074,14 @@ class StatisticsApi {
   }
 
   // 모임 내 회원들의 순위 조회
-  static Future<dynamic> getRankStatistics(int clubId) async {
-    Uri url = Uri.parse("${_authInfoApi.url}/data/member/$clubId/rank");
+  static Future<dynamic> getRankStatistics(int clubId, int? option) async {
+    Uri url;
+    if (option == null) {
+      url = Uri.parse("${_authInfoApi.url}/data/member/$clubId/rank");
+    } else {
+      url = Uri.parse(
+          "${_authInfoApi.url}/data/member/$clubId/rank?option=$option");
+    }
 
     Map<String, String> header = {'username': _authInfoApi.username!};
 
@@ -1202,7 +1208,29 @@ class BoardApi {
   }
 
   // 게시글 수정
+
   // 게시글 삭제
+  static Future<bool> deletePost(int clubId, int postId) async {
+    log("===== delete post in api =====");
+    log("clubId : $clubId");
+    log("postId : $postId");
+    Uri url = Uri.parse("${_authInfoApi.url}/board/$clubId/post/$postId");
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    // DELETE 요청 전송
+    final response = await http.delete(url, headers: header);
+
+    // 요청 결과 확인
+    if (response.statusCode == 200) {
+      log("게시글 삭제 성공");
+      return true;
+    } else {
+      log("게시글 삭제 실패: ${response.statusCode}");
+      log("응답 내용: ${response.body}");
+      return false;
+    }
+  }
+
   // 댓글 작성
   static Future<bool> writeComment(
     int clubId,

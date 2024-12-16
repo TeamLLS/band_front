@@ -199,6 +199,14 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                           height: parentWidth * 0.6,
                           fit: BoxFit.cover,
                         );
+                  Color statColor;
+                  if (actEntity.status == "모집중") {
+                    statColor = Colors.green;
+                  } else if (actEntity.status == "모집 종료") {
+                    statColor = Colors.red;
+                  } else {
+                    statColor = Colors.grey;
+                  }
 
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
@@ -235,7 +243,12 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(actEntity.name),
-                                            Text(actEntity.status),
+                                            Text(
+                                              actEntity.status,
+                                              style: TextStyle(
+                                                color: statColor,
+                                              ),
+                                            ),
                                           ],
                                         ),
                                         const Divider(thickness: 0.5),

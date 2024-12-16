@@ -1,9 +1,134 @@
 import 'dart:developer';
 
 import 'package:band_front/cores/api.dart';
+import 'package:band_front/cores/repository.dart';
 import 'package:band_front/cores/widget_utils.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
+import '../cores/router.dart';
+
+class UserStatisticsView extends StatefulWidget {
+  const UserStatisticsView({super.key});
+
+  @override
+  State<UserStatisticsView> createState() => _UserStatisticsViewState();
+}
+
+class _UserStatisticsViewState extends State<UserStatisticsView> {
+  List<dynamic> members = [];
+  String selectedValue = "전체"; //상위 회원, 하위 회원
+  bool isLoaded = false;
+  late int clubId;
+
+  Icon _getRoleIcon(String role) {
+    switch (role) {
+      case '회장':
+        return const Icon(Icons.stars, color: Colors.yellow);
+      case '관리자':
+        return const Icon(Icons.build, color: Colors.blue);
+      case '일반':
+        return const Icon(Icons.person, color: Colors.green);
+      default:
+        return const Icon(Icons.help, color: Colors.red);
+    }
+  }
+
+  Future<void> getData() async {
+    dynamic data;
+    if (selectedValue == "전체") {
+      data = await StatisticsApi.getRankStatistics(clubId, null);
+    } else if (selectedValue == "상위 회원") {
+      data = await StatisticsApi.getRankStatistics(clubId, 1);
+    } else {
+      data = await StatisticsApi.getRankStatistics(clubId, 2);
+    }
+
+    setState(() {
+      members = data['list'];
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initUserStaticsView();
+  }
+
+  Future<void> _initUserStaticsView() async {
+    clubId = context.read<ClubDetailRepo>().clubId!;
+    await getData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("회원 관리 정보"),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: DropdownButton<String>(
+              value: selectedValue,
+              items: ['전체', '상위 회원', '하위 회원']
+                  .map(
+                    (str) => DropdownMenuItem<String>(
+                      value: str,
+                      child: Text(str),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (String? newValue) async {
+                selectedValue = newValue!;
+                await getData();
+                setState(() {});
+              },
+            ),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+              itemCount: members.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Card(
+                    elevation: 5.0, // 그림자 효과
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(40.0),
+                    ),
+                    child: ListTile(
+                      leading: _getRoleIcon(members[index]['role']),
+                      title: Text(members[index]['role']),
+                      subtitle: Text(
+                          '${members[index]['memberName']}  |  ${members[index]['username']}'),
+                      trailing: Text(members[index]['point'].toString()),
+                      onTap: () {
+                        context.push(
+                          RouterPath.personalStatistics,
+                          extra: {
+                            'clubId': members[index]['clubId'],
+                            'memberId': members[index]['memberId'],
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class PersonalStatisticsView extends StatelessWidget {
   PersonalStatisticsView({

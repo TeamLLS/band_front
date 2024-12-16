@@ -113,15 +113,11 @@ class _ClubRegistState extends State<ClubRegist> {
           ),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-            child: ElevatedButton(
+            padding: const EdgeInsets.fromLTRB(0, 32, 0, 64),
+            child: elevatedBtnUnit(
               onPressed: () async => await _createClub(),
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all(
-                  const Color(0xFF87CEEB),
-                ),
-              ),
-              child: const Text("등록하기"),
+              borderColor: Colors.blue,
+              text: "등록하기",
             ),
           ),
         ]),

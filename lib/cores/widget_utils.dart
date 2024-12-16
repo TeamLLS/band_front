@@ -39,6 +39,51 @@ String formatToYM(DateTime dateTime) {
   return formatter.format(dateTime);
 }
 
+Widget elevatedBtnUnit({
+  required String text,
+  IconData? icon,
+  required VoidCallback onPressed,
+  Color borderColor = Colors.black, // 테두리 색을 매개변수로 추가
+}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+    child: icon == null
+        ? ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              elevation: 1,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: borderColor, width: 2), // 동적 테두리 색
+              ),
+            ),
+            onPressed: onPressed,
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 16.0),
+            ),
+          )
+        : ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              elevation: 1,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: borderColor, width: 2), // 동적 테두리 색
+              ),
+            ),
+            icon: Icon(icon, color: Colors.black),
+            label: Text(
+              text,
+              style: const TextStyle(fontSize: 16.0),
+            ),
+            onPressed: onPressed,
+          ),
+  );
+}
+
 Widget inputTextUnit(TextEditingController ctl) {
   return Material(
     elevation: 3.0,

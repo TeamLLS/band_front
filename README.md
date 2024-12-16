@@ -5,6 +5,8 @@
 마지막 활동 일자를 날짜로 써놓으면 눈에 안들어온다
 시간대로
 
+댓글오류
+
 
 # api 테스트 목록
 -- user server
@@ -117,6 +119,44 @@ double parentWidth = MediaQuery.of(context).size.width;
 
 
 # 회의 때 말할 것
+12/14
+1. 게시글 삭제 api
+1-1. 오류 내역 : 200은 되나 실제로 삭제되지 않는다
+[log] ===== post detail info =====
+[log] {image: https://d310q11a7rdsb8.cloudfront.net/club/DummyClub/board/image/a_1734094164646.jpg, id: 4, clubId: 1, createdBy: Dummy_userA, createdAt: 2024-12-13T12:49:32.351190Z, title: a, content: a, memberId: 1, memberName: 허연준}
+[log] 200
+[log] ===== comments info =====
+[log] {list: [{id: 24, postId: 4, createdBy: Dummy_userA, createdAt: 2024-12-13T17:28:59.155182Z, content: a, memberId: 1, memberName: 허연준, comments: [{id: 25, postId: 4, createdBy: Dummy_userA, createdAt: 2024-12-13T17:29:05.303551Z, content: b, memberId: 1, memberName: 허연준, comments: []}]}, {id: 25, postId: 4, createdBy: Dummy_userA, createdAt: 2024-12-13T17:29:05.303551Z, content: b, memberId: 1, memberName: 허연준, comments: [{id: 26, postId: 4, createdBy: Dummy_userA, createdAt: 2024-12-13T17:29:17.576324Z, content: c, memberId: 1, memberName: 허연준, comments: []}]}]}
+[log] ===== delete post in api =====
+[log] clubId : 1
+[log] postId : 4
+[log] 게시글 삭제 성공
+[log] 200
+
+1-2. 오류 코드
+// 게시글 삭제
+  static Future<bool> deletePost(int clubId, int postId) async {
+    log("===== delete post in api =====");
+    log("clubId : $clubId");
+    log("postId : $postId");
+    Uri url = Uri.parse("${_authInfoApi.url}/board/$clubId/post/$postId");
+    Map<String, String> header = {'username': _authInfoApi.username!};
+
+    // DELETE 요청 전송
+    final response = await http.delete(url, headers: header);
+
+    // 요청 결과 확인
+    if (response.statusCode == 200) {
+      log("게시글 삭제 성공");
+      return true;
+    } else {
+      log("게시글 삭제 실패: ${response.statusCode}");
+      log("응답 내용: ${response.body}");
+      return false;
+    }
+  }
+
+
 12/13
 1. 회원 납부 상태가 "연체 납부"인 경우에 "회원 미납" api로 납부 상태 변경 시도 시 200은 오나 납부 상태가 미납으로 변경되지 않음.
 

@@ -136,6 +136,23 @@ class HttpInterface {
       return false;
     }
   }
+
+  static Future<bool> requestDelete(
+    Uri url,
+    Map<String, String> header,
+  ) async {
+    http.Response? response = await HttpMethod.tryDelete(url, header);
+    if (response == null) {
+      log("err from try patch");
+      return false;
+    }
+
+    String? ret = HttpMethod.handle(response);
+    if (ret == null) {
+      return false;
+    }
+    return true;
+  }
 }
 
 class HttpMethod {
@@ -225,6 +242,19 @@ class HttpMethod {
     }
   }
 
+  static Future<http.Response?> tryDelete(
+    Uri url,
+    Map<String, String> header,
+  ) async {
+    try {
+      http.Response response = await http.delete(url, headers: header);
+      return response;
+    } catch (e) {
+      log('try delete err : $e');
+      return null;
+    }
+  }
+
   //response handler
   static String? handle(http.Response response) {
     // return value must be handled in 3 case, null, "", body
@@ -233,6 +263,7 @@ class HttpMethod {
       log("body : ${response.body}");
       return null;
     }
+    log("${response.statusCode}");
     return response.body;
   }
 }

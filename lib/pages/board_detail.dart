@@ -95,6 +95,26 @@ class _PostDetailViewState extends State<PostDetailView> {
     });
   }
 
+  Future<void> deleteBtnListener() async {
+    bool ret = await context.read<BoardPostDetailRepo>().deletePost();
+    if (ret == false) {
+      _showSnackBar("something went wrong...");
+      return;
+    }
+    await deleteBtnHandler();
+  }
+
+  Future<void> deleteBtnHandler() async {
+    await context.read<BoardRepo>().reloadPostList().then((ret) {
+      if (ret == false) {
+        _showSnackBar("something went wrong...");
+        return;
+      }
+      _showSnackBar("게시글이 삭제되었습니다.");
+      context.pop();
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -134,11 +154,28 @@ class _PostDetailViewState extends State<PostDetailView> {
             height: parentWidth * 0.7,
             width: parentWidth,
           );
-
+    String writer = postDetail.createdBy;
+    String me = context.watch<MyRepo>().username!;
     List<BoardComment> comments = context.watch<BoardPostDetailRepo>().comments;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("게시글")),
+      appBar: AppBar(
+        title: const Text("게시글"),
+        actions: [
+          writer != me
+              ? const SizedBox.shrink()
+              : IconButton(
+                  onPressed: () async => await deleteBtnListener(),
+                  icon: const Icon(Icons.delete),
+                ),
+          writer != me
+              ? const SizedBox.shrink()
+              : IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.edit),
+                ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(children: [
           image,
@@ -191,27 +228,29 @@ class _PostDetailViewState extends State<PostDetailView> {
                     children: [
                       // 기본 댓글
                       InkWell(
-                        onTap: () => _showReplyInputDialog(
-                            comment.memberName, comment.id),
+                        onTap: () {
+                          _showReplyInputDialog(comment.memberName, comment.id);
+                        },
+                        onLongPress: () {},
                         child: desUnit(
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(comment.memberName),
-                                    Text(formatToMDHM(comment.createdAt)),
-                                  ],
-                                ),
+                                Text(comment.memberName),
                                 const Divider(),
                                 Padding(
                                   padding:
                                       const EdgeInsets.fromLTRB(0, 4, 0, 4),
                                   child: Text(comment.content),
+                                ),
+                                Text(
+                                  formatToMDHM(comment.createdAt),
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ],
                             ),
@@ -230,8 +269,11 @@ class _PostDetailViewState extends State<PostDetailView> {
                               final reply = comment.comments[replyIndex];
 
                               return InkWell(
-                                onTap: () => _showReplyInputDialog(
-                                    reply.memberName, reply.id),
+                                onTap: () {
+                                  _showReplyInputDialog(
+                                      reply.memberName, reply.id);
+                                },
+                                onLongPress: () {},
                                 child: desUnit(
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
@@ -239,19 +281,19 @@ class _PostDetailViewState extends State<PostDetailView> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(reply.memberName),
-                                            Text(formatToMDHM(reply.createdAt)),
-                                          ],
-                                        ),
+                                        Text(reply.memberName),
                                         const Divider(),
                                         Padding(
                                           padding: const EdgeInsets.fromLTRB(
                                               0, 4, 0, 4),
                                           child: Text(reply.content),
+                                        ),
+                                        Text(
+                                          formatToMDHM(reply.createdAt),
+                                          style: const TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: 12,
+                                          ),
                                         ),
                                       ],
                                     ),

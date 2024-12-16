@@ -19,10 +19,10 @@ import '../pages/manage_edit.dart';
 import '../pages/login.dart';
 import '../pages/club_list.dart';
 import '../pages/club_detail.dart';
-import '../pages/manage_statistics.dart';
+import '../pages/club_statistics.dart';
 import '../pages/profile.dart';
 import '../pages/club_members.dart';
-import '../pages/statistics_personal.dart';
+import '../pages/manage_userstatistics.dart';
 
 class RouterPath {
   static const String myClubList = "/myClubList";
@@ -36,6 +36,8 @@ class RouterPath {
   static const String boardRegist = '/myClubList/clubDetail/board/regist';
   static const String postDetail = '/myClubList/clubDetail/board/postDetail';
 
+  static const String statistics = "/myClubList/clubDetail/statistics";
+
   static const String manage = '/myClubList/clubDetail/manage';
 
   static const String clubEdit = '/myClubList/clubDetail/manage/edit';
@@ -46,9 +48,10 @@ class RouterPath {
   static const String paymentDetailManage =
       '/myClubList/clubDetail/manage/paymentManage/paymentDetailManage';
 
-  static const String statistics = '/myClubList/clubDetail/manage/statistics';
+  static const String userStatistics =
+      '/myClubList/clubDetail/manage/userStatistics';
   static const String personalStatistics =
-      '/myClubList/clubDetail/manage/statistics/personalStatistics';
+      '/myClubList/clubDetail/manage/userStatistics/personalStatistics';
 
   static const String activityDetail = '/myClubList/clubDetail/activityDetail';
   static const String activityLocation =
@@ -120,8 +123,8 @@ final GoRouter route = GoRouter(
                       ],
                     ),
                     GoRoute(
-                      path: 'statistics',
-                      builder: (context, state) => StatisticsView(),
+                      path: 'userStatistics',
+                      builder: (context, state) => UserStatisticsView(),
                       routes: [
                         GoRoute(
                           path: 'personalStatistics',
@@ -139,6 +142,10 @@ final GoRouter route = GoRouter(
                       ],
                     ),
                   ],
+                ),
+                GoRoute(
+                  path: 'statistics',
+                  builder: (context, state) => StatisticsView(),
                 ),
                 GoRoute(
                   path: 'members',

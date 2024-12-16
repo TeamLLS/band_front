@@ -89,14 +89,10 @@ class _BoardRegistViewState extends State<BoardRegistView> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-            child: ElevatedButton(
+            child: elevatedBtnUnit(
               onPressed: () async => await writeBtnListener(),
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all(
-                  const Color(0xFF87CEEB),
-                ),
-              ),
-              child: const Text("등록하기"),
+              borderColor: Colors.blue,
+              text: "등록하기",
             ),
           ),
         ]),

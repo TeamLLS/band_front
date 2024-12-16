@@ -30,8 +30,8 @@ class _StatisticsViewState extends State<StatisticsView> {
         return ActivityStatistics(clubId: clubId);
       case '예산 변화':
         return BudgetStatistics(clubId: clubId);
-      case '회원 통계':
-        return RankStatistics(clubId: clubId);
+      // case '회원 통계':
+      //   return RankStatistics(clubId: clubId);
       default:
         return const Center(child: Text("Unknown"));
     }
@@ -47,7 +47,7 @@ class _StatisticsViewState extends State<StatisticsView> {
             padding: const EdgeInsets.only(right: 16),
             child: DropdownButton<String>(
               value: selectedValue,
-              items: ['회원 변화', '활동량', '예산 변화', '회원 통계']
+              items: ['회원 변화', '활동량', '예산 변화']
                   .map(
                     (str) => DropdownMenuItem<String>(
                       value: str,
@@ -806,96 +806,96 @@ class _BudgetStatisticsState extends State<BudgetStatistics> {
   }
 }
 
-class RankStatistics extends StatelessWidget {
-  RankStatistics({super.key, required this.clubId});
-  int clubId;
-  List<dynamic> members = [];
+// class RankStatistics extends StatelessWidget {
+//   RankStatistics({super.key, required this.clubId});
+//   int clubId;
+//   List<dynamic> members = [];
 
-  Icon _getRoleIcon(String role) {
-    switch (role) {
-      case '회장':
-        return const Icon(Icons.stars, color: Colors.yellow);
-      case '관리자':
-        return const Icon(Icons.build, color: Colors.blue);
-      case '일반':
-        return const Icon(Icons.person, color: Colors.green);
-      default:
-        return const Icon(Icons.help, color: Colors.red);
-    }
-  }
+//   Icon _getRoleIcon(String role) {
+//     switch (role) {
+//       case '회장':
+//         return const Icon(Icons.stars, color: Colors.yellow);
+//       case '관리자':
+//         return const Icon(Icons.build, color: Colors.blue);
+//       case '일반':
+//         return const Icon(Icons.person, color: Colors.green);
+//       default:
+//         return const Icon(Icons.help, color: Colors.red);
+//     }
+//   }
 
-  ///{clubId: 1, memberId: 2, username: Dummy_userB, memberName: 임윤빈, role: 회장, point: 19},
-  ///{clubId: 1, memberId: 3, username: Dummy_userC, memberName: 권미르, role: 일반, point: 15},
-  ///{clubId: 1, memberId: 4, username: Dummy_userD, memberName: 최은, role: 일반, point: 11},
-  ///{clubId: 1, memberId: 1, username: Dummy_userA, memberName: 허연준, role: 관리자, point: 6},
-  ///{clubId: 1, memberId: 5, username: Dummy_userF, memberName: 하도준, role: 일반, point: 2}
+//   ///{clubId: 1, memberId: 2, username: Dummy_userB, memberName: 임윤빈, role: 회장, point: 19},
+//   ///{clubId: 1, memberId: 3, username: Dummy_userC, memberName: 권미르, role: 일반, point: 15},
+//   ///{clubId: 1, memberId: 4, username: Dummy_userD, memberName: 최은, role: 일반, point: 11},
+//   ///{clubId: 1, memberId: 1, username: Dummy_userA, memberName: 허연준, role: 관리자, point: 6},
+//   ///{clubId: 1, memberId: 5, username: Dummy_userF, memberName: 하도준, role: 일반, point: 2}
 
-  Future<void> getData() async {
-    var data = await StatisticsApi.getRankStatistics(clubId);
-    members = data['list'];
-  }
+//   Future<void> getData() async {
+//     var data = await StatisticsApi.getRankStatistics(clubId);
+//     members = data['list'];
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: getData(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            // 데이터 로딩 중일 때 로딩 스피너 표시
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            // 에러가 발생한 경우 에러 메시지 표시
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
+//   @override
+//   Widget build(BuildContext context) {
+//     return FutureBuilder(
+//         future: getData(),
+//         builder: (context, snapshot) {
+//           if (snapshot.connectionState == ConnectionState.waiting) {
+//             // 데이터 로딩 중일 때 로딩 스피너 표시
+//             return const Center(child: CircularProgressIndicator());
+//           } else if (snapshot.hasError) {
+//             // 에러가 발생한 경우 에러 메시지 표시
+//             return Center(child: Text('Error: ${snapshot.error}'));
+//           }
 
-          if (members.isEmpty) {
-            return const Center(child: Text("조회된 데이터가 없습니다."));
-          }
+//           if (members.isEmpty) {
+//             return const Center(child: Text("조회된 데이터가 없습니다."));
+//           }
 
-          return Column(
-            children: [
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  "회원 순위 및 개인 통계 조회",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
-                  itemCount: members.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Card(
-                        elevation: 5.0, // 그림자 효과
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(40.0),
-                        ),
-                        child: ListTile(
-                          leading: _getRoleIcon(members[index]['role']),
-                          title: Text(members[index]['role']),
-                          subtitle: Text(
-                              '${members[index]['memberName']}  |  ${members[index]['username']}'),
-                          trailing: Text(members[index]['point'].toString()),
-                          onTap: () {
-                            context.push(
-                              RouterPath.personalStatistics,
-                              extra: {
-                                'clubId': members[index]['clubId'],
-                                'memberId': members[index]['memberId'],
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          );
-        });
-  }
-}
+//           return Column(
+//             children: [
+//               const Padding(
+//                 padding: EdgeInsets.all(8.0),
+//                 child: Text(
+//                   "회원 순위 및 개인 통계 조회",
+//                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+//                 ),
+//               ),
+//               Expanded(
+//                 child: ListView.builder(
+//                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+//                   itemCount: members.length,
+//                   itemBuilder: (context, index) {
+//                     return Padding(
+//                       padding: const EdgeInsets.only(bottom: 8),
+//                       child: Card(
+//                         elevation: 5.0, // 그림자 효과
+//                         shape: RoundedRectangleBorder(
+//                           borderRadius: BorderRadius.circular(40.0),
+//                         ),
+//                         child: ListTile(
+//                           leading: _getRoleIcon(members[index]['role']),
+//                           title: Text(members[index]['role']),
+//                           subtitle: Text(
+//                               '${members[index]['memberName']}  |  ${members[index]['username']}'),
+//                           trailing: Text(members[index]['point'].toString()),
+//                           onTap: () {
+//                             context.push(
+//                               RouterPath.personalStatistics,
+//                               extra: {
+//                                 'clubId': members[index]['clubId'],
+//                                 'memberId': members[index]['memberId'],
+//                               },
+//                             );
+//                           },
+//                         ),
+//                       ),
+//                     );
+//                   },
+//                 ),
+//               ),
+//             ],
+//           );
+//         });
+//   }
+// }
