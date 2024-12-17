@@ -676,6 +676,11 @@ class BudgetApi {
     }
     Map<String, String> header = {'username': _authInfoApi.username!};
 
+    log("===== get budget amount argument =====");
+    log("clubId : $clubId");
+    log("time : $time");
+    log("url : $url");
+
     dynamic data = await HttpInterface.requestGetLegacy(url, header);
     if (data == null) {
       log("err from getBudgetAmount");

@@ -227,15 +227,20 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
         context.watch<ActivityDetailRepo>().participantsList;
     bool isAttended = context.watch<ActivityDetailRepo>().isAttended!;
     String myRole = context.watch<ClubDetailRepo>().role!;
-    String startTime = formatToMDHM(activity.startTime);
-    String endTime = formatToMDHM(activity.endTime);
+    String startTime = activity.startTime == null
+        ? "설정된 시간 값 없음"
+        : formatToMDHM(activity.startTime!);
+    String endTime = activity.endTime == null
+        ? "설정된 시간 값 없음"
+        : formatToMDHM(activity.endTime!);
     String deadline = activity.deadline == null
         ? ""
         : "~ ${formatToMDHM(activity.deadline!)}";
 
     double parentWidth = MediaQuery.of(context).size.width;
 
-    Image image = activity.image == null
+    Image image = activity.image == null ||
+            activity.image == "https://d310q11a7rdsb8.cloudfront.net/null"
         ? Image.asset(
             "assets/images/empty.png",
             height: parentWidth * 0.7,

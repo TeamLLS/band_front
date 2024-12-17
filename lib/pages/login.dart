@@ -65,7 +65,7 @@ class _SignViewState extends State<SignView> {
   }
 
   Future<bool> loginTestUser() async {
-    String dummy = "Dummy_userA";
+    String dummy = "kakao_3838900365";
     LogInApi.setUserName(dummy);
     context.read<MyRepo>().setDummy(dummy);
     LogInApi.printAuth();
@@ -109,35 +109,35 @@ class _SignViewState extends State<SignView> {
                 width: 200,
               ),
             ),
-            // Center(
-            //   child: Column(
-            //     mainAxisAlignment: MainAxisAlignment.center,
-            //     children: [
-            //       ElevatedButton(
-            //         onPressed: () async => context.go('/myClubList'),
-            //         child: const Text("pass without login"),
-            //       ),
-            //       ElevatedButton(
-            //         onPressed: () async {
-            //           bool result = await loginTestUser();
-            //           loginHandler(result);
-            //         },
-            //         child: const Text("pass with test user"),
-            //       ),
-            //       ElevatedButton(
-            //         onPressed: () async {
-            //           var helper = KakaoSignMethod();
-            //           await helper.getKakaoKeyHash();
-            //         },
-            //         child: const Text("get hash key"),
-            //       ),
-            //       ElevatedButton(
-            //         onPressed: () async => await LogInApi.checkServer(),
-            //         child: const Text("check server"),
-            //       ),
-            //     ],
-            //   ),
-            // ),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async => context.go('/myClubList'),
+                    child: const Text("pass without login"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      bool result = await loginTestUser();
+                      loginHandler(result);
+                    },
+                    child: const Text("pass with test user"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      var helper = KakaoSignMethod();
+                      await helper.getKakaoKeyHash();
+                    },
+                    child: const Text("get hash key"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async => await LogInApi.checkServer(),
+                    child: const Text("check server"),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

@@ -233,6 +233,8 @@ class ClubDetailRepo with ChangeNotifier {
     }
 
     var data = await ActivityApi.getActivityList(clubId!, pnAct);
+    log("===== get act list in repo =====");
+    log("$data");
 
     var list = data['list'];
     for (Map<String, dynamic> element in list) {
@@ -346,6 +348,9 @@ class BudgetRepo with ChangeNotifier {
       return false;
     }
 
+    log("===== get Budget amount in repo =====");
+    log("$data");
+
     if (data == "") {
       budget = 0;
     } else {
@@ -360,6 +365,9 @@ class BudgetRepo with ChangeNotifier {
       log("getBudgetRecord fail");
       return false;
     }
+
+    log("===== get Budget record in repo =====");
+    log("$data");
 
     var list = data['list'];
     for (Map<String, dynamic> element in list) {
@@ -720,7 +728,10 @@ class ActivityDetailRepo with ChangeNotifier {
       for (Map<String, dynamic> element in list) {
         participantsList.add(ParticipantEntity.fromMap(element));
       }
-      pn++;
+
+      log("===== get participants in api =====");
+      log("$data");
+
       return true;
     } catch (e) {
       return false;

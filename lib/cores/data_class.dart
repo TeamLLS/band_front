@@ -81,8 +81,8 @@ class Activity {
   final String? image;
   final String? location; // 추가된 필드
   final String description;
-  final DateTime startTime;
-  final DateTime endTime;
+  final DateTime? startTime;
+  final DateTime? endTime;
   final DateTime? deadline; // 추가된 필드
   final String status; //모집중	모집종료	취소됨
   final int participantNum;
@@ -110,8 +110,9 @@ class Activity {
       image: map['image'],
       location: map['location'],
       description: map['description'],
-      startTime: DateTime.parse(map['startTime']),
-      endTime: DateTime.parse(map['endTime']),
+      startTime:
+          map['startTime'] == null ? null : DateTime.parse(map['startTime']),
+      endTime: map['endTime'] == null ? null : DateTime.parse(map['endTime']),
       deadline:
           map['deadline'] == null ? null : DateTime.parse(map['deadline']),
       status: map['status'],
@@ -286,7 +287,7 @@ class BudgetRecordEntity {
   final String description;
   final int amount;
   final String username;
-  final String time;
+  final DateTime? time;
 
   BudgetRecordEntity({
     required this.clubId,
@@ -302,7 +303,7 @@ class BudgetRecordEntity {
       description: map['description'],
       amount: map['amount'] as int,
       username: map['username'],
-      time: map['time'],
+      time: map['time'] == null ? null : DateTime.parse(map['time']),
     );
   }
 }
@@ -342,7 +343,7 @@ class Payment {
   final String status;
   final int amount;
   final String createdBy;
-  final DateTime createdAt;
+  final DateTime createdAt; //자동 체크
   final DateTime? closedAt;
   final DateTime? deadline;
 

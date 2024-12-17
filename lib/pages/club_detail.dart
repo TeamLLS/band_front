@@ -257,7 +257,10 @@ class _ClubDetailViewState extends State<ClubDetailView> {
                                             const Icon(Icons.calendar_today),
                                             const VerticalDivider(),
                                             Text(
-                                              formatToYMDHM(actEntity.time!),
+                                              actEntity.time == null
+                                                  ? "마감 시간 없음"
+                                                  : formatToYMDHM(
+                                                      actEntity.time!),
                                             ),
                                           ],
                                         ),

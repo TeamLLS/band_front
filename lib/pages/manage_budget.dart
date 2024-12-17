@@ -203,7 +203,9 @@ class _BudgetManageViewState extends State<BudgetManageView> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(formatStringToYMDHM(entity.time)),
+                        Text(entity.time == null
+                            ? "설정된 시간 값 없음"
+                            : formatToYMDHM(entity.time!)),
                         Text(entity.username),
                       ],
                     ),

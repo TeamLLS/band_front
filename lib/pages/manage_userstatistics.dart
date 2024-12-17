@@ -166,6 +166,8 @@ class PersonalStatisticsView extends StatelessWidget {
     var data = await StatisticsApi.getParticipationRateStatistics(
         clubId, memberId, null);
     participationList = data['list'];
+    log("===== _setParticipationData in view =====");
+    log("$data");
 
     for (var item in participationList) {
       attendCount += item['attendCount'] as int;
@@ -199,6 +201,8 @@ class PersonalStatisticsView extends StatelessWidget {
             } else if (snapshot.hasError) {
               // 에러가 발생한 경우 에러 메시지 표시
               return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (participationList.isEmpty || paymentList.isEmpty) {
+              return const Center(child: Text('조회된 데이터가 없습니다.'));
             }
 
             double parentWidth = MediaQuery.of(context).size.width;
