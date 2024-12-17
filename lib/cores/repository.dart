@@ -308,7 +308,9 @@ class ClubListRepo with ChangeNotifier {
         clubs.add(temp);
       }
     }
-    pn++;
+    log("===== club list in repo =====");
+    log("$data");
+
     notifyListeners();
     return true;
   }
@@ -485,7 +487,7 @@ class PaymentListRepo with ChangeNotifier {
     DateTime dateTime,
   ) async {
     await BudgetApi.registPayment(clubId!, amount, name, description, dateTime);
-    Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 1));
     await reloadPaymentListInfo();
     notifyListeners();
     return true;

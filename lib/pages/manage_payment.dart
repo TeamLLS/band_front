@@ -10,19 +10,6 @@ import '../cores/repository.dart';
 import '../cores/router.dart';
 import '../cores/widget_utils.dart';
 
-/*
-  장부 생성
-  장부 취소
-  장부 만료
-
-  납부 대상 등록
-  납부 대상 제외
-
-  회원 납부, 미납, 연체 납부 설정
-
-  expanded tile
- */
-
 class PaymentManageView extends StatefulWidget {
   const PaymentManageView({super.key});
 
@@ -32,9 +19,35 @@ class PaymentManageView extends StatefulWidget {
 
 class _PaymentManageViewState extends State<PaymentManageView> {
   bool isLoaded = false;
-  DateTime? time;
+  DateTime? deadline;
 
   void _showSnackBar(String text) => showSnackBar(context, text);
+
+  Future<void> _pickDateTime() async {
+    final DateTime? date = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (date == null) return;
+
+    final TimeOfDay? time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (time == null) return;
+
+    deadline = DateTime.utc(
+      date.year,
+      date.month,
+      date.day,
+      time.hour,
+      time.minute,
+    );
+  }
 
   Future<void> writeBtnListener() async {
     final desCon = TextEditingController();
@@ -60,7 +73,10 @@ class _PaymentManageViewState extends State<PaymentManageView> {
                 decoration: const InputDecoration(hintText: '장부명'),
               ),
               const SizedBox(height: 16),
-              ElevatedButton(onPressed: () {}, child: const Text("마감일 지정")),
+              ElevatedButton(
+                onPressed: () async => await _pickDateTime(),
+                child: const Text("마감일 지정"),
+              ),
               TextField(
                 maxLines: 3,
                 controller: desCon,
@@ -98,15 +114,14 @@ class _PaymentManageViewState extends State<PaymentManageView> {
     String name,
     String description,
   ) async {
-    // if (time == null) {
-    //   _showSnackBar("마감일을 지정해 주세요");
-    //   return;
-    // }
-    time = DateTime.now().toUtc();
+    if (deadline == null) {
+      _showSnackBar("마감일을 지정해 주세요");
+      return;
+    }
 
     await context
         .read<PaymentListRepo>()
-        .registPayment(amount, name, description, time!)
+        .registPayment(amount, name, description, deadline!)
         .then((ret) {
       if (ret == false) {
         _showSnackBar("something went wrong...");
@@ -379,101 +394,103 @@ class _PaymentDetailManageViewState extends State<PaymentDetailManageView> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-        child: Column(
-          children: [
-            Table(
-              border: TableBorder.all(color: Colors.grey, width: 1),
-              columnWidths: const {
-                0: FractionColumnWidth(0.3),
-                1: FractionColumnWidth(0.7),
-              },
-              children: [
-                TableRow(children: [
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text("장부명"),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(payment.name),
-                  ),
-                ]),
-                TableRow(children: [
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text("회비"),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('${payment.amount}'),
-                  ),
-                ]),
-                TableRow(children: [
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text('담당자'),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(payment.createdBy),
-                  ),
-                ]),
-                TableRow(children: [
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text('상태'),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(payment.status),
-                  ),
-                ]),
-                TableRow(children: [
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text('생성 일자'),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(startDate),
-                  ),
-                ]),
-                TableRow(children: [
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text('마감 일자'),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(deadline),
-                  ),
-                ]),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-              child: desUnit(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                  child: desTextUnit(
-                    maxLine: 3,
-                    description: payment.description,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+          child: Column(
+            children: [
+              Table(
+                border: TableBorder.all(color: Colors.grey, width: 1),
+                columnWidths: const {
+                  0: FractionColumnWidth(0.3),
+                  1: FractionColumnWidth(0.7),
+                },
+                children: [
+                  TableRow(children: [
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text("장부명"),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(payment.name),
+                    ),
+                  ]),
+                  TableRow(children: [
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text("회비"),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text('${payment.amount}'),
+                    ),
+                  ]),
+                  TableRow(children: [
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('담당자'),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(payment.createdBy),
+                    ),
+                  ]),
+                  TableRow(children: [
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('상태'),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(payment.status),
+                    ),
+                  ]),
+                  TableRow(children: [
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('생성 일자'),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(startDate),
+                    ),
+                  ]),
+                  TableRow(children: [
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('마감 일자'),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(deadline),
+                    ),
+                  ]),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                child: desUnit(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                    child: desTextUnit(
+                      maxLine: 3,
+                      description: payment.description,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Text("납부자 목록"),
-                    Divider(),
-                  ],
-                )),
-            Expanded(
-              child: ListView.builder(
+              const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Text("납부자 목록"),
+                      Divider(),
+                    ],
+                  )),
+              ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
                 itemCount:
                     context.watch<PaymentDetailRepo>().paymentTargets.length,
                 itemBuilder: (context, index) {
@@ -615,8 +632,8 @@ class _PaymentDetailManageViewState extends State<PaymentDetailManageView> {
                   }
                 },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

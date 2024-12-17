@@ -269,11 +269,6 @@ class _PostDetailViewState extends State<PostDetailView> {
                               final reply = comment.comments[replyIndex];
 
                               return InkWell(
-                                onTap: () {
-                                  _showReplyInputDialog(
-                                      reply.memberName, reply.id);
-                                },
-                                onLongPress: () {},
                                 child: desUnit(
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),

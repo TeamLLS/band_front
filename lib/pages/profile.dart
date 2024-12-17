@@ -161,9 +161,9 @@ class MyProfileEditView extends StatefulWidget {
 class _MyProfileEditViewState extends State<MyProfileEditView> {
   late User _me;
   XFile? _image;
-  late TextEditingController _emailCon;
-  late TextEditingController _phNumCon;
-  late TextEditingController _desCon;
+  late final TextEditingController _emailCon;
+  late final TextEditingController _phNumCon;
+  late final TextEditingController _desCon;
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -218,6 +218,9 @@ class _MyProfileEditViewState extends State<MyProfileEditView> {
   void initState() {
     super.initState();
     _me = context.read<MyRepo>().me!;
+    _emailCon = TextEditingController(text: _me.email);
+    _phNumCon = TextEditingController(text: _me.phNum);
+    _desCon = TextEditingController(text: _me.description);
   }
 
   @override
@@ -231,9 +234,6 @@ class _MyProfileEditViewState extends State<MyProfileEditView> {
   @override
   Widget build(BuildContext context) {
     double parentWidth = MediaQuery.of(context).size.width;
-    _emailCon = TextEditingController(text: _me.email);
-    _phNumCon = TextEditingController(text: _me.phNum);
-    _desCon = TextEditingController(text: _me.description);
 
     return Scaffold(
       appBar: AppBar(title: Text('프로필 수정하기')),

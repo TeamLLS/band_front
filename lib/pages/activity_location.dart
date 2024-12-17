@@ -63,7 +63,12 @@ class _ActivityLocationViewState extends State<ActivityLocationView> {
                     ),
                   },
                 ),
-                menuBarUnit(width: parentWidth, child: Text(location)),
+                menuBarUnit(
+                    width: parentWidth,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(location),
+                    )),
               ],
             ),
     );

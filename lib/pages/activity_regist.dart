@@ -276,20 +276,41 @@ class _AddressGetViewState extends State<AddressGetView> {
     showModalBottomSheet(
       context: context,
       builder: (context) {
-        return ListView.builder(
-          itemCount: searchResultList.length,
-          itemBuilder: (context, index) {
-            String address = searchResultList[index];
-            return ListTile(
-              title: Text(address),
-              onTap: () async {
-                // 주소를 선택했을 때 카메라 이동
-                addressCon.text = address;
-                Navigator.pop(context); // 모달 닫기
-                await _moveCamera(address);
-              },
-            );
-          },
+        return Column(
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width,
+              color: Colors.white,
+              margin: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+              padding: const EdgeInsets.only(top: 16),
+              child: const Center(
+                child: Text(
+                  "위치 검색 결과",
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: searchResultList.length,
+                itemBuilder: (context, index) {
+                  String address = searchResultList[index];
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 4, 24, 4),
+                    child: ListTile(
+                      title: Text(address),
+                      onTap: () async {
+                        // 주소를 선택했을 때 카메라 이동
+                        addressCon.text = address;
+                        Navigator.pop(context); // 모달 닫기
+                        await _moveCamera(address);
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         );
       },
     );

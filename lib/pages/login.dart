@@ -84,52 +84,62 @@ class _SignViewState extends State<SignView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            alignment: Alignment.center,
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 64),
-            child: Column(children: [
-              const Spacer(),
-              InkWell(
-                onTap: () async {
-                  bool result = await login();
-                  loginHandler(result);
-                },
-                child: Image.asset("assets/images/kakao_login_btn.png"),
-              ),
-            ]),
-          ),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () async => context.go('/myClubList'),
-                  child: const Text("pass without login"),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    bool result = await loginTestUser();
+      body: Container(
+        color: const Color(0xFFDCDCDA),
+        child: Stack(
+          children: [
+            Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 64),
+              child: Column(children: [
+                const Spacer(),
+                InkWell(
+                  onTap: () async {
+                    bool result = await login();
                     loginHandler(result);
                   },
-                  child: const Text("pass with test user"),
+                  child: Image.asset("assets/images/kakao_login_btn.png"),
                 ),
-                ElevatedButton(
-                  onPressed: () async {
-                    var helper = KakaoSignMethod();
-                    await helper.getKakaoKeyHash();
-                  },
-                  child: const Text("get hash key"),
-                ),
-                ElevatedButton(
-                  onPressed: () async => await LogInApi.checkServer(),
-                  child: const Text("check server"),
-                ),
-              ],
+              ]),
             ),
-          ),
-        ],
+            Center(
+              child: Image.asset(
+                'assets/images/appIcon.jpg',
+                height: 200,
+                width: 200,
+              ),
+            ),
+            // Center(
+            //   child: Column(
+            //     mainAxisAlignment: MainAxisAlignment.center,
+            //     children: [
+            //       ElevatedButton(
+            //         onPressed: () async => context.go('/myClubList'),
+            //         child: const Text("pass without login"),
+            //       ),
+            //       ElevatedButton(
+            //         onPressed: () async {
+            //           bool result = await loginTestUser();
+            //           loginHandler(result);
+            //         },
+            //         child: const Text("pass with test user"),
+            //       ),
+            //       ElevatedButton(
+            //         onPressed: () async {
+            //           var helper = KakaoSignMethod();
+            //           await helper.getKakaoKeyHash();
+            //         },
+            //         child: const Text("get hash key"),
+            //       ),
+            //       ElevatedButton(
+            //         onPressed: () async => await LogInApi.checkServer(),
+            //         child: const Text("check server"),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+          ],
+        ),
       ),
     );
   }

@@ -55,7 +55,7 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                   });
                 },
                 borderColor: Colors.orange,
-                text: "   모임 마감하기   ",
+                text: "   활동 마감하기   ",
               ),
               const SizedBox(height: 32),
               elevatedBtnUnit(
@@ -76,7 +76,7 @@ class _ActivityDetailViewState extends State<ActivityDetailView> {
                   });
                 },
                 borderColor: Colors.red,
-                text: "   모임 취소하기    ",
+                text: "   활동 취소하기    ",
               ),
             ],
           ),

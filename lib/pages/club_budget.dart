@@ -64,9 +64,9 @@ class _BudgetViewState extends State<BudgetView> {
   Future<void> _filterBtnListener() async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      initialDate: _filteredDate,
+      firstDate: DateTime(2000).toUtc(),
+      lastDate: DateTime(2100).toUtc(),
     );
     if (picked != null && picked != _filteredDate) {
       setState(() {
@@ -85,7 +85,11 @@ class _BudgetViewState extends State<BudgetView> {
     }
   }
 
-  void _showSnackBar(String text) => showSnackBar(context, text);
+  @override
+  void initState() {
+    super.initState();
+    _initBudgetView();
+  }
 
   Future<void> _initBudgetView() async {
     int clubId = context.read<ClubDetailRepo>().clubId!;
@@ -97,15 +101,11 @@ class _BudgetViewState extends State<BudgetView> {
 
     setState(() {
       isLoaded = true;
-      _filteredDate = DateTime.now();
+      _filteredDate = DateTime.now().toUtc();
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _initBudgetView();
-  }
+  void _showSnackBar(String text) => showSnackBar(context, text);
 
   @override
   Widget build(BuildContext context) {
@@ -178,11 +178,6 @@ class _BudgetViewState extends State<BudgetView> {
                     Text(
                       "${entity.amount}",
                       style: TextStyle(fontSize: 18, color: color),
-                    ),
-                    const VerticalDivider(),
-                    Text(
-                      "after",
-                      style: const TextStyle(fontSize: 18),
                     ),
                   ]),
                   const Divider(color: Colors.grey),
@@ -359,99 +354,101 @@ class _PaymentDetailViewState extends State<PaymentDetailView> {
 
     return Scaffold(
       appBar: AppBar(title: Text(payment.name)),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-        child: Column(children: [
-          Table(
-            border: TableBorder.all(color: Colors.grey, width: 1),
-            columnWidths: const {
-              0: FractionColumnWidth(0.3),
-              1: FractionColumnWidth(0.7),
-            },
-            children: [
-              TableRow(children: [
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text("장부명"),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(payment.name),
-                ),
-              ]),
-              TableRow(children: [
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text("회비"),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text('${payment.amount}'),
-                ),
-              ]),
-              TableRow(children: [
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text('담당자'),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(payment.createdBy),
-                ),
-              ]),
-              TableRow(children: [
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text('상태'),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(payment.status),
-                ),
-              ]),
-              TableRow(children: [
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text('생성 일자'),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(startDate),
-                ),
-              ]),
-              TableRow(children: [
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text('마감 일자'),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(deadline),
-                ),
-              ]),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-            child: desUnit(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                child: desTextUnit(
-                  maxLine: 3,
-                  description: payment.description,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+          child: Column(children: [
+            Table(
+              border: TableBorder.all(color: Colors.grey, width: 1),
+              columnWidths: const {
+                0: FractionColumnWidth(0.3),
+                1: FractionColumnWidth(0.7),
+              },
+              children: [
+                TableRow(children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text("장부명"),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(payment.name),
+                  ),
+                ]),
+                TableRow(children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text("회비"),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('${payment.amount}'),
+                  ),
+                ]),
+                TableRow(children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('담당자'),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(payment.createdBy),
+                  ),
+                ]),
+                TableRow(children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('상태'),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(payment.status),
+                  ),
+                ]),
+                TableRow(children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('생성 일자'),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(startDate),
+                  ),
+                ]),
+                TableRow(children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('마감 일자'),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(deadline),
+                  ),
+                ]),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+              child: desUnit(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                  child: desTextUnit(
+                    maxLine: 3,
+                    description: payment.description,
+                  ),
                 ),
               ),
             ),
-          ),
-          const Padding(
-            padding: EdgeInsets.all(8),
-            child: Column(children: [
-              Text("납부자 목록"),
-              Divider(),
-            ]),
-          ),
-          Expanded(
-            child: ListView.builder(
+            const Padding(
+              padding: EdgeInsets.all(8),
+              child: Column(children: [
+                Text("납부자 목록"),
+                Divider(),
+              ]),
+            ),
+            ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
               itemCount:
                   context.watch<PaymentDetailRepo>().paymentTargets.length,
               itemBuilder: (context, index) {
@@ -501,8 +498,8 @@ class _PaymentDetailViewState extends State<PaymentDetailView> {
                 );
               },
             ),
-          ),
-        ]),
+          ]),
+        ),
       ),
     );
   }

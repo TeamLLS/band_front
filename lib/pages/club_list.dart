@@ -110,21 +110,15 @@ class _ClubListViewState extends State<ClubListView> {
                         padding: const EdgeInsets.all(12),
                         child: Column(
                           children: [
+                            const Divider(thickness: 0.5),
                             Row(children: [
                               const VerticalDivider(),
                               Text(club.clubName),
                               const Spacer(),
-                              const Icon(Icons.people),
-                              Text(club.clubStatus ?? "10"),
+                              Text(club.clubStatus),
                               const VerticalDivider(),
                             ]),
-                            const Divider(thickness: 0.5),
-                            Row(children: [
-                              const VerticalDivider(),
-                              const Icon(Icons.contact_support),
-                              const VerticalDivider(),
-                              Text("없음"),
-                            ]),
+                            const SizedBox(height: 4),
                           ],
                         ),
                       ),

@@ -217,11 +217,6 @@ class _BudgetManageViewState extends State<BudgetManageView> {
                         "${entity.amount}",
                         style: TextStyle(fontSize: 18, color: color),
                       ),
-                      const VerticalDivider(),
-                      Text(
-                        "after",
-                        style: const TextStyle(fontSize: 18),
-                      ),
                     ]),
                     const Divider(color: Colors.grey),
                   ],

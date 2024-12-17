@@ -200,13 +200,11 @@ class _ClubEditViewState extends State<ClubEditView> {
           ),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-            child: ElevatedButton(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 36),
+            child: elevatedBtnUnit(
               onPressed: () async => _changeBtnListener(),
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all(Colors.orange),
-              ),
-              child: const Text("변경 완료"),
+              borderColor: Colors.orange,
+              text: "변경 완료",
             ),
           ),
         ]),
