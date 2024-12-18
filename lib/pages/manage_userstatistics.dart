@@ -157,7 +157,7 @@ class PersonalStatisticsView extends StatelessWidget {
 
     for (var item in paymentList) {
       payCount += item['payCount'] as int;
-      unPayCount += item['unPayCount'] as int;
+      unPayCount += (item['unPayCount'] as int).abs();
       latePayCount += item['latePayCount'] as int;
     }
   }
@@ -171,7 +171,7 @@ class PersonalStatisticsView extends StatelessWidget {
 
     for (var item in participationList) {
       attendCount += item['attendCount'] as int;
-      notAttendCount += item['notAttendCount'] as int;
+      notAttendCount += (item['notAttendCount'] as int).abs();
       lateAttendCount += item['lateAttendCount'] as int;
       lateNotAttendCount += item['lateNotAttendCount'] as int;
     }
@@ -210,7 +210,7 @@ class PersonalStatisticsView extends StatelessWidget {
             double barmaxY = paymentList
                 .map((entry) => [
                       entry['payAmount']!,
-                      entry['unPayAmount']!,
+                      entry['unPayAmount']!.abs(),
                       entry['latePayAmount']!,
                     ])
                 .expand((e) => e) // 모든 값들을 평탄화하여 한 리스트로 만듦

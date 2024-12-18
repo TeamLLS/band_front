@@ -128,6 +128,9 @@ class _MemberStatisticsState extends State<MemberStatistics> {
             .abs()
             .toDouble();
         int interval = ((maxY / 5).ceil()); // 간격을 정수로 계산 (5등분)
+        if (interval == 0) {
+          interval = 1;
+        }
         int upperBound = interval * 5; // 최대값을 간격에 맞춰 정수로 설정
 
         double barmaxY = dataList
@@ -140,6 +143,9 @@ class _MemberStatisticsState extends State<MemberStatistics> {
             .reduce((a, b) => a > b ? a : b)
             .toDouble();
         int barInterval = ((barmaxY / 5).ceil()); // 간격을 정수로 계산 (5등분)
+        if (barInterval == 0) {
+          barInterval = 1;
+        }
         int barUpperBound = barInterval * 5; // 최대값을 간격에 맞춰 정수로 설정
 
         return SingleChildScrollView(
@@ -581,6 +587,9 @@ class _BudgetStatisticsState extends State<BudgetStatistics> {
             .abs()
             .toDouble();
         int interval = ((maxY / 5).ceil()); // 간격을 정수로 계산 (5등분)
+        if (interval == 0) {
+          interval = 1;
+        }
         int upperBound = interval * 5; // 최대값을 간격에 맞춰 정수로 설정
 
         double barmaxY = dataList
@@ -592,6 +601,9 @@ class _BudgetStatisticsState extends State<BudgetStatistics> {
             .reduce((a, b) => a > b ? a : b)
             .toDouble();
         int barInterval = ((barmaxY / 5).ceil()); // 간격을 정수로 계산 (5등분)
+        if (barInterval == 0) {
+          barInterval = 1;
+        }
         int barUpperBound = barInterval * 5; // 최대값을 간격에 맞춰 정수로 설정
 
         return SingleChildScrollView(
